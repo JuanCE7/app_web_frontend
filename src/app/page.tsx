@@ -1,10 +1,6 @@
-import ButtonAuth from "@/components/ButtonAuth";
+// src/app/page.tsx
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <div >
-      Home Page
-      <ButtonAuth/>
-    </div>
-  );
+  
 }
