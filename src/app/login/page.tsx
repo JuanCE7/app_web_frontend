@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +25,16 @@ export default function AuthCard() {
   const [email, setEmail] = useState<string>("test@test.com");
   const [name, setName] = useState<string>("test");
   const [password, setPassword] = useState<string>("123123");
+  const { data: session } = useSession();
+
   const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
   const handleSubmit2 = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrors([]);
