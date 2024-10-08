@@ -83,112 +83,143 @@ export default function AuthCard() {
 
     router.push("/dashboard");
   };
+
   const renderForm = () => {
     switch (formType) {
       case "login":
         return (
           <>
-              <form onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <Label htmlFor="username">Email</Label>
-              <Input
-                id="username"
-                placeholder="Ingresa tu email"
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <div className="relative">
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <Label htmlFor="username">Email</Label>
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Ingresa tu contraseña"
-                  onChange={(event) => setPassword(event.target.value)}
+                  id="username"
+                  placeholder="Ingresa tu email"
+                  onChange={(event) => setEmail(event.target.value)}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                </Button>
               </div>
-            </div>
-            <div className="flex justify-between text-sm">
-              <button
-                onClick={() => setFormType("forgotUsername")}
-                className="text-blue-600 hover:underline"
-              >
-                Olvidé mi usuario
-              </button>
-              <button
-                onClick={() => setFormType("forgotPassword")}
-                className="text-blue-600 hover:underline"
-              >
-                Olvidé mi contraseña
-              </button>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Ingresa tu contraseña"
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <div className="flex justify-between text-sm">
+                <button
+                  onClick={() => setFormType("forgotUsername")}
+                  className="text-blue-600 hover:underline"
+                >
+                  Olvidé mi usuario
+                </button>
+                <button
+                  onClick={() => setFormType("forgotPassword")}
+                  className="text-blue-600 hover:underline"
+                >
+                  Olvidé mi contraseña
+                </button>
+              </div>
+              <Button type="submit" className="w-full mt-6">
+                {getButtonText()}
+              </Button>
             </form>
+            {errors.length > 0 && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2">
+                <ul className="mb-0">
+                  {errors.map((error) => (
+                    <li key={error} className="list-disc ml-5">
+                      {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
         );
       case "register":
         return (
           <>
-            <div className="space-y-2">
-              <Label htmlFor="newUsername">Nombre</Label>
-              <Input
-                id="newUsername"
-                placeholder="Escriba su nombre"
-                onChange={(event) => setName(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="newUsername">Email</Label>
-              <Input
-                id="newUsername"
-                placeholder="Escriba su email"
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">Contraseña</Label>
-              <div className="relative">
+            <form onSubmit={handleSubmit2}>
+              <div className="space-y-2">
+                <Label htmlFor="newUsername">Nombre</Label>
                 <Input
-                  id="newPassword"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Elige una contraseña"
-                  onChange={(event) => setPassword(event.target.value)}
+                  id="newUsername"
+                  placeholder="Escriba su nombre"
+                  onChange={(event) => setName(event.target.value)}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                </Button>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type={showPassword ? "text" : "password"}
-                placeholder="Confirma tu contraseña"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="newUsername">Email</Label>
+                <Input
+                  id="newUsername"
+                  placeholder="Escriba su email"
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Elige una contraseña"
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                <Input
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirma tu contraseña"
+                />
+              </div>
+              <Button type="submit" className="w-full mt-6">
+                {getButtonText()}
+              </Button>
+            </form>
+            {errors.length > 0 && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2">
+                <ul className="mb-0">
+                  {errors.map((error) => (
+                    <li key={error} className="list-disc ml-5">
+                      {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
         );
       case "forgotUsername":
@@ -259,7 +290,6 @@ export default function AuthCard() {
         </CardHeader>
         <CardContent className="space-y-4">{renderForm()}</CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <Button className="w-full">{getButtonText()}</Button>
           {formType === "login" || formType === "register" ? (
             <div className="text-center text-sm">
               {formType === "login"
@@ -276,7 +306,7 @@ export default function AuthCard() {
             </div>
           ) : (
             <Button
-              variant="ghost"
+              variant="default"
               className="w-full"
               onClick={() => setFormType("login")}
             >
