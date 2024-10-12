@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Logo } from "@/components/Logo";
 import { ToggleTheme } from "@/components/ToggleTheme";
+import { Separator } from "@/components/ui/separator";
 
 type FormType = "login" | "register" | "forgotUsername" | "forgotPassword";
 
@@ -32,11 +33,11 @@ export default function AuthCard() {
 
   useEffect(() => {
     if (session) {
-      router.push("/dashboard");
+      router.push("/");
     }
   }, [session, router]);
   const handleGoogleLogin = () => {
-    signIn("google", { callbackUrl: "/dashboard" });
+    signIn("google", { callbackUrl: "/" });
   };
   const handleSubmit2 = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -75,7 +76,7 @@ export default function AuthCard() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/");
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -93,7 +94,7 @@ export default function AuthCard() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/");
   };
 
   const renderForm = () => {
@@ -136,12 +137,6 @@ export default function AuthCard() {
               </div>
               <div className="flex justify-between text-sm">
                 <button
-                  onClick={() => setFormType("forgotUsername")}
-                  className="text-blue-600 hover:underline"
-                >
-                  Olvidé mi usuario
-                </button>
-                <button
                   onClick={() => setFormType("forgotPassword")}
                   className="text-blue-600 hover:underline"
                 >
@@ -152,14 +147,17 @@ export default function AuthCard() {
                 {getButtonText()}
               </Button>
             </form>
-            <form onSubmit={handleGoogleLogin}>
-              <Button
-                type="submit"
-                className="w-full mt-6 bg-[#3586ff] text-cyan-50 hover:bg-[#3a64a1]"
-              >
-                Inicia con Google
-              </Button>
-            </form>
+            <div className="flex items-center justify-center w-full">
+              <hr className="flex-grow border-t border-gray-300" />
+              <span className="mx-4 text-gray-500">O</span>
+              <hr className="flex-grow border-t border-gray-300" />
+            </div>
+            <Button
+              type="submit"
+              className="w-full mt-6 bg-[#3586ff] text-cyan-50 hover:bg-[#3a64a1]"
+            >
+              Inicia con Google
+            </Button>
             {errors.length > 0 && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2">
                 <ul className="mb-0">
@@ -256,9 +254,7 @@ export default function AuthCard() {
       case "forgotPassword":
         return (
           <div className="space-y-2">
-            <Label htmlFor="usernameOrEmail">
-              Usuario o Correo Electrónico
-            </Label>
+            <Label htmlFor="usernameOrEmail">Correo Electrónico</Label>
             <Input
               id="usernameOrEmail"
               placeholder="Ingresa tu usuario o correo electrónico"
@@ -325,13 +321,24 @@ export default function AuthCard() {
               </button>
             </div>
           ) : (
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={() => setFormType("login")}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Volver al inicio de sesión
-            </Button>
+            <div className="space-y-2 w-full">
+              <Button
+                type="submit"
+                variant={"destructive"}
+                className="w-full mt-6"
+              >
+                {getButtonText()}
+              </Button>
+              <Separator/>
+              <Button
+                variant="default"
+                className="w-full"
+                onClick={() => setFormType("login")}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Volver al inicio de
+                sesión
+              </Button>
+            </div>
           )}
         </CardFooter>
       </Card>

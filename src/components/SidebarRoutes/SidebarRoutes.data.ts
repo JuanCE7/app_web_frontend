@@ -32,11 +32,6 @@ export const dataToolsSidebar = [
     label: "Information",
     href: "/information",
   },
-  {
-    icon: SquareUserRound,
-    label: "About",
-    href: "/about",
-  },
 ];
 
 export const dataSuportSideBar = [
@@ -44,10 +39,5 @@ export const dataSuportSideBar = [
     icon: Settings,
     label: "Settings",
     href: "/settings",
-  },
-  {
-    icon: ShieldCheck,
-    label: "Security",
-    href: "/security",
   },
 ];

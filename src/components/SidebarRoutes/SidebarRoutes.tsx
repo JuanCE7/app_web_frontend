@@ -28,18 +28,19 @@ export function SidebarRoutes() {
         </div>
         <Separator />
         <div className="p-2 md:p-6">
-          <p>SUPPORT</p>
-          {dataSuportSideBar.map((item) => (
-            <SidebarItem key={item.label} item={item} />
-          ))}
-        </div>
-        <Separator />
-        <div className="p-2 md:p-6">
           <p>TOOLS</p>
           {dataToolsSidebar.map((item) => (
             <SidebarItem key={item.label} item={item} />
           ))}
         </div>
+        <Separator />
+        <div className="p-2 md:p-6">
+          <p>SUPPORT</p>
+          {dataSuportSideBar.map((item) => (
+            <SidebarItem key={item.label} item={item} />
+          ))}
+        </div>
+        
       </div>
       <div>
         <div className="text-center p-6">
