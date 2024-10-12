@@ -1,10 +1,10 @@
 import {
-  BarChart4,
-  Building2,
+  SquareUserRound,
+  FolderKanban,
   PanelsTopLeft,
   ShieldCheck,
-  CircleHelpIcon,
-  Calendar,
+  Info,
+  UserPen,
   Settings,
 } from "lucide-react";
 
@@ -15,27 +15,27 @@ export const dataGeneralSidebar = [
     href: "/",
   },
   {
-    icon: Building2,
-    label: "Companies",
-    href: "/companies",
+    icon: FolderKanban,
+    label: "Projects",
+    href: "/projects",
   },
   {
-    icon: Calendar,
-    label: "Calendar",
+    icon: UserPen,
+    label: "Profile",
     href: "/task",
   },
 ];
 
 export const dataToolsSidebar = [
   {
-    icon: CircleHelpIcon,
-    label: "Faqs",
-    href: "/faqs",
+    icon: Info,
+    label: "Information",
+    href: "/information",
   },
   {
-    icon: BarChart4,
-    label: "Analytics",
-    href: "/analytics",
+    icon: SquareUserRound,
+    label: "About",
+    href: "/about",
   },
 ];
 

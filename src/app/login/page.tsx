@@ -12,9 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { Logo } from "@/components/Logo";
+import { ToggleTheme } from "@/components/ToggleTheme";
 
 type FormType = "login" | "register" | "forgotUsername" | "forgotPassword";
 
@@ -34,7 +35,9 @@ export default function AuthCard() {
       router.push("/dashboard");
     }
   }, [session, router]);
-
+  const handleGoogleLogin = () => {
+    signIn("google", { callbackUrl: "/dashboard" });
+  };
   const handleSubmit2 = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrors([]);
@@ -147,6 +150,14 @@ export default function AuthCard() {
               </div>
               <Button type="submit" className="w-full mt-6">
                 {getButtonText()}
+              </Button>
+            </form>
+            <form onSubmit={handleGoogleLogin}>
+              <Button
+                type="submit"
+                className="w-full mt-6 bg-[#3586ff] text-cyan-50 hover:bg-[#3a64a1]"
+              >
+                Inicia con Google
               </Button>
             </form>
             {errors.length > 0 && (
@@ -285,13 +296,13 @@ export default function AuthCard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <ToggleTheme />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <Logo />
           </div>
           <CardTitle className="text-2xl text-center font-bold">
             {getFormTitle()}

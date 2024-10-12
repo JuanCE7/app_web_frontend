@@ -10,12 +10,16 @@ import {
   dataToolsSidebar,
 } from "./SidebarRoutes.data";
 import { Logo } from "@/components/Logo";
+import { useRouter } from "next/navigation";
 
 export function SidebarRoutes() {
+  const router = useRouter();
   return (
     <div className="flex flex-col justify-between h-full">
       <div>
-      <Logo/>
+        <div onClick={() => router.push("/")}>
+          <Logo />
+        </div>
         <div className="p-2 md:p-6">
           <p>GENERAL</p>
           {dataGeneralSidebar.map((item) => (
@@ -39,7 +43,11 @@ export function SidebarRoutes() {
       </div>
       <div>
         <div className="text-center p-6">
-          <Button variant="outline" className="w-full"  onClick={() => signOut()}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+          >
             Signout
           </Button>
         </div>
