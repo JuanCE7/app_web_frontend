@@ -22,7 +22,7 @@ export const dataGeneralSidebar = [
   {
     icon: UserPen,
     label: "Profile",
-    href: "/task",
+    href: "/profile",
   },
 ];
 

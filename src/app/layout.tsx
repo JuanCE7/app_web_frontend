@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_Display } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import SessionAuthProvider from "../context/SessionAuthProvider";
+import { Toaster } from "@/components/ui/toaster"
 
 import "./globals.css";
 
@@ -27,6 +28,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>
