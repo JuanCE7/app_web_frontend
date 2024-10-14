@@ -14,19 +14,26 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormCreateProjectProps } from "./FormCreateProject.types";
-import { useState } from "react";
 import { UploadButton } from "@/utils/uploadthing";
 import { toast } from "@/hooks/use-toast";
+import { createProject } from "../../projects.api";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { getUserLogged } from "@/app/login/login.api";
+import { useState, useEffect } from "react";
 
 const formSchema = z.object({
   name: z.string(),
   description: z.string().min(2),
   image: z.string(),
+  creatorId: z.string(),
 });
 
 export function FormCreateProject(props: FormCreateProjectProps) {
   const { setOpenModalCreate } = props;
   const [photoUploaded, setPhotoUploaded] = useState(false);
+  const router = useRouter();
+  const { data: session } = useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -34,13 +41,31 @@ export function FormCreateProject(props: FormCreateProjectProps) {
       name: "",
       description: "",
       image: "",
+      creatorId: "",
     },
   });
 
   const { isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    try {
+      if (session?.user?.email) {
+        const user = await getUserLogged(session.user.email);
+        values.creatorId = user.id; 
+        console.log("Final values with creatorId:", values);
+        await createProject(values);
+        toast({ title: "Project created" });
+        router.refresh();
+        setOpenModalCreate(false);
+      } else {
+        throw new Error("User session not available");
+      }
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -103,7 +128,7 @@ export function FormCreateProject(props: FormCreateProjectProps) {
                         setPhotoUploaded(true);
                       }}
                       onUploadError={(error: Error) => {
-                        console.log(error)
+                        console.log(error);
                         toast({
                           title: "Error uploading photo",
                         });
@@ -116,7 +141,9 @@ export function FormCreateProject(props: FormCreateProjectProps) {
             )}
           />
         </div>
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={!isValid}>
+          Crear
+        </Button>
       </form>
     </Form>
   );

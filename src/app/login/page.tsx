@@ -88,12 +88,11 @@ export default function AuthCard() {
       password,
       redirect: false,
     });
-
+    
     if (responseNextAuth?.error) {
       setErrors(responseNextAuth.error.split(","));
       return;
     }
-
     router.push("/");
   };
 

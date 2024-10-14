@@ -5,8 +5,29 @@ import { ToggleTheme } from "../ToggleTheme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu } from "lucide-react";
 import { SidebarRoutes } from "../SidebarRoutes";
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react"; 
+import { getUserLogged } from "@/app/login/login.api";
 
 export function Navbar() {
+  const { data: session } = useSession();
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (session?.user?.email) {
+        try {
+          let user = await getUserLogged(session.user.email);
+          setUserName(user.firstName+" "+user.lastName); 
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+
+    fetchUserData(); 
+  }, [session?.user?.email]);
+
   return (
     <nav className="flex items-center px-2 gap-x-4 md:px-6 justify-between w-full bg-background border-b h-20">
       <div className="block xl:hidden">
@@ -22,6 +43,7 @@ export function Navbar() {
       <div className="relative w-[300px]"></div>
       <div className="flex gap-x-2 items-center">
         <ToggleTheme />
+        {userName && <p>{userName}</p>}
         <Avatar>
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>
