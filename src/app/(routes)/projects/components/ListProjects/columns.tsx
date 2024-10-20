@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Pencil, Share2, ExternalLink } from "lucide-react";
 
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -83,12 +83,25 @@ export const columns: ColumnDef<Project>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/companies/${id}`}>
+          <Link href={`/projects/${id}/edit`}>
               <DropdownMenuItem>
                 <Pencil className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>
             </Link>
+            <Link href={`/projects/${id}/share`}>
+              <DropdownMenuItem>
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </DropdownMenuItem>
+            </Link>
+            <Link href={`/projects/${id}/open`}>
+              <DropdownMenuItem>
+                <ExternalLink  className="w-4 h-4 mr-2" />
+                Open
+              </DropdownMenuItem>
+            </Link>
+              
           </DropdownMenuContent>
         </DropdownMenu>
       );
