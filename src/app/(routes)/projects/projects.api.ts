@@ -24,9 +24,9 @@ console.log(productData)
   }
 }
 
-export async function getProjects() {
+export async function getProjects(userId: string): Promise<any> {
   try {
-    const res = await fetch(`${BACKEND_URL}/projects`, {
+    const res = await fetch(`${BACKEND_URL}/projects/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -34,19 +34,18 @@ export async function getProjects() {
     });
 
     if (!res.ok) {
-      const errorData = await res.json(); 
-      throw new Error(errorData.message || 'Error fetching projects');
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Error fetching project");
     }
 
-    const data = await res.json(); 
-    console.log(data); 
-    return data; 
+    const data = await res.json();
+    console.log(data);
+    return data;
   } catch (error) {
-    console.error("Failed to fetch projects:", error);
+    console.error("Failed to fetch project:", error);
     throw error;
   }
 }
-
 export async function getProjectById(id: string): Promise<any>  {
   try {
     const res = await fetch(`${BACKEND_URL}/projects/${id}`, {

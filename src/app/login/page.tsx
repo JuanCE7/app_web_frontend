@@ -17,17 +17,58 @@ import { signIn } from "next-auth/react";
 import { Logo } from "@/components/Logo";
 import { ToggleTheme } from "@/components/ToggleTheme";
 import { Separator } from "@/components/ui/separator";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { z } from "zod";
+import { toast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { registerUser } from "./login.api";
 
 type FormType = "login" | "register" | "forgotUsername" | "forgotPassword";
+
+const formSchema = z
+  .object({
+    firstName: z.string().min(3, "El Nombre debe tener al menos 3 caracteres"),
+    lastName: z.string().min(3, "El Apellido debe tener al menos 3 caracteres"),
+    email: z.string().email("Correo No válido"),
+    password: z
+      .string()
+      .min(6, "La contraseña debe tener al menos 6 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function AuthCard() {
   const [formType, setFormType] = useState<FormType>("login");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const [email, setEmail] = useState<string>("test@test.com");
-  const [name, setName] = useState<string>("test");
-  const [password, setPassword] = useState<string>("123123");
+  const [email, setEmail] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [passwordCopy, setPasswordCopy] = useState<string>("");
   const { data: session } = useSession();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
   const router = useRouter();
 
@@ -36,47 +77,45 @@ export default function AuthCard() {
       router.push("/");
     }
   }, [session, router]);
+
+  useEffect(() => {
+    setErrors([]);
+  }, [formType]);
+
   const handleGoogleLogin = () => {
     signIn("google", { callbackUrl: "/" });
   };
-  const handleSubmit2 = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setErrors([]);
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    let res;
+    try {
+      res = await registerUser(values);
+
+      if (!res.ok) {
+        const responseAPI = await res.json();
+        throw new Error(responseAPI.message);
       }
-    );
 
-    const responseAPI = await res.json();
+      const responseNextAuth = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
 
-    if (!res.ok) {
-      setErrors(responseAPI.message);
-      return;
+      console.log("Submitting registration with values:", values);
+
+      if (responseNextAuth?.error) throw new Error(responseNextAuth.error);
+
+      toast({ title: "Registration successful" });
+      router.push("/");
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description:
+          error instanceof Error ? res?.json.toString() : "An error occurred",
+        variant: "destructive",
+      });
     }
-
-    const responseNextAuth = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (responseNextAuth?.error) {
-      setErrors(responseNextAuth.error.split(","));
-      return;
-    }
-
-    router.push("/");
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -88,7 +127,7 @@ export default function AuthCard() {
       password,
       redirect: false,
     });
-    
+
     if (responseNextAuth?.error) {
       setErrors(responseNextAuth.error.split(","));
       return;
@@ -173,70 +212,108 @@ export default function AuthCard() {
       case "register":
         return (
           <>
-            <form onSubmit={handleSubmit2}>
-              <div className="space-y-2">
-                <Label htmlFor="newUsername">Nombre</Label>
-                <Input
-                  id="newUsername"
-                  placeholder="Escriba su nombre"
-                  onChange={(event) => setName(event.target.value)}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ingrese su nombre" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newUsername">Email</Label>
-                <Input
-                  id="newUsername"
-                  placeholder="Escriba su email"
-                  onChange={(event) => setEmail(event.target.value)}
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Apellido</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ingrese su apellido" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">Contraseña</Label>
-                <div className="relative">
-                  <Input
-                    id="newPassword"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Elige una contraseña"
-                    onChange={(event) => setPassword(event.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-500" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-500" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-                <Input
-                  id="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Confirma tu contraseña"
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ingrese su correo"
+                          type="email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <Button type="submit" className="w-full mt-6">
-                {getButtonText()}
-              </Button>
-            </form>
-            {errors.length > 0 && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2">
-                <ul className="mb-0">
-                  {errors.map((error) => (
-                    <li key={error} className="list-disc ml-5">
-                      {error}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Ingrese su contraseña"
+                            type={showPassword ? "text" : "password"}
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-gray-500" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-500" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirmar Contraseña</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Confirme su contraseña"
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full mt-6">
+                  Registro
+                </Button>
+              </form>
+            </Form>
           </>
         );
       case "forgotUsername":
@@ -328,7 +405,7 @@ export default function AuthCard() {
               >
                 {getButtonText()}
               </Button>
-              <Separator/>
+              <Separator />
               <Button
                 variant="default"
                 className="w-full"

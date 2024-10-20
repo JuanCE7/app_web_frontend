@@ -20,7 +20,7 @@ import { createProject } from "../../projects.api";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getUserLogged } from "@/app/login/login.api";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const formSchema = z.object({
   name: z.string(),
