@@ -1,4 +1,4 @@
-export default function ProjectShareIdPage() {
+export default function ProjectEditIdPage() {
     return (
       <div>edit</div>
     )
