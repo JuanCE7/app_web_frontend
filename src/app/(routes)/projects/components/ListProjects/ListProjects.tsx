@@ -6,11 +6,16 @@ import { getUserLogged } from '@/app/login/login.api';
 import { getProjects } from '../../projects.api';
 import { DataTable } from './data-table';
 import { columns } from './columns';
+import { redirect } from 'next/navigation';
 
 export default function ListProjects() {
   const { data: session } = useSession();
   const [listProjects, setListProjects] = useState([]);
 
+  if(!session){
+    return redirect("/")
+  }
+  
   useEffect(() => {
     const fetchProjects = async () => {
       try {

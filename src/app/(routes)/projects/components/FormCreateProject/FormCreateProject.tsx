@@ -55,8 +55,8 @@ export function FormCreateProject(props: FormCreateProjectProps) {
         console.log("Final values with creatorId:", values);
         await createProject(values);
         toast({ title: "Project created" });
-        router.refresh();
         setOpenModalCreate(false);
+        router.refresh();
       } else {
         throw new Error("User session not available");
       }

@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowUpDown, MoreHorizontal, Pencil, Share2, ExternalLink } from "lucide-react";
+import {
+  ArrowUpDown,
+  MoreHorizontal,
+  Pencil,
+  Share2,
+  ExternalLink,
+} from "lucide-react";
 
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -16,12 +22,12 @@ import Link from "next/link";
 import Image from "next/image";
 
 export interface Project {
-    image?: string;
-    id?: string;
-    name: string;
-    description?: string;
-    creator?: string;
-  }
+  image?: string;
+  id?: string;
+  name: string;
+  description?: string;
+  creator?: string;
+}
 
 export const columns: ColumnDef<Project>[] = [
   {
@@ -33,7 +39,7 @@ export const columns: ColumnDef<Project>[] = [
       return (
         <div className="px-3">
           <Image
-            src={typeof image === "string" ? image : "/logo.png"}
+            src={image && typeof image === "string" && image !== "" ? image : '/no_image.png'}
             width={40}
             height={40}
             alt="Image"
@@ -83,7 +89,7 @@ export const columns: ColumnDef<Project>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-          <Link href={`/projects/${id}/edit`}>
+            <Link href={`/projects/${id}/edit`}>
               <DropdownMenuItem>
                 <Pencil className="w-4 h-4 mr-2" />
                 Edit
@@ -97,11 +103,10 @@ export const columns: ColumnDef<Project>[] = [
             </Link>
             <Link href={`/projects/${id}/open`}>
               <DropdownMenuItem>
-                <ExternalLink  className="w-4 h-4 mr-2" />
+                <ExternalLink className="w-4 h-4 mr-2" />
                 Open
               </DropdownMenuItem>
             </Link>
-              
           </DropdownMenuContent>
         </DropdownMenu>
       );
