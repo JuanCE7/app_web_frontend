@@ -5,7 +5,7 @@ import { Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { FooterProjectProps } from "./FooterCompany.types";
+import { FooterProjectProps } from "./FooterProject.types";
 import { toast } from "@/hooks/use-toast";
 import { deleteProject } from "@/app/(routes)/projects/projects.api";
 

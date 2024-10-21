@@ -66,7 +66,7 @@ export function ProjectForm(props: ProjectFormProps) {
               <FormItem>
                 <FormLabel>Project name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Company name..." type="text" {...field} />
+                  <Input placeholder="Project name..." type="text" {...field} />
                 </FormControl>
               </FormItem>
             )}
