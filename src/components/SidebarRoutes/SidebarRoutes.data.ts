@@ -1,8 +1,6 @@
 import {
-  SquareUserRound,
   FolderKanban,
   PanelsTopLeft,
-  ShieldCheck,
   Info,
   UserPen,
   Settings,

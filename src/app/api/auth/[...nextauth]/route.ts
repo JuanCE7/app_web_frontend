@@ -48,6 +48,11 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
+  session:{
+    strategy: "jwt",
+    maxAge: 30 * 60,
+    updateAge: 10 * 60,
+  }
 });
 
 export { handler as GET, handler as POST };

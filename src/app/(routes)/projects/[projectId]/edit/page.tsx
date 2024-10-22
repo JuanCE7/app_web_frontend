@@ -2,9 +2,14 @@
 import { useSession } from "next-auth/react";
 import { getProjectById } from "../../projects.api";
 import { redirect } from "next/navigation";
-import { Header } from "./components/Header";
 import { ProjectInformation } from "./components/ProjectInformation";
 import { FooterProject } from "./components/FooterProject";
+import { Header } from "@/components/Header";
+
+const item = {
+  name: "Edit Project",
+  href: "/projects",
+};
 
 export default async function EditProject({
   params,
@@ -24,7 +29,7 @@ export default async function EditProject({
 
   return (
     <div>
-      <Header />
+      <Header key={item.name} item={item}/>
       <ProjectInformation project={project} />
       <FooterProject projectId={project.id} />
     </div>

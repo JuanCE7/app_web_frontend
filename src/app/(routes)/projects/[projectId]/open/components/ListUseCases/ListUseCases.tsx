@@ -2,27 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/app/login/login.api";
-import { getProjects } from "../../projects.api";
 import { columns } from "./columns";
 import { redirect } from "next/navigation";
+import { getUseCases } from "../../useCases.api";
+import { UseCaseProps } from "./UseCase.types";
 import { DataTable } from "@/components/Data-Table";
 
-export default function ListProjects() {
+export default function ListUseCases(props: UseCaseProps) {
   const { data: session } = useSession();
-  const [listProjects, setListProjects] = useState([]);
+  const [listUseCases, setListUseCases] = useState([]);
+  const { projectId } = props;
 
   if (!session) {
     return redirect("/");
   }
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchUseCases = async () => {
       try {
         if (session?.user?.email) {
-          const user = await getUserLogged(session.user.email);
-          const projects = await getProjects(user.id);
-          setListProjects(projects);
+          const useCases = await getUseCases(projectId);
+          setListUseCases(useCases);
         } else {
           throw new Error("User session not available");
         }
@@ -31,13 +31,13 @@ export default function ListProjects() {
       }
     };
 
-    fetchProjects();
+    fetchUseCases();
   }, [session]);
 
   return (
     <DataTable
       columns={columns}
-      data={listProjects}
+      data={listUseCases}
       placeholder="Filter for name ..."
       filter="name"
     />
