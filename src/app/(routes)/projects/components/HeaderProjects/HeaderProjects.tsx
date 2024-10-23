@@ -20,16 +20,14 @@ export function HeaderProjects() {
       <h2 className="text-2xl"> Lista de Proyectos</h2>
       <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
         <DialogTrigger asChild>
-          <Button>Crear Proyecto
-            
-          </Button>
+          <Button>Crear Proyecto</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
             <DialogTitle>Create Proyecto</DialogTitle>
             <DialogDescription>Crear Nuevo Proyecto</DialogDescription>
           </DialogHeader>
-          <FormCreateProject setOpenModalCreate={setOpenModalCreate}/>
+          <FormCreateProject setOpenModalCreate={setOpenModalCreate} />
         </DialogContent>
       </Dialog>
     </div>

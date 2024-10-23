@@ -44,9 +44,9 @@ export async function getUseCases(projectId: string): Promise<any> {
   }
 }
 
-export async function getProjectById(id: string): Promise<any>  {
+export async function getUseCaseById(id: string): Promise<any>  {
   try {
-    const res = await fetch(`${BACKEND_URL}/usecases/usecase/${id}`, {
+    const res = await fetch(`${BACKEND_URL}/usecases/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -66,14 +66,14 @@ export async function getProjectById(id: string): Promise<any>  {
   }
 }
 
-export async function updateProject(id: string, projectData: any) {
+export async function updateUseCase(id: string, useCaseData: any) {
   try {
     const res = await fetch(`${BACKEND_URL}/usecases/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(projectData),
+      body: JSON.stringify(useCaseData),
     });
 
     if (!res.ok) {
@@ -89,7 +89,7 @@ export async function updateProject(id: string, projectData: any) {
   }
 }
 
-export async function deleteProject(id: string) {
+export async function deleteUseCase(id: string) {
   try {
     const res = await fetch(`${BACKEND_URL}/usecases/${id}`, {
       method: "DELETE",

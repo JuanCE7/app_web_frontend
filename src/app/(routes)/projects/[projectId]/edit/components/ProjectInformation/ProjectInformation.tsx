@@ -14,7 +14,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
               typeof project.image === "string" ? project.image : "/logo.png"
             }
             alt="Project Image"
-            width={50}
+            width={150}
             height={50}
             className="mb-3 rounded-lg"
           />

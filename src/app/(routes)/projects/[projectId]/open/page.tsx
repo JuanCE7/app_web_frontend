@@ -32,7 +32,7 @@ export default async function OpenProject({
   return (
     <div>
       <Header key={item.name} item={item} />
-      <HeaderUseCases />
+      <HeaderUseCases projectId={project.id}/>
       <ListUseCases projectId={project.id} />
     </div>
   );
