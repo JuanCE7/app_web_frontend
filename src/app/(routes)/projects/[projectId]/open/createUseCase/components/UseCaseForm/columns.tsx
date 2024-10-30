@@ -20,13 +20,27 @@ import {
 
 import Link from "next/link";
 
-export interface UseCase {
-  entries?: string;
+export interface Entry {
+  id: number;
+  value: string;
 }
 
-export const columns: ColumnDef<UseCase>[] = [
+export const columns: ColumnDef<Entry>[] = [
   {
-    accessorKey: "entries",
+    accessorKey: "id",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+        >
+          ID
+          <ArrowUpDown className="w-4 h-4 ml-2" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "value",
     header: ({ column }) => {
       return (
         <Button
@@ -43,7 +57,7 @@ export const columns: ColumnDef<UseCase>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      const { entries } = row.original;
+      const { value } = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger>
@@ -53,12 +67,6 @@ export const columns: ColumnDef<UseCase>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/projects/${entries}/edit`}>
-              <DropdownMenuItem>
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-            </Link>
           </DropdownMenuContent>
         </DropdownMenu>
       );

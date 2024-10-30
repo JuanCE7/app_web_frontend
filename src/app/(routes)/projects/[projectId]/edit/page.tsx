@@ -16,7 +16,6 @@ export default async function EditProject({
   params: { projectId: string };
 }) {
   const session = await getServerSession();
-console.log("firstasd")
   if (!session) {
     return redirect("/");
   }

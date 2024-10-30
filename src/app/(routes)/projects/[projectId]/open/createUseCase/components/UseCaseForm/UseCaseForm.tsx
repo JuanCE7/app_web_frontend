@@ -1,8 +1,9 @@
+"use client"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,27 +25,26 @@ import { useSession } from "next-auth/react";
 
 export function UseCaseForm(props: UseCaseFormProps) {
   const { useCase } = props;
-  const [listEntries, setListEntries] = useState<any[]>([]);
-  const { data: session } = useSession();
+  const [listEntries, setListEntries] = useState([""]);
   const router = useRouter();
   const isEditMode = Boolean(useCase?.id);
+  const { data: session } = useSession();
+  
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        if (session?.user?.email) {
+          setListEntries(useCase?.entries);
+        } else {
+          throw new Error("User session not available");
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
 
-  // useEffect(() => {
-  //   const fetchProjects = async () => {
-  //     try {
-  //       if (session?.user?.email) {
-  //         // Procesa los datos según la sesión del usuario.
-  //         setListEntries(useCase?.entries || []);
-  //       } else {
-  //         throw new Error("User session not available");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching projects:", error);
-  //     }
-  //   };
-
-  //   if (session) fetchProjects();
-  // }, [session, useCase]);
+    if (session) fetchProjects();
+  }, [session, useCase]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -82,9 +82,9 @@ export function UseCaseForm(props: UseCaseFormProps) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Use Case Name</FormLabel>
+                <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="Use Case name..." type="text" {...field} />
+                  <Input placeholder="Nombre de caso de uso..." type="text" {...field} />
                 </FormControl>
               </FormItem>
             )}
@@ -94,15 +94,21 @@ export function UseCaseForm(props: UseCaseFormProps) {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Descripción</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Description..." {...field} />
+                  <Textarea placeholder="Descripción..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
+        <DataTable
+          columns={columns}
+          data={listEntries}
+          placeholder="Filter for entries ..."
+          filter="entries"
+        />
         <DataTable
           columns={columns}
           data={listEntries}

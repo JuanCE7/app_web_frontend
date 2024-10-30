@@ -1,44 +1,21 @@
-"use client";
-
-import { useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
-import { ExternalLink } from "lucide-react";
-import { Header } from "@/components/Header";
-import { useEffect } from "react";
+import { redirect } from "next/navigation";
 import { UseCaseInformation } from "./components/UseCaseInformation";
 import { getUseCaseById } from "../useCases.api";
+import { HeaderUseCase } from "./components/HeaderUseCase";
 
 export default async function OpenUseCase({
   params,
 }: {
   params: { projectId: string , useCaseId: string};
 }) {
-  const { status } = useSession();
-  const router = useRouter();
-  
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
   const useCase = await getUseCaseById(params.useCaseId);
   if (!useCase) {
     return redirect("/");
   }
-  const item = {
-    icon: ExternalLink,
-    name: "Use Case Create",
-    href: `/projects/${params.projectId}/open`, 
-  };
 
   return (
     <div>
-      <Header key={item.name} item={item} />
+      <HeaderUseCase projectId={params.projectId} />
       <UseCaseInformation useCase={useCase}/>
     </div>
   );
