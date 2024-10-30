@@ -3,7 +3,6 @@ type Project = {
   name: string;
   id: string;
   description: string;
-  creatorId: string;
 };
 
 export type ProjectFormProps = {

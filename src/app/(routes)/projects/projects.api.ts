@@ -15,7 +15,6 @@ export async function createProject(projectData: any) {
       throw new Error(errorData.message || 'Error creating project');
     }
 
-    const data = await res.json();
   } catch (error) {
     console.error("Failed to create project:", error);
     throw error;

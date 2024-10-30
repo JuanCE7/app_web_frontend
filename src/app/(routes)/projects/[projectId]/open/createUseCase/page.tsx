@@ -1,4 +1,5 @@
 "use client";
+
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
 import { ExternalLink } from "lucide-react";
@@ -7,10 +8,10 @@ import { useEffect } from "react";
 import { UseCaseInformation } from "./components/UseCaseInformation";
 import { getUseCaseById } from "../useCases.api";
 
-export default async function OpenProject({
+export default async function OpenUseCase({
   params,
 }: {
-  params: { useCaseId: string };
+  params: { projectId: string , useCaseId: string};
 }) {
   const { status } = useSession();
   const router = useRouter();
@@ -32,7 +33,7 @@ export default async function OpenProject({
   const item = {
     icon: ExternalLink,
     name: "Use Case Create",
-    href: `/projects/${params.useCaseId}/open`, 
+    href: `/projects/${params.projectId}/open`, 
   };
 
   return (

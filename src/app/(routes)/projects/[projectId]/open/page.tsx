@@ -1,24 +1,15 @@
-"use client";
-import { useSession } from "next-auth/react";
 import { getProjectById } from "../../projects.api";
 import { redirect } from "next/navigation";
-import {ExternalLink } from 'lucide-react'
-import { Header } from "@/components/Header";
 import ListUseCases from "./components/ListUseCases/ListUseCases";
 import { HeaderUseCases } from "./components/HeaderUseCases";
-
-const item = {
-  icon: ExternalLink ,
-  name: "Open Project",
-  href: "/projects",
-};
+import { getServerSession } from "@/app/api/auth/[...nextauth]/auth";
 
 export default async function OpenProject({
   params,
 }: {
   params: { projectId: string };
 }) {
-  const { data: session } = useSession();
+  const session = await getServerSession();
 
   if (!session) {
     return redirect("/");
@@ -31,7 +22,6 @@ export default async function OpenProject({
 
   return (
     <div>
-      <Header key={item.name} item={item} />
       <HeaderUseCases projectId={project.id}/>
       <ListUseCases projectId={project.id} />
     </div>

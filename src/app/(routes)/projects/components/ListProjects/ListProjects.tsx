@@ -1,43 +1,25 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { getUserLogged } from "@/app/login/login.api";
 import { getProjects } from "../../projects.api";
 import { columns } from "./columns";
 import { redirect } from "next/navigation";
 import { DataTable } from "@/components/Data-Table";
+import { getServerSession } from "@/app/api/auth/[...nextauth]/auth";
 
-export default function ListProjects() {
-  const { data: session } = useSession();
-  const [listProjects, setListProjects] = useState([]);
-
+export default async function ListProjects() {
+  const session = await getServerSession();
+  console.log(session?.user.email);
+  
   if (!session) {
-    return redirect("/");
+    redirect("/login");  
   }
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        if (session?.user?.email) {
-          const user = await getUserLogged(session.user.email);
-          const projects = await getProjects(user.id);
-          setListProjects(projects);
-        } else {
-          throw new Error("User session not available");
-        }
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
-
-    fetchProjects();
-  }, [session]);
+  const user = await getUserLogged(session.user.email);
+  const projects = await getProjects(user.id);
 
   return (
     <DataTable
       columns={columns}
-      data={listProjects}
+      data={projects}
       placeholder="Filter for name ..."
       filter="name"
     />

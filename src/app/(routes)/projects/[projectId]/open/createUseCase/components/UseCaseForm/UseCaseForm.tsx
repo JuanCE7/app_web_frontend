@@ -1,11 +1,8 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,66 +14,55 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { UseCaseFormProps } from "./UseCaseForm.types";
 import { formSchema } from "./UseCaseForm.form";
 import { toast } from "@/hooks/use-toast";
-import {
-  createUseCase,
-  getUseCaseById,
-  updateUseCase,
-} from "../../../useCases.api";
+import { createUseCase, updateUseCase } from "../../../useCases.api";
 import { DataTable } from "@/components/Data-Table";
 import { columns } from "./columns";
 import { useSession } from "next-auth/react";
 
 export function UseCaseForm(props: UseCaseFormProps) {
   const { useCase } = props;
-  const [useCases, setUseCases] = useState([]);
+  const [listEntries, setListEntries] = useState<any[]>([]);
   const { data: session } = useSession();
-
   const router = useRouter();
-
   const isEditMode = Boolean(useCase?.id);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        if (session?.user?.email) {
-          setUseCases(useCase);
-        } else {
-          throw new Error("User session not available");
-        }
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchProjects = async () => {
+  //     try {
+  //       if (session?.user?.email) {
+  //         // Procesa los datos según la sesión del usuario.
+  //         setListEntries(useCase?.entries || []);
+  //       } else {
+  //         throw new Error("User session not available");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching projects:", error);
+  //     }
+  //   };
 
-    fetchProjects();
-  }, []);
+  //   if (session) fetchProjects();
+  // }, [session, useCase]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: useCase?.name || "",
       description: useCase?.description || "",
-      image: useCase?.image || "",
+      entries: useCase?.entries || "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (isEditMode) {
-        // Modo edición
         await updateUseCase(useCase.id, values);
-        toast({
-          title: "Project updated!",
-        });
+        toast({ title: "Project updated!" });
       } else {
-        // Modo creación
         await createUseCase(values);
-        toast({
-          title: "Project created!",
-        });
+        toast({ title: "Project created!" });
       }
       router.push("/projects");
     } catch (error) {
@@ -98,17 +84,11 @@ export function UseCaseForm(props: UseCaseFormProps) {
               <FormItem>
                 <FormLabel>Use Case Name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Use Case name..."
-                    type="text"
-                    {...field}
-                  />
+                  <Input placeholder="Use Case name..." type="text" {...field} />
                 </FormControl>
               </FormItem>
             )}
           />
-
-          {/* Descripción del proyecto */}
           <FormField
             control={form.control}
             name="description"
@@ -116,11 +96,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Description..."
-                    {...field}
-                    value={form.getValues().description ?? ""}
-                  />
+                  <Textarea placeholder="Description..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -129,7 +105,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
         </div>
         <DataTable
           columns={columns}
-          data={listUseCases}
+          data={listEntries}
           placeholder="Filter for entries ..."
           filter="entries"
         />

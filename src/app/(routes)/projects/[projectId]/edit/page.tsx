@@ -1,10 +1,9 @@
-"use client";
-import { useSession } from "next-auth/react";
 import { getProjectById } from "../../projects.api";
 import { redirect } from "next/navigation";
 import { ProjectInformation } from "./components/ProjectInformation";
 import { FooterProject } from "./components/FooterProject";
 import { Header } from "@/components/Header";
+import { getServerSession } from "@/app/api/auth/[...nextauth]/auth";
 
 const item = {
   name: "Edit Project",
@@ -16,8 +15,8 @@ export default async function EditProject({
 }: {
   params: { projectId: string };
 }) {
-  const { data: session } = useSession();
-
+  const session = await getServerSession();
+console.log("firstasd")
   if (!session) {
     return redirect("/");
   }
