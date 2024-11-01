@@ -20,7 +20,6 @@ export function ProjectInformation(props: ProjectInformationProps) {
               className="mb-3 rounded-lg"
             />
           </div>
-
           <ProjectForm project={project} />
         </div>
       </div>

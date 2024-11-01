@@ -7,7 +7,6 @@ import { getServerSession } from "@/app/api/auth/[...nextauth]/auth";
 
 export default async function ListProjects() {
   const session = await getServerSession();
-  console.log(session?.user.email);
   
   if (!session) {
     redirect("/login");  

@@ -82,10 +82,6 @@ export default function AuthCard() {
     setErrors([]);
   }, [formType]);
 
-  const handleGoogleLogin = () => {
-    signIn("google", { callbackUrl: "/" });
-  };
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let res;
     try {

@@ -12,7 +12,7 @@ export default async function OpenProject({
   const session = await getServerSession();
 
   if (!session) {
-    return redirect("/");
+    return redirect("/login");
   }
 
   const project = await getProjectById(params.projectId);

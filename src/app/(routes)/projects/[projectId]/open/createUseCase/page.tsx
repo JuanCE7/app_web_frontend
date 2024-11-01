@@ -9,13 +9,10 @@ export default async function OpenUseCase({
   params: { projectId: string , useCaseId: string};
 }) {
   const useCase = await getUseCaseById(params.useCaseId);
-  if (!useCase) {
-    return redirect("/");
-  }
 
   return (
     <div>
-      <HeaderUseCase projectId={params.projectId} />
+      <HeaderUseCase projectId={params.projectId} useCaseId={params.useCaseId}/>
       <UseCaseInformation useCase={useCase}/>
     </div>
   );
