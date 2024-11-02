@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,6 +21,11 @@ import { useSession } from "next-auth/react";
 import { createUseCase } from "../../../useCases.api";
 import { Table, TableRow, TableCell } from "@/components/ui/table";
 
+type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
+type FlowType = { name: string; steps: string[] };
+type ItemType = 'entries' | 'preconditions' | 'postconditions';
+type FlowsType = 'mainFlow' | 'alternateFlows';
+
 export function UseCaseForm(props: UseCaseFormProps) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -31,140 +36,268 @@ export function UseCaseForm(props: UseCaseFormProps) {
       displayId: "",
       name: "",
       description: "",
-      entries: "",
-      preconditions: "",
-      postconditions: "",
-      mainFlow: "",
-      alternateFlows: "",
+      entries: [],
+      preconditions: [],
+      postconditions: [],
+      mainFlow: [{ name: "", steps: [] }],
+      alternateFlows: [{ name: "", steps: [] }],
+      projectId: "",
     },
   });
 
+  // Estados para las listas
   const [entries, setEntries] = useState<string[]>([]);
   const [preconditions, setPreconditions] = useState<string[]>([]);
   const [postconditions, setPostconditions] = useState<string[]>([]);
-  const [mainFlow, setMainFlow] = useState<{ name: string; steps: string[] }[]>(
-    []
-  );
-  const [alternateFlows, setAlternateFlows] = useState<
-    { name: string; steps: string[] }[]
-  >([]);
+  const [mainFlow, setMainFlow] = useState<FlowType[]>([]);
+  const [alternateFlows, setAlternateFlows] = useState<FlowType[]>([]);
 
-  const [entriesInput, setEntriesInput] = useState("");
-  const [preconditionInput, setPreconditionInput] = useState("");
-  const [postconditionInput, setPostconditionInput] = useState("");
-  const [mainFlowInput, setMainFlowInput] = useState("");
-  const [alternateFlowInput, setAlternateFlowInput] = useState("");
+  // Estados para los inputs temporales usando useCallback
+  const [tempInputs, setTempInputs] = useState({
+    entries: "",
+    preconditions: "",
+    postconditions: "",
+    mainFlow: "",
+    alternateFlows: "",
+  });
 
-  // Separando stepInputs para cada flujo
-  const [mainFlowStepInputs, setMainFlowStepInputs] = useState<{
-    [key: number]: string;
-  }>({});
-  const [alternateFlowStepInputs, setAlternateFlowStepInputs] = useState<{
-    [key: number]: string;
-  }>({});
+  const [tempStepInputs, setTempStepInputs] = useState<{
+    [key in FlowsType]: { [key: number]: string };
+  }>({
+    mainFlow: {},
+    alternateFlows: {},
+  });
 
-  const handleAddItem = (
-    value: string,
-    setList: React.Dispatch<React.SetStateAction<string[]>>
+  // Memoizar las funciones de manejo de cambios
+  const handleTempInputChange = useCallback((
+    type: ItemType | FlowsType,
+    value: string
   ) => {
-    if (value) setList((prev) => [...prev, value]);
-  };
+    setTempInputs(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  }, []);
 
-  const handleDeleteItem = (
-    index: number,
-    setList: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    setList((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleAddFlow = (
-    flowName: string,
-    setFlow: React.Dispatch<
-      React.SetStateAction<{ name: string; steps: string[] }[]>
-    >
-  ) => {
-    if (flowName) setFlow((prev) => [...prev, { name: flowName, steps: [] }]);
-  };
-
-  const handleAddStep = (
+  const handleTempStepInputChange = useCallback((
+    flowType: FlowsType,
     flowIndex: number,
-    stepInput: string,
-    setFlow: React.Dispatch<
-      React.SetStateAction<{ name: string; steps: string[] }[]>
-    >,
-    setStepInput: React.Dispatch<
-      React.SetStateAction<{ [key: number]: string }>
-    >
+    value: string
   ) => {
-    if (stepInput.trim()) {
-      setFlow((prevFlows) => {
-        const updatedFlows = [...prevFlows];
-        updatedFlows[flowIndex] = {
-          ...updatedFlows[flowIndex],
-          steps: [...updatedFlows[flowIndex].steps, stepInput],
-        };
-        return updatedFlows;
-      });
-      setStepInput((prev) => ({ ...prev, [flowIndex]: "" }));
-    }
-  };
+    setTempStepInputs(prev => ({
+      ...prev,
+      [flowType]: {
+        ...prev[flowType],
+        [flowIndex]: value
+      }
+    }));
+  }, []);
 
-  const handleDeleteStep = (
-    flowIndex: number,
-    stepIndex: number,
-    setFlow: React.Dispatch<
-      React.SetStateAction<{ name: string; steps: string[] }[]>
-    >
-  ) => {
-    setFlow((prev) => {
-      const updatedFlow = [...prev];
-      // Verifica que solo el paso en `stepIndex` se elimine
-      updatedFlow[flowIndex].steps = updatedFlow[flowIndex].steps.filter(
-        (_, i) => i !== stepIndex
-      );
-      return updatedFlow;
-    });
-  };
-  const handleEditStep = (
-    flowIndex: number,
-    stepIndex: number,
-    updatedStep: string,
-    setFlow: React.Dispatch<
-      React.SetStateAction<{ name: string; steps: string[] }[]>
-    >
-  ) => {
-    setFlow((prevFlows) => {
-      const updatedFlows = [...prevFlows];
-      updatedFlows[flowIndex].steps[stepIndex] = updatedStep;
-      return updatedFlows;
-    });
-  };
-  const handleDeleteFlow = (
-    flowIndex: number,
-    setFlow: React.Dispatch<
-      React.SetStateAction<{ name: string; steps: string[] }[]>
-    >
-  ) => {
-    setFlow((prev) => prev.filter((_, i) => i !== flowIndex));
-  };
+  // Componente memoizado para la tabla de items
+  const ItemsTable = useCallback(({
+    itemType,
+    items,
+    setItems,
+    label,
+    placeholder
+  }: {
+    itemType: ItemType;
+    items: string[];
+    setItems: SetStateFunction<string[]>;
+    label: string;
+    placeholder: string;
+  }) => (
+    <div>
+      <FormLabel>{label}</FormLabel>
+      <div className="flex items-center space-x-2 mb-2">
+        <Input
+          placeholder={placeholder}
+          value={tempInputs[itemType]}
+          onChange={(e) => {
+            e.preventDefault();
+            handleTempInputChange(itemType, e.target.value);
+          }}
+        />
+        <Button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            if (tempInputs[itemType].trim()) {
+              setItems(prev => [...prev, tempInputs[itemType]]);
+              handleTempInputChange(itemType, "");
+            }
+          }}
+        >
+          Añadir
+        </Button>
+      </div>
+      <Table>
+        {items.map((item, index) => (
+          <TableRow key={`${itemType}-${index}`}>
+            <TableCell>
+              <Input
+                type="text"
+                value={item}
+                onChange={(e) => {
+                  const newItems = [...items];
+                  newItems[index] = e.target.value;
+                  setItems(newItems);
+                }}
+              />
+            </TableCell>
+            <TableCell>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setItems(items.filter((_, i) => i !== index))}
+              >
+                Eliminar
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </Table>
+    </div>
+  ), [tempInputs, handleTempInputChange]);
+
+  // Componente memoizado para la tabla de flujos
+  const FlowTable = useCallback(({
+    flowType,
+    flows,
+    setFlows,
+    label,
+    placeholder
+  }: {
+    flowType: FlowsType;
+    flows: FlowType[];
+    setFlows: SetStateFunction<FlowType[]>;
+    label: string;
+    placeholder: string;
+  }) => (
+    <div>
+      <FormLabel>{label}</FormLabel>
+      <div className="flex items-center space-x-2 mb-2">
+        <Input
+          placeholder={placeholder}
+          value={tempInputs[flowType]}
+          onChange={(e) => {
+            e.preventDefault();
+            handleTempInputChange(flowType, e.target.value);
+          }}
+        />
+        <Button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            if (tempInputs[flowType].trim()) {
+              if (flowType === 'mainFlow' && flows.length > 0) {
+                toast({
+                  title: "Solo puedes agregar un flujo principal.",
+                  variant: "destructive",
+                });
+                return;
+              }
+              setFlows(prev => [...prev, { name: tempInputs[flowType], steps: [] }]);
+              handleTempInputChange(flowType, "");
+            }
+          }}
+        >
+          Añadir Flujo
+        </Button>
+      </div>
+      <Table>
+        {flows.map((flow, flowIndex) => (
+          <TableRow key={`${flowType}-${flowIndex}`}>
+            <TableCell>{flow.name}</TableCell>
+            <TableCell>
+              <div className="flex flex-col">
+                {flow.steps.map((step, stepIndex) => (
+                  <div key={`${flowType}-${flowIndex}-step-${stepIndex}`} className="flex items-center space-x-2">
+                    <span className="text-gray-500">{stepIndex + 1}</span>
+                    <Input
+                      type="text"
+                      value={step}
+                      onChange={(e) => {
+                        const newFlows = [...flows];
+                        newFlows[flowIndex].steps[stepIndex] = e.target.value;
+                        setFlows(newFlows);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => {
+                        const newFlows = [...flows];
+                        newFlows[flowIndex].steps = newFlows[flowIndex].steps.filter((_, i) => i !== stepIndex);
+                        setFlows(newFlows);
+                      }}
+                    >
+                      Eliminar Paso
+                    </Button>
+                  </div>
+                ))}
+                <div className="flex items-center space-x-2 mt-2">
+                  <Input
+                    placeholder="Add step..."
+                    value={tempStepInputs[flowType][flowIndex] || ""}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      handleTempStepInputChange(flowType, flowIndex, e.target.value);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const stepInput = tempStepInputs[flowType][flowIndex];
+                      if (stepInput?.trim()) {
+                        setFlows(prevFlows => {
+                          const updatedFlows = [...prevFlows];
+                          updatedFlows[flowIndex] = {
+                            ...updatedFlows[flowIndex],
+                            steps: [...updatedFlows[flowIndex].steps, stepInput],
+                          };
+                          return updatedFlows;
+                        });
+                        handleTempStepInputChange(flowType, flowIndex, "");
+                      }
+                    }}
+                  >
+                    Añadir Paso
+                  </Button>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <Button
+                type="button"
+                onClick={() => setFlows(flows.filter((_, i) => i !== flowIndex))}
+              >
+                Eliminar Flujo
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </Table>
+    </div>
+  ), [tempInputs, tempStepInputs, handleTempInputChange, handleTempStepInputChange]);
 
   const { isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (session?.user?.email) {
-        await createUseCase({
-          ...values,
-          preconditions,
-          postconditions,
-          mainFlow,
-          alternateFlows,
-        });
-        toast({ title: "Project created" });
-        router.refresh();
-      } else {
-        throw new Error("User session not available");
-      }
+      const formData = {
+        ...values,
+        entries,
+        preconditions,
+        postconditions,
+        mainFlow,
+        alternateFlows,
+      };
+      
+      await createUseCase(formData);
+      toast({ title: "Use Case created" });
+      router.refresh();
     } catch (error) {
       toast({
         title: "Something went wrong",
@@ -172,127 +305,11 @@ export function UseCaseForm(props: UseCaseFormProps) {
       });
     }
   };
-  const [entriesEditInputs, setEntriesEditInputs] = useState<{
-    [key: number]: string;
-  }>({});
-  const [preconditionsEditInputs, setPreconditionsEditInputs] = useState<{
-    [key: number]: string;
-  }>({});
-  const [postconditionsEditInputs, setPostconditionsEditInputs] = useState<{
-    [key: number]: string;
-  }>({});
-
-  // Función para editar una entry específica
-  const handleEditEntry = (
-    entryIndex: number,
-    newEntryValue: string,
-    setEntries: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    setEntries((prevEntries) => {
-      const updatedEntries = [...prevEntries];
-      updatedEntries[entryIndex] = newEntryValue;
-      return updatedEntries;
-    });
-  };
-
-  // Función para eliminar una entry específica
-  const handleDeleteEntry = (
-    entryIndex: number,
-    setEntries: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    setEntries((prevEntries) => prevEntries.filter((_, i) => i !== entryIndex));
-  };
-
-  // Modificación para añadir una nueva entry
-  const handleAddEntry = (
-    entryInput: string,
-    setEntries: React.Dispatch<React.SetStateAction<string[]>>,
-    setEntryInput: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    if (entryInput) {
-      setEntries((prevEntries) => [...prevEntries, entryInput]);
-      setEntryInput("");
-    }
-  };
-  // Función para editar una precondición específica
-  const handleEditPrecondition = (
-    preconditionIndex: number,
-    newPreconditionValue: string,
-    setPreconditions: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    setPreconditions((prevPreconditions) => {
-      const updatedPreconditions = [...prevPreconditions];
-      updatedPreconditions[preconditionIndex] = newPreconditionValue;
-      return updatedPreconditions;
-    });
-  };
-
-  // Función para eliminar una precondición específica
-  const handleDeletePrecondition = (
-    preconditionIndex: number,
-    setPreconditions: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    setPreconditions((prevPreconditions) =>
-      prevPreconditions.filter((_, i) => i !== preconditionIndex)
-    );
-  };
-
-  // Función para añadir una nueva precondición
-  const handleAddPrecondition = (
-    preconditionInput: string,
-    setPreconditions: React.Dispatch<React.SetStateAction<string[]>>,
-    setPreconditionInput: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    if (preconditionInput) {
-      setPreconditions((prevPreconditions) => [
-        ...prevPreconditions,
-        preconditionInput,
-      ]);
-      setPreconditionInput("");
-    }
-  };
-
-  // Funciones similares para postcondiciones
-  const handleEditPostcondition = (
-    postconditionIndex: number,
-    newPostconditionValue: string,
-    setPostconditions: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    setPostconditions((prevPostconditions) => {
-      const updatedPostconditions = [...prevPostconditions];
-      updatedPostconditions[postconditionIndex] = newPostconditionValue;
-      return updatedPostconditions;
-    });
-  };
-
-  const handleDeletePostcondition = (
-    postconditionIndex: number,
-    setPostconditions: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    setPostconditions((prevPostconditions) =>
-      prevPostconditions.filter((_, i) => i !== postconditionIndex)
-    );
-  };
-
-  const handleAddPostcondition = (
-    postconditionInput: string,
-    setPostconditions: React.Dispatch<React.SetStateAction<string[]>>,
-    setPostconditionInput: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    if (postconditionInput) {
-      setPostconditions((prevPostconditions) => [
-        ...prevPostconditions,
-        postconditionInput,
-      ]);
-      setPostconditionInput("");
-    }
-  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-2 gap-3">
-          {/* Input Fields */}
           <FormField
             control={form.control}
             name="displayId"
@@ -321,7 +338,6 @@ export function UseCaseForm(props: UseCaseFormProps) {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="description"
@@ -336,401 +352,42 @@ export function UseCaseForm(props: UseCaseFormProps) {
             )}
           />
 
-          {/* Preconditions Table */}
-          <div>
-            <FormLabel>Entradas</FormLabel>
-            <div className="flex items-center space-x-2 mb-2">
-              <Input
-                placeholder="Añadir entrada..."
-                value={entriesInput}
-                onChange={(e) => setEntriesInput(e.target.value)}
-              />
-              <Button
-                type="button"
-                onClick={() =>
-                  handleAddEntry(entriesInput, setEntries, setEntriesInput)
-                }
-              >
-                Añadir
-              </Button>
-            </div>
-            <Table>
-              {entries.map((entry, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Input
-                      type="text"
-                      value={entriesEditInputs[index] || entry}
-                      onChange={(e) =>
-                        setEntriesEditInputs({
-                          ...entriesEditInputs,
-                          [index]: e.target.value,
-                        })
-                      }
-                      onBlur={() => {
-                        handleEditEntry(
-                          index,
-                          entriesEditInputs[index] || entry,
-                          setEntries
-                        );
-                        setEntriesEditInputs((prev) => ({
-                          ...prev,
-                          [index]: "",
-                        }));
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => handleDeleteEntry(index, setEntries)}
-                    >
-                      Eliminar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </Table>
-          </div>
-          {/* Preconditions Table */}
-          <div>
-            <FormLabel>Precondiciones</FormLabel>
-            <div className="flex items-center space-x-2 mb-2">
-              <Input
-                placeholder="Añadir precondición..."
-                value={preconditionInput}
-                onChange={(e) => setPreconditionInput(e.target.value)}
-              />
-              <Button
-                type="button"
-                onClick={() =>
-                  handleAddPrecondition(
-                    preconditionInput,
-                    setPreconditions,
-                    setPreconditionInput
-                  )
-                }
-              >
-                Añadir
-              </Button>
-            </div>
-            <Table>
-              {preconditions.map((precondition, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Input
-                      type="text"
-                      value={preconditionsEditInputs[index] || precondition}
-                      onChange={(e) =>
-                        setPreconditionsEditInputs({
-                          ...preconditionsEditInputs,
-                          [index]: e.target.value,
-                        })
-                      }
-                      onBlur={() => {
-                        handleEditPrecondition(
-                          index,
-                          preconditionsEditInputs[index] || precondition,
-                          setPreconditions
-                        );
-                        setPreconditionsEditInputs((prev) => ({
-                          ...prev,
-                          [index]: "",
-                        }));
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() =>
-                        handleDeletePrecondition(index, setPreconditions)
-                      }
-                    >
-                      Eliminar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </Table>
-          </div>
+          <ItemsTable
+            itemType="entries"
+            items={entries}
+            setItems={setEntries}
+            label="Entradas"
+            placeholder="Añadir entrada..."
+          />
+          <ItemsTable
+            itemType="preconditions"
+            items={preconditions}
+            setItems={setPreconditions}
+            label="Precondiciones"
+            placeholder="Añadir precondición..."
+          />
+          <ItemsTable
+            itemType="postconditions"
+            items={postconditions}
+            setItems={setPostconditions}
+            label="Postcondiciones"
+            placeholder="Añadir postcondición..."
+          />
 
-          {/* Postconditions Table */}
-          <div>
-            <FormLabel>Postcondiciones</FormLabel>
-            <div className="flex items-center space-x-2 mb-2">
-              <Input
-                placeholder="Añadir postcondición..."
-                value={postconditionInput}
-                onChange={(e) => setPostconditionInput(e.target.value)}
-              />
-              <Button
-                type="button"
-                onClick={() =>
-                  handleAddPostcondition(
-                    postconditionInput,
-                    setPostconditions,
-                    setPostconditionInput
-                  )
-                }
-              >
-                Añadir
-              </Button>
-            </div>
-            <Table>
-              {postconditions.map((postcondition, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Input
-                      type="text"
-                      value={postconditionsEditInputs[index] || postcondition}
-                      onChange={(e) =>
-                        setPostconditionsEditInputs({
-                          ...postconditionsEditInputs,
-                          [index]: e.target.value,
-                        })
-                      }
-                      onBlur={() => {
-                        handleEditPostcondition(
-                          index,
-                          postconditionsEditInputs[index] || postcondition,
-                          setPostconditions
-                        );
-                        setPostconditionsEditInputs((prev) => ({
-                          ...prev,
-                          [index]: "",
-                        }));
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() =>
-                        handleDeletePostcondition(index, setPostconditions)
-                      }
-                    >
-                      Eliminar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </Table>
-          </div>
-
-          {/* Main Flow Table */}
-          <div>
-            <FormLabel>Flujo Normal</FormLabel>
-            <div className="flex items-center space-x-2 mb-2">
-              <Input
-                placeholder="Add main flow..."
-                value={mainFlowInput}
-                onChange={(e) => setMainFlowInput(e.target.value)}
-              />
-              <Button
-                type="button"
-                onClick={() => {
-                  if (mainFlow.length === 0) {
-                    handleAddFlow(mainFlowInput, setMainFlow);
-                    setMainFlowInput("");
-                  } else {
-                    toast({
-                      title: "Solo puedes agregar un flujo principal.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                Añadir Flujo
-              </Button>
-            </div>
-            <Table>
-              {mainFlow.map((flow, flowIndex) => (
-                <TableRow key={flowIndex}>
-                  <TableCell>{flow.name}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      {flow.steps.map((step, stepIndex) => (
-                        <div
-                          key={stepIndex}
-                          className="flex items-center space-x-2"
-                        >
-                          {/* Column with step number */}
-                          <span className="text-gray-500">{stepIndex + 1}</span>
-                          {/* Editable step content */}
-                          <Input
-                            type="text"
-                            value={step}
-                            onChange={(e) =>
-                              handleEditStep(
-                                flowIndex,
-                                stepIndex,
-                                e.target.value,
-                                setMainFlow
-                              )
-                            }
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={() =>
-                              handleDeleteStep(
-                                flowIndex,
-                                stepIndex,
-                                setMainFlow
-                              )
-                            }
-                          >
-                            Eliminar Paso
-                          </Button>
-                        </div>
-                      ))}
-                      {/* Input para añadir un nuevo paso */}
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Input
-                          placeholder="Add step..."
-                          value={mainFlowStepInputs[flowIndex] || ""}
-                          onChange={(e) =>
-                            setMainFlowStepInputs({
-                              ...mainFlowStepInputs,
-                              [flowIndex]: e.target.value,
-                            })
-                          }
-                        />
-                        <Button
-                          type="button"
-                          onClick={() =>
-                            handleAddStep(
-                              flowIndex,
-                              mainFlowStepInputs[flowIndex],
-                              setMainFlow,
-                              setMainFlowStepInputs
-                            )
-                          }
-                        >
-                          Añadir Paso
-                        </Button>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      type="button"
-                      onClick={() => handleDeleteFlow(flowIndex, setMainFlow)}
-                    >
-                      Eliminar Flujo
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </Table>
-          </div>
-
-          {/* Alternate Flow Table */}
-          <div>
-            <FormLabel>Flujos Alternos</FormLabel>
-            <div className="flex items-center space-x-2 mb-2">
-              <Input
-                placeholder="Add alternate flow..."
-                value={alternateFlowInput}
-                onChange={(e) => setAlternateFlowInput(e.target.value)}
-              />
-              <Button
-                type="button"
-                onClick={() => {
-                  handleAddFlow(alternateFlowInput, setAlternateFlows);
-                  setAlternateFlowInput("");
-                }}
-              >
-                Añadir Flujo
-              </Button>
-            </div>
-            <Table>
-              {alternateFlows.map((flow, flowIndex) => (
-                <TableRow key={flowIndex}>
-                  <TableCell>{flow.name}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      {flow.steps.map((step, stepIndex) => (
-                        <div
-                          key={stepIndex}
-                          className="flex items-center space-x-2"
-                        >
-                          {/* Column with step number */}
-                          <span className="text-gray-500">{stepIndex + 1}</span>
-                          {/* Editable step content */}
-                          <Input
-                            type="text"
-                            value={step}
-                            onChange={(e) =>
-                              handleEditStep(
-                                flowIndex,
-                                stepIndex,
-                                e.target.value,
-                                setAlternateFlows
-                              )
-                            }
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={() =>
-                              handleDeleteStep(
-                                flowIndex,
-                                stepIndex,
-                                setAlternateFlows
-                              )
-                            }
-                          >
-                            Eliminar Paso
-                          </Button>
-                        </div>
-                      ))}
-                      {/* Input para añadir un nuevo paso */}
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Input
-                          placeholder="Add step..."
-                          value={alternateFlowStepInputs[flowIndex] || ""}
-                          onChange={(e) =>
-                            setAlternateFlowStepInputs({
-                              ...alternateFlowStepInputs,
-                              [flowIndex]: e.target.value,
-                            })
-                          }
-                        />
-                        <Button
-                          type="button"
-                          onClick={() =>
-                            handleAddStep(
-                              flowIndex,
-                              alternateFlowStepInputs[flowIndex],
-                              setAlternateFlows,
-                              setAlternateFlowStepInputs
-                            )
-                          }
-                        >
-                          Añadir Paso
-                        </Button>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        handleDeleteFlow(flowIndex, setAlternateFlows)
-                      }
-                    >
-                      Eliminar Flujo
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </Table>
-          </div>
+          <FlowTable
+            flowType="mainFlow"
+            flows={mainFlow}
+            setFlows={setMainFlow}
+            label="Flujo Normal"
+            placeholder="Add main flow..."
+          />
+          <FlowTable
+            flowType="alternateFlows"
+            flows={alternateFlows}
+            setFlows={setAlternateFlows}
+            label="Flujos Alternos"
+            placeholder="Add alternate flow..."
+          />
         </div>
 
         <Button type="submit" disabled={!isValid}>
