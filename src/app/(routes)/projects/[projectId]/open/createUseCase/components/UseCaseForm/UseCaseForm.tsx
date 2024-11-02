@@ -28,6 +28,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      displayId: "",
       name: "",
       description: "",
       entries: "",
@@ -117,13 +118,27 @@ export function UseCaseForm(props: UseCaseFormProps) {
   ) => {
     setFlow((prev) => {
       const updatedFlow = [...prev];
+      // Verifica que solo el paso en `stepIndex` se elimine
       updatedFlow[flowIndex].steps = updatedFlow[flowIndex].steps.filter(
         (_, i) => i !== stepIndex
       );
       return updatedFlow;
     });
   };
-
+  const handleEditStep = (
+    flowIndex: number,
+    stepIndex: number,
+    updatedStep: string,
+    setFlow: React.Dispatch<
+      React.SetStateAction<{ name: string; steps: string[] }[]>
+    >
+  ) => {
+    setFlow((prevFlows) => {
+      const updatedFlows = [...prevFlows];
+      updatedFlows[flowIndex].steps[stepIndex] = updatedStep;
+      return updatedFlows;
+    });
+  };
   const handleDeleteFlow = (
     flowIndex: number,
     setFlow: React.Dispatch<
@@ -157,12 +172,139 @@ export function UseCaseForm(props: UseCaseFormProps) {
       });
     }
   };
+  const [entriesEditInputs, setEntriesEditInputs] = useState<{
+    [key: number]: string;
+  }>({});
+  const [preconditionsEditInputs, setPreconditionsEditInputs] = useState<{
+    [key: number]: string;
+  }>({});
+  const [postconditionsEditInputs, setPostconditionsEditInputs] = useState<{
+    [key: number]: string;
+  }>({});
+
+  // Función para editar una entry específica
+  const handleEditEntry = (
+    entryIndex: number,
+    newEntryValue: string,
+    setEntries: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setEntries((prevEntries) => {
+      const updatedEntries = [...prevEntries];
+      updatedEntries[entryIndex] = newEntryValue;
+      return updatedEntries;
+    });
+  };
+
+  // Función para eliminar una entry específica
+  const handleDeleteEntry = (
+    entryIndex: number,
+    setEntries: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setEntries((prevEntries) => prevEntries.filter((_, i) => i !== entryIndex));
+  };
+
+  // Modificación para añadir una nueva entry
+  const handleAddEntry = (
+    entryInput: string,
+    setEntries: React.Dispatch<React.SetStateAction<string[]>>,
+    setEntryInput: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    if (entryInput) {
+      setEntries((prevEntries) => [...prevEntries, entryInput]);
+      setEntryInput("");
+    }
+  };
+  // Función para editar una precondición específica
+  const handleEditPrecondition = (
+    preconditionIndex: number,
+    newPreconditionValue: string,
+    setPreconditions: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setPreconditions((prevPreconditions) => {
+      const updatedPreconditions = [...prevPreconditions];
+      updatedPreconditions[preconditionIndex] = newPreconditionValue;
+      return updatedPreconditions;
+    });
+  };
+
+  // Función para eliminar una precondición específica
+  const handleDeletePrecondition = (
+    preconditionIndex: number,
+    setPreconditions: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setPreconditions((prevPreconditions) =>
+      prevPreconditions.filter((_, i) => i !== preconditionIndex)
+    );
+  };
+
+  // Función para añadir una nueva precondición
+  const handleAddPrecondition = (
+    preconditionInput: string,
+    setPreconditions: React.Dispatch<React.SetStateAction<string[]>>,
+    setPreconditionInput: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    if (preconditionInput) {
+      setPreconditions((prevPreconditions) => [
+        ...prevPreconditions,
+        preconditionInput,
+      ]);
+      setPreconditionInput("");
+    }
+  };
+
+  // Funciones similares para postcondiciones
+  const handleEditPostcondition = (
+    postconditionIndex: number,
+    newPostconditionValue: string,
+    setPostconditions: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setPostconditions((prevPostconditions) => {
+      const updatedPostconditions = [...prevPostconditions];
+      updatedPostconditions[postconditionIndex] = newPostconditionValue;
+      return updatedPostconditions;
+    });
+  };
+
+  const handleDeletePostcondition = (
+    postconditionIndex: number,
+    setPostconditions: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setPostconditions((prevPostconditions) =>
+      prevPostconditions.filter((_, i) => i !== postconditionIndex)
+    );
+  };
+
+  const handleAddPostcondition = (
+    postconditionInput: string,
+    setPostconditions: React.Dispatch<React.SetStateAction<string[]>>,
+    setPostconditionInput: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    if (postconditionInput) {
+      setPostconditions((prevPostconditions) => [
+        ...prevPostconditions,
+        postconditionInput,
+      ]);
+      setPostconditionInput("");
+    }
+  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-2 gap-3">
           {/* Input Fields */}
+          <FormField
+            control={form.control}
+            name="displayId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>ID</FormLabel>
+                <FormControl>
+                  <Input placeholder="UC01" type="text" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="name"
@@ -196,34 +338,55 @@ export function UseCaseForm(props: UseCaseFormProps) {
 
           {/* Preconditions Table */}
           <div>
-            <FormLabel>Entries</FormLabel>
+            <FormLabel>Entradas</FormLabel>
             <div className="flex items-center space-x-2 mb-2">
               <Input
-                placeholder="Add entries..."
+                placeholder="Añadir entrada..."
                 value={entriesInput}
                 onChange={(e) => setEntriesInput(e.target.value)}
               />
               <Button
                 type="button"
-                onClick={() => {
-                  handleAddItem(entriesInput, setEntries);
-                  setEntriesInput("");
-                }}
+                onClick={() =>
+                  handleAddEntry(entriesInput, setEntries, setEntriesInput)
+                }
               >
-                Add
+                Añadir
               </Button>
             </div>
             <Table>
-              {entries.map((item, index) => (
+              {entries.map((entry, index) => (
                 <TableRow key={index}>
-                  <TableCell>{item}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="text"
+                      value={entriesEditInputs[index] || entry}
+                      onChange={(e) =>
+                        setEntriesEditInputs({
+                          ...entriesEditInputs,
+                          [index]: e.target.value,
+                        })
+                      }
+                      onBlur={() => {
+                        handleEditEntry(
+                          index,
+                          entriesEditInputs[index] || entry,
+                          setEntries
+                        );
+                        setEntriesEditInputs((prev) => ({
+                          ...prev,
+                          [index]: "",
+                        }));
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Button
                       type="button"
                       variant="destructive"
-                      onClick={() => handleDeleteItem(index, setEntries)}
+                      onClick={() => handleDeleteEntry(index, setEntries)}
                     >
-                      Delete
+                      Eliminar
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -232,34 +395,61 @@ export function UseCaseForm(props: UseCaseFormProps) {
           </div>
           {/* Preconditions Table */}
           <div>
-            <FormLabel>Preconditions</FormLabel>
+            <FormLabel>Precondiciones</FormLabel>
             <div className="flex items-center space-x-2 mb-2">
               <Input
-                placeholder="Add precondition..."
+                placeholder="Añadir precondición..."
                 value={preconditionInput}
                 onChange={(e) => setPreconditionInput(e.target.value)}
               />
               <Button
                 type="button"
-                onClick={() => {
-                  handleAddItem(preconditionInput, setPreconditions);
-                  setPreconditionInput("");
-                }}
+                onClick={() =>
+                  handleAddPrecondition(
+                    preconditionInput,
+                    setPreconditions,
+                    setPreconditionInput
+                  )
+                }
               >
-                Add
+                Añadir
               </Button>
             </div>
             <Table>
-              {preconditions.map((item, index) => (
+              {preconditions.map((precondition, index) => (
                 <TableRow key={index}>
-                  <TableCell>{item}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="text"
+                      value={preconditionsEditInputs[index] || precondition}
+                      onChange={(e) =>
+                        setPreconditionsEditInputs({
+                          ...preconditionsEditInputs,
+                          [index]: e.target.value,
+                        })
+                      }
+                      onBlur={() => {
+                        handleEditPrecondition(
+                          index,
+                          preconditionsEditInputs[index] || precondition,
+                          setPreconditions
+                        );
+                        setPreconditionsEditInputs((prev) => ({
+                          ...prev,
+                          [index]: "",
+                        }));
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Button
                       type="button"
                       variant="destructive"
-                      onClick={() => handleDeleteItem(index, setPreconditions)}
+                      onClick={() =>
+                        handleDeletePrecondition(index, setPreconditions)
+                      }
                     >
-                      Delete
+                      Eliminar
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -269,34 +459,61 @@ export function UseCaseForm(props: UseCaseFormProps) {
 
           {/* Postconditions Table */}
           <div>
-            <FormLabel>Postconditions</FormLabel>
+            <FormLabel>Postcondiciones</FormLabel>
             <div className="flex items-center space-x-2 mb-2">
               <Input
-                placeholder="Add postcondition..."
+                placeholder="Añadir postcondición..."
                 value={postconditionInput}
                 onChange={(e) => setPostconditionInput(e.target.value)}
               />
               <Button
                 type="button"
-                onClick={() => {
-                  handleAddItem(postconditionInput, setPostconditions);
-                  setPostconditionInput("");
-                }}
+                onClick={() =>
+                  handleAddPostcondition(
+                    postconditionInput,
+                    setPostconditions,
+                    setPostconditionInput
+                  )
+                }
               >
-                Add
+                Añadir
               </Button>
             </div>
             <Table>
-              {postconditions.map((item, index) => (
+              {postconditions.map((postcondition, index) => (
                 <TableRow key={index}>
-                  <TableCell>{item}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="text"
+                      value={postconditionsEditInputs[index] || postcondition}
+                      onChange={(e) =>
+                        setPostconditionsEditInputs({
+                          ...postconditionsEditInputs,
+                          [index]: e.target.value,
+                        })
+                      }
+                      onBlur={() => {
+                        handleEditPostcondition(
+                          index,
+                          postconditionsEditInputs[index] || postcondition,
+                          setPostconditions
+                        );
+                        setPostconditionsEditInputs((prev) => ({
+                          ...prev,
+                          [index]: "",
+                        }));
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Button
                       type="button"
                       variant="destructive"
-                      onClick={() => handleDeleteItem(index, setPostconditions)}
+                      onClick={() =>
+                        handleDeletePostcondition(index, setPostconditions)
+                      }
                     >
-                      Delete
+                      Eliminar
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -306,7 +523,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
 
           {/* Main Flow Table */}
           <div>
-            <FormLabel>Main Flow</FormLabel>
+            <FormLabel>Flujo Normal</FormLabel>
             <div className="flex items-center space-x-2 mb-2">
               <Input
                 placeholder="Add main flow..."
@@ -316,10 +533,9 @@ export function UseCaseForm(props: UseCaseFormProps) {
               <Button
                 type="button"
                 onClick={() => {
-                  // Verificar si mainFlow ya contiene un flujo antes de agregar uno nuevo
                   if (mainFlow.length === 0) {
                     handleAddFlow(mainFlowInput, setMainFlow);
-                    setMainFlowInput(""); // Limpiar el campo de input después de agregar
+                    setMainFlowInput("");
                   } else {
                     toast({
                       title: "Solo puedes agregar un flujo principal.",
@@ -328,7 +544,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
                   }
                 }}
               >
-                Add Flow
+                Añadir Flujo
               </Button>
             </div>
             <Table>
@@ -342,7 +558,21 @@ export function UseCaseForm(props: UseCaseFormProps) {
                           key={stepIndex}
                           className="flex items-center space-x-2"
                         >
-                          <span>{step}</span>
+                          {/* Column with step number */}
+                          <span className="text-gray-500">{stepIndex + 1}</span>
+                          {/* Editable step content */}
+                          <Input
+                            type="text"
+                            value={step}
+                            onChange={(e) =>
+                              handleEditStep(
+                                flowIndex,
+                                stepIndex,
+                                e.target.value,
+                                setMainFlow
+                              )
+                            }
+                          />
                           <Button
                             type="button"
                             variant="destructive"
@@ -354,10 +584,11 @@ export function UseCaseForm(props: UseCaseFormProps) {
                               )
                             }
                           >
-                            Delete Step
+                            Eliminar Paso
                           </Button>
                         </div>
                       ))}
+                      {/* Input para añadir un nuevo paso */}
                       <div className="flex items-center space-x-2 mt-2">
                         <Input
                           placeholder="Add step..."
@@ -380,7 +611,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
                             )
                           }
                         >
-                          Add Step
+                          Añadir Paso
                         </Button>
                       </div>
                     </div>
@@ -400,7 +631,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
 
           {/* Alternate Flow Table */}
           <div>
-            <FormLabel>Alternate Flow</FormLabel>
+            <FormLabel>Flujos Alternos</FormLabel>
             <div className="flex items-center space-x-2 mb-2">
               <Input
                 placeholder="Add alternate flow..."
@@ -414,7 +645,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
                   setAlternateFlowInput("");
                 }}
               >
-                Add Flow
+                Añadir Flujo
               </Button>
             </div>
             <Table>
@@ -428,7 +659,21 @@ export function UseCaseForm(props: UseCaseFormProps) {
                           key={stepIndex}
                           className="flex items-center space-x-2"
                         >
-                          <span>{step}</span>
+                          {/* Column with step number */}
+                          <span className="text-gray-500">{stepIndex + 1}</span>
+                          {/* Editable step content */}
+                          <Input
+                            type="text"
+                            value={step}
+                            onChange={(e) =>
+                              handleEditStep(
+                                flowIndex,
+                                stepIndex,
+                                e.target.value,
+                                setAlternateFlows
+                              )
+                            }
+                          />
                           <Button
                             type="button"
                             variant="destructive"
@@ -440,10 +685,11 @@ export function UseCaseForm(props: UseCaseFormProps) {
                               )
                             }
                           >
-                            Delete Step
+                            Eliminar Paso
                           </Button>
                         </div>
                       ))}
+                      {/* Input para añadir un nuevo paso */}
                       <div className="flex items-center space-x-2 mt-2">
                         <Input
                           placeholder="Add step..."
@@ -466,7 +712,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
                             )
                           }
                         >
-                          Add Step
+                          Añadir Paso
                         </Button>
                       </div>
                     </div>
