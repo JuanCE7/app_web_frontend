@@ -13,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { UseCaseFormProps } from "./UseCaseForm.types";
 import { formSchema } from "./UseCaseForm.form";
 import { toast } from "@/hooks/use-toast";
@@ -21,379 +20,296 @@ import { useSession } from "next-auth/react";
 import { createUseCase } from "../../../useCases.api";
 import { Table, TableRow, TableCell } from "@/components/ui/table";
 
-type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
-type FlowType = { name: string; steps: string[] };
-type ItemType = 'entries' | 'preconditions' | 'postconditions';
-type FlowsType = 'mainFlow' | 'alternateFlows';
+import * as React from "react"
+import { Plus, Trash2 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+interface Flow {
+  id: string;
+  steps: string[];
+}
 
 export function UseCaseForm(props: UseCaseFormProps) {
-  const router = useRouter();
-  const { data: session } = useSession();
+  const [id, setId] = React.useState("UC01")
+  const [name, setName] = React.useState("")
+  const [description, setDescription] = React.useState("")
+  const [inputs, setInputs] = React.useState<string[]>([])
+  const [preconditions, setPreconditions] = React.useState<string[]>([])
+  const [postconditions, setPostconditions] = React.useState<string[]>([])
+  const [normalFlows, setNormalFlows] = React.useState<Flow[]>([])
+  const [alternateFlows, setAlternateFlows] = React.useState<Flow[]>([])
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      displayId: "",
-      name: "",
-      description: "",
-      entries: [],
-      preconditions: [],
-      postconditions: [],
-      mainFlow: [{ name: "", steps: [] }],
-      alternateFlows: [{ name: "", steps: [] }],
-      projectId: "",
-    },
-  });
+  const addItem = (setter: React.Dispatch<React.SetStateAction<string[]>>) => {
+    setter(prev => [...prev, ""])
+  }
 
-  // Estados para las listas
-  const [entries, setEntries] = useState<string[]>([]);
-  const [preconditions, setPreconditions] = useState<string[]>([]);
-  const [postconditions, setPostconditions] = useState<string[]>([]);
-  const [mainFlow, setMainFlow] = useState<FlowType[]>([]);
-  const [alternateFlows, setAlternateFlows] = useState<FlowType[]>([]);
+  const removeItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number) => {
+    setter(prev => prev.filter((_, i) => i !== index))
+  }
 
-  // Estados para los inputs temporales usando useCallback
-  const [tempInputs, setTempInputs] = useState({
-    entries: "",
-    preconditions: "",
-    postconditions: "",
-    mainFlow: "",
-    alternateFlows: "",
-  });
+  const updateItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number, value: string) => {
+    setter(prev => prev.map((item, i) => i === index ? value : item))
+  }
 
-  const [tempStepInputs, setTempStepInputs] = useState<{
-    [key in FlowsType]: { [key: number]: string };
-  }>({
-    mainFlow: {},
-    alternateFlows: {},
-  });
+  const addFlow = (setter: React.Dispatch<React.SetStateAction<Flow[]>>) => {
+    setter(prev => [...prev, { id: Date.now().toString(), steps: [] }])
+  }
 
-  // Memoizar las funciones de manejo de cambios
-  const handleTempInputChange = useCallback((
-    type: ItemType | FlowsType,
-    value: string
-  ) => {
-    setTempInputs(prev => ({
-      ...prev,
-      [type]: value
-    }));
-  }, []);
+  const removeFlow = (setter: React.Dispatch<React.SetStateAction<Flow[]>>, id: string) => {
+    setter(prev => prev.filter(flow => flow.id !== id))
+  }
 
-  const handleTempStepInputChange = useCallback((
-    flowType: FlowsType,
-    flowIndex: number,
-    value: string
-  ) => {
-    setTempStepInputs(prev => ({
-      ...prev,
-      [flowType]: {
-        ...prev[flowType],
-        [flowIndex]: value
-      }
-    }));
-  }, []);
+  const addStep = (setter: React.Dispatch<React.SetStateAction<Flow[]>>, flowId: string) => {
+    setter(prev => prev.map(flow => 
+      flow.id === flowId ? { ...flow, steps: [...flow.steps, ""] } : flow
+    ))
+  }
 
-  // Componente memoizado para la tabla de items
-  const ItemsTable = useCallback(({
-    itemType,
-    items,
-    setItems,
-    label,
-    placeholder
-  }: {
-    itemType: ItemType;
-    items: string[];
-    setItems: SetStateFunction<string[]>;
-    label: string;
-    placeholder: string;
-  }) => (
-    <div>
-      <FormLabel>{label}</FormLabel>
-      <div className="flex items-center space-x-2 mb-2">
-        <Input
-          placeholder={placeholder}
-          value={tempInputs[itemType]}
-          onChange={(e) => {
-            e.preventDefault();
-            handleTempInputChange(itemType, e.target.value);
-          }}
-        />
-        <Button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            if (tempInputs[itemType].trim()) {
-              setItems(prev => [...prev, tempInputs[itemType]]);
-              handleTempInputChange(itemType, "");
-            }
-          }}
-        >
-          Añadir
-        </Button>
-      </div>
-      <Table>
-        {items.map((item, index) => (
-          <TableRow key={`${itemType}-${index}`}>
-            <TableCell>
-              <Input
-                type="text"
-                value={item}
-                onChange={(e) => {
-                  const newItems = [...items];
-                  newItems[index] = e.target.value;
-                  setItems(newItems);
-                }}
+  const removeStep = (setter: React.Dispatch<React.SetStateAction<Flow[]>>, flowId: string, stepIndex: number) => {
+    setter(prev => prev.map(flow => 
+      flow.id === flowId ? { ...flow, steps: flow.steps.filter((_, i) => i !== stepIndex) } : flow
+    ))
+  }
+
+  const updateStep = (setter: React.Dispatch<React.SetStateAction<Flow[]>>, flowId: string, stepIndex: number, value: string) => {
+    setter(prev => prev.map(flow => 
+      flow.id === flowId ? { ...flow, steps: flow.steps.map((step, i) => i === stepIndex ? value : step) } : flow
+    ))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log({ id, name, description, inputs, preconditions, postconditions, normalFlows, alternateFlows })
+    
+    // Aquí normalmente enviarías estos datos a tu backend
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="min-h-screen bg-gray-950 text-white p-6">
+      <Card className="bg-gray-900 border-gray-800">
+        <CardContent className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="id">ID</Label>
+              <Input 
+                id="id" 
+                value={id} 
+                onChange={(e) => setId(e.target.value)}
+                className="bg-gray-800 border-gray-700" 
               />
-            </TableCell>
-            <TableCell>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setItems(items.filter((_, i) => i !== index))}
-              >
-                Eliminar
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </Table>
-    </div>
-  ), [tempInputs, handleTempInputChange]);
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Nombre</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nombre de caso de uso..."
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+          </div>
 
-  // Componente memoizado para la tabla de flujos
-  const FlowTable = useCallback(({
-    flowType,
-    flows,
-    setFlows,
-    label,
-    placeholder
-  }: {
-    flowType: FlowsType;
-    flows: FlowType[];
-    setFlows: SetStateFunction<FlowType[]>;
-    label: string;
-    placeholder: string;
-  }) => (
-    <div>
-      <FormLabel>{label}</FormLabel>
-      <div className="flex items-center space-x-2 mb-2">
-        <Input
-          placeholder={placeholder}
-          value={tempInputs[flowType]}
-          onChange={(e) => {
-            e.preventDefault();
-            handleTempInputChange(flowType, e.target.value);
-          }}
-        />
-        <Button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            if (tempInputs[flowType].trim()) {
-              if (flowType === 'mainFlow' && flows.length > 0) {
-                toast({
-                  title: "Solo puedes agregar un flujo principal.",
-                  variant: "destructive",
-                });
-                return;
-              }
-              setFlows(prev => [...prev, { name: tempInputs[flowType], steps: [] }]);
-              handleTempInputChange(flowType, "");
-            }
-          }}
-        >
-          Añadir Flujo
-        </Button>
-      </div>
-      <Table>
-        {flows.map((flow, flowIndex) => (
-          <TableRow key={`${flowType}-${flowIndex}`}>
-            <TableCell>{flow.name}</TableCell>
-            <TableCell>
-              <div className="flex flex-col">
-                {flow.steps.map((step, stepIndex) => (
-                  <div key={`${flowType}-${flowIndex}-step-${stepIndex}`} className="flex items-center space-x-2">
-                    <span className="text-gray-500">{stepIndex + 1}</span>
-                    <Input
-                      type="text"
-                      value={step}
-                      onChange={(e) => {
-                        const newFlows = [...flows];
-                        newFlows[flowIndex].steps[stepIndex] = e.target.value;
-                        setFlows(newFlows);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => {
-                        const newFlows = [...flows];
-                        newFlows[flowIndex].steps = newFlows[flowIndex].steps.filter((_, i) => i !== stepIndex);
-                        setFlows(newFlows);
-                      }}
-                    >
-                      Eliminar Paso
-                    </Button>
-                  </div>
-                ))}
-                <div className="flex items-center space-x-2 mt-2">
+          <div className="space-y-2">
+            <Label htmlFor="description">Descripción</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Descripción..."
+              className="bg-gray-800 border-gray-700 min-h-[100px]"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Entradas</Label>
+            {inputs.map((input, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  value={input}
+                  onChange={(e) => updateItem(setInputs, index, e.target.value)}
+                  placeholder="Añadir entrada..."
+                  className="bg-gray-800 border-gray-700"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => removeItem(setInputs, index)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            <Button type="button" variant="outline" onClick={() => addItem(setInputs)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Añadir
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label>Precondiciones</Label>
+              {preconditions.map((condition, index) => (
+                <div key={index} className="flex gap-2">
                   <Input
-                    placeholder="Add step..."
-                    value={tempStepInputs[flowType][flowIndex] || ""}
-                    onChange={(e) => {
-                      e.preventDefault();
-                      handleTempStepInputChange(flowType, flowIndex, e.target.value);
-                    }}
+                    value={condition}
+                    onChange={(e) => updateItem(setPreconditions, index, e.target.value)}
+                    placeholder="Añadir precondición..."
+                    className="bg-gray-800 border-gray-700"
                   />
                   <Button
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const stepInput = tempStepInputs[flowType][flowIndex];
-                      if (stepInput?.trim()) {
-                        setFlows(prevFlows => {
-                          const updatedFlows = [...prevFlows];
-                          updatedFlows[flowIndex] = {
-                            ...updatedFlows[flowIndex],
-                            steps: [...updatedFlows[flowIndex].steps, stepInput],
-                          };
-                          return updatedFlows;
-                        });
-                        handleTempStepInputChange(flowType, flowIndex, "");
-                      }
-                    }}
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => removeItem(setPreconditions, index)}
                   >
-                    Añadir Paso
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <Button
-                type="button"
-                onClick={() => setFlows(flows.filter((_, i) => i !== flowIndex))}
-              >
-                Eliminar Flujo
+              ))}
+              <Button type="button" variant="outline" onClick={() => addItem(setPreconditions)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Añadir
               </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </Table>
-    </div>
-  ), [tempInputs, tempStepInputs, handleTempInputChange, handleTempStepInputChange]);
+            </div>
 
-  const { isValid } = form.formState;
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const formData = {
-        ...values,
-        entries,
-        preconditions,
-        postconditions,
-        mainFlow,
-        alternateFlows,
-      };
-      
-      await createUseCase(formData);
-      toast({ title: "Use Case created" });
-      router.refresh();
-    } catch (error) {
-      toast({
-        title: "Something went wrong",
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="displayId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>ID</FormLabel>
-                <FormControl>
-                  <Input placeholder="UC01" type="text" {...field} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
+            <div className="space-y-2">
+              <Label>Postcondiciones</Label>
+              {postconditions.map((condition, index) => (
+                <div key={index} className="flex gap-2">
                   <Input
-                    placeholder="Nombre de caso de uso..."
-                    type="text"
-                    {...field}
+                    value={condition}
+                    onChange={(e) => updateItem(setPostconditions, index, e.target.value)}
+                    placeholder="Añadir postcondición..."
+                    className="bg-gray-800 border-gray-700"
                   />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Descripción..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => removeItem(setPostconditions, index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={() => addItem(setPostconditions)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Añadir
+              </Button>
+            </div>
+          </div>
 
-          <ItemsTable
-            itemType="entries"
-            items={entries}
-            setItems={setEntries}
-            label="Entradas"
-            placeholder="Añadir entrada..."
-          />
-          <ItemsTable
-            itemType="preconditions"
-            items={preconditions}
-            setItems={setPreconditions}
-            label="Precondiciones"
-            placeholder="Añadir precondición..."
-          />
-          <ItemsTable
-            itemType="postconditions"
-            items={postconditions}
-            setItems={setPostconditions}
-            label="Postcondiciones"
-            placeholder="Añadir postcondición..."
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <Label>Flujo Normal</Label>
+              {normalFlows.map((flow, flowIndex) => (
+                <Card key={flow.id} className="bg-gray-800 border-gray-700 p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <Label>Flujo {flowIndex + 1}</Label>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => removeFlow(setNormalFlows, flow.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {flow.steps.map((step, stepIndex) => (
+                    <div key={stepIndex} className="flex gap-2 mt-2">
+                      <div className="w-10 flex items-center justify-center">{stepIndex + 1}</div>
+                      <Input
+                        value={step}
+                        onChange={(e) => updateStep(setNormalFlows, flow.id, stepIndex, e.target.value)}
+                        placeholder="Añadir paso..."
+                        className="bg-gray-700 border-gray-600"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => removeStep(setNormalFlows, flow.id, stepIndex)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => addStep(setNormalFlows, flow.id)}
+                    className="mt-2"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Añadir Paso
+                  </Button>
+                </Card>
+              ))}
+              <Button type="button" variant="outline" onClick={() => addFlow(setNormalFlows)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Añadir Flujo Normal
+              </Button>
+            </div>
 
-          <FlowTable
-            flowType="mainFlow"
-            flows={mainFlow}
-            setFlows={setMainFlow}
-            label="Flujo Normal"
-            placeholder="Add main flow..."
-          />
-          <FlowTable
-            flowType="alternateFlows"
-            flows={alternateFlows}
-            setFlows={setAlternateFlows}
-            label="Flujos Alternos"
-            placeholder="Add alternate flow..."
-          />
-        </div>
+            <div className="space-y-4">
+              <Label>Flujos Alternos</Label>
+              {alternateFlows.map((flow, flowIndex) => (
+                <Card key={flow.id} className="bg-gray-800 border-gray-700 p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <Label>Flujo Alterno {flowIndex + 1}</Label>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => removeFlow(setAlternateFlows, flow.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {flow.steps.map((step, stepIndex) => (
+                    <div key={stepIndex} className="flex gap-2 mt-2">
+                      <div className="w-10 flex items-center justify-center">{stepIndex + 1}</div>
+                      <Input
+                        value={step}
+                        onChange={(e) => updateStep(setAlternateFlows, flow.id, stepIndex, e.target.value)}
+                        placeholder="Añadir paso..."
+                        className="bg-gray-700 border-gray-600"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => removeStep(setAlternateFlows, flow.id, stepIndex)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => addStep(setAlternateFlows, flow.id)}
+                    className="mt-2"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Añadir Paso
+                  </Button>
+                </Card>
+              ))}
+              <Button type="button" variant="outline" onClick={() => addFlow(setAlternateFlows)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Añadir Flujo Alterno
+              </Button>
+            </div>
+          </div>
 
-        <Button type="submit" disabled={!isValid}>
-          Guardar Caso de Uso
-        </Button>
-      </form>
-    </Form>
-  );
+          <Button type="submit" className="w-full">Guardar Caso de Uso</Button>
+        </CardContent>
+      </Card>
+    </form>
+  )
 }
