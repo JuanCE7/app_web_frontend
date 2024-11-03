@@ -16,13 +16,13 @@ type FormData = z.infer<typeof FormSchema>
 
 export function UseCaseForm(props: UseCaseFormProps) {
   const [formData, setFormData] = React.useState<FormData>({
-    id: "UC01",
+    displayId: "UC01",
     name: "",
     description: "",
-    inputs: [""],
+    entries: [""],
     preconditions: [""],
     postconditions: [""],
-    normalFlow: { id: Date.now().toString(), steps: [""] },
+    mainFlow: { name: Date.now().toString(), steps: [""] },
     alternateFlows: []
   })
   const [errors, setErrors] = React.useState<z.ZodIssue[]>([])
@@ -31,44 +31,44 @@ export function UseCaseForm(props: UseCaseFormProps) {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const addItem = (field: 'inputs' | 'preconditions' | 'postconditions') => {
+  const addItem = (field: 'entries' | 'preconditions' | 'postconditions') => {
     updateFormData(field, [...formData[field], ""])
   }
 
-  const removeItem = (field: 'inputs' | 'preconditions' | 'postconditions', index: number) => {
+  const removeItem = (field: 'entries' | 'preconditions' | 'postconditions', index: number) => {
     updateFormData(field, formData[field].filter((_, i) => i !== index))
   }
 
-  const updateItem = (field: 'inputs' | 'preconditions' | 'postconditions', index: number, value: string) => {
+  const updateItem = (field: 'entries' | 'preconditions' | 'postconditions', index: number, value: string) => {
     updateFormData(field, formData[field].map((item, i) => i === index ? value : item))
   }
 
-  const addStep = (flowType: 'normalFlow' | 'alternateFlows', flowId: string) => {
-    if (flowType === 'normalFlow') {
-      updateFormData('normalFlow', { ...formData.normalFlow, steps: [...formData.normalFlow.steps, ""] })
+  const addStep = (flowType: 'mainFlow' | 'alternateFlows', flowId: string) => {
+    if (flowType === 'mainFlow') {
+      updateFormData('mainFlow', { ...formData.mainFlow, steps: [...formData.mainFlow.steps, ""] })
     } else {
       updateFormData('alternateFlows', formData.alternateFlows.map(flow => 
-        flow.id === flowId ? { ...flow, steps: [...flow.steps, ""] } : flow
+        flow.name === flowId ? { ...flow, steps: [...flow.steps, ""] } : flow
       ))
     }
   }
 
-  const removeStep = (flowType: 'normalFlow' | 'alternateFlows', flowId: string, stepIndex: number) => {
-    if (flowType === 'normalFlow') {
-      updateFormData('normalFlow', { ...formData.normalFlow, steps: formData.normalFlow.steps.filter((_, i) => i !== stepIndex) })
+  const removeStep = (flowType: 'mainFlow' | 'alternateFlows', flowId: string, stepIndex: number) => {
+    if (flowType === 'mainFlow') {
+      updateFormData('mainFlow', { ...formData.mainFlow, steps: formData.mainFlow.steps.filter((_, i) => i !== stepIndex) })
     } else {
       updateFormData('alternateFlows', formData.alternateFlows.map(flow => 
-        flow.id === flowId ? { ...flow, steps: flow.steps.filter((_, i) => i !== stepIndex) } : flow
+        flow.name === flowId ? { ...flow, steps: flow.steps.filter((_, i) => i !== stepIndex) } : flow
       ))
     }
   }
 
-  const updateStep = (flowType: 'normalFlow' | 'alternateFlows', flowId: string, stepIndex: number, value: string) => {
-    if (flowType === 'normalFlow') {
-      updateFormData('normalFlow', { ...formData.normalFlow, steps: formData.normalFlow.steps.map((step, i) => i === stepIndex ? value : step) })
+  const updateStep = (flowType: 'mainFlow' | 'alternateFlows', flowId: string, stepIndex: number, value: string) => {
+    if (flowType === 'mainFlow') {
+      updateFormData('mainFlow', { ...formData.mainFlow, steps: formData.mainFlow.steps.map((step, i) => i === stepIndex ? value : step) })
     } else {
       updateFormData('alternateFlows', formData.alternateFlows.map(flow => 
-        flow.id === flowId ? { ...flow, steps: flow.steps.map((step, i) => i === stepIndex ? value : step) } : flow
+        flow.name === flowId ? { ...flow, steps: flow.steps.map((step, i) => i === stepIndex ? value : step) } : flow
       ))
     }
   }
@@ -78,7 +78,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
   }
 
   const removeAlternateFlow = (id: string) => {
-    updateFormData('alternateFlows', formData.alternateFlows.filter(flow => flow.id !== id))
+    updateFormData('alternateFlows', formData.alternateFlows.filter(flow => flow.name !== id))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -106,9 +106,9 @@ export function UseCaseForm(props: UseCaseFormProps) {
             <div className="space-y-2">
               <Label htmlFor="id">ID</Label>
               <Input 
-                id="id" 
-                value={formData.id} 
-                onChange={(e) => updateFormData('id', e.target.value)}
+                id="displayId" 
+                value={formData.displayId} 
+                onChange={(e) => updateFormData('displayId', e.target.value)}
               />
               {getFieldError('id') && <p className="text-red-500 text-sm">{getFieldError('id')}</p>}
             </div>
@@ -138,24 +138,24 @@ export function UseCaseForm(props: UseCaseFormProps) {
 
           <div className="space-y-2">
             <Label>Entradas</Label>
-            {formData.inputs.map((input, index) => (
+            {formData.entries.map((input, index) => (
               <div key={index} className="flex gap-2">
                 <Input
                   value={input}
-                  onChange={(e) => updateItem('inputs', index, e.target.value)}
+                  onChange={(e) => updateItem('entries', index, e.target.value)}
                   placeholder="Añadir entrada..."
                 />
                 <Button
                   type="button"
                   variant="destructive"
                   size="icon"
-                  onClick={() => removeItem('inputs', index)}
+                  onClick={() => removeItem('entries', index)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
-            <Button type="button" onClick={() => addItem('inputs')}>
+            <Button type="button" onClick={() => addItem('entries')}>
               <Plus className="h-4 w-4 mr-2" />
               Añadir
             </Button>
@@ -223,19 +223,19 @@ export function UseCaseForm(props: UseCaseFormProps) {
                 <div className="flex justify-between items-center mb-2">
                   <Label>Flujo Normal</Label>
                 </div>
-                {formData.normalFlow.steps.map((step, stepIndex) => (
+                {formData.mainFlow.steps.map((step, stepIndex) => (
                   <div key={stepIndex} className="flex gap-2 mt-2">
                     <div className="w-10 flex items-center justify-center">{stepIndex + 1}</div>
                     <Input
                       value={step}
-                      onChange={(e) => updateStep('normalFlow', formData.normalFlow.id, stepIndex, e.target.value)}
+                      onChange={(e) => updateStep('mainFlow', formData.mainFlow.name, stepIndex, e.target.value)}
                       placeholder="Añadir paso..."
                     />
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
-                      onClick={() => removeStep('normalFlow', formData.normalFlow.id, stepIndex)}
+                      onClick={() => removeStep('mainFlow', formData.mainFlow.name, stepIndex)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -243,7 +243,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
                 ))}
                 <Button 
                   type="button" 
-                  onClick={() => addStep('normalFlow', formData.normalFlow.id)}
+                  onClick={() => addStep('mainFlow', formData.mainFlow.name)}
                   className="mt-2"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -256,14 +256,14 @@ export function UseCaseForm(props: UseCaseFormProps) {
             <div className="space-y-4">
               <Label className="pr-4">Flujos Alternos</Label>
               {formData.alternateFlows.map((flow, flowIndex) => (
-                <Card key={flow.id} className="p-4">
+                <Card key={flow.name} className="p-4">
                   <div className="flex justify-between items-center mb-2">
                     <Label>Flujo Alterno {flowIndex + 1}</Label>
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
-                      onClick={() => removeAlternateFlow(flow.id)}
+                      onClick={() => removeAlternateFlow(flow.name)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -273,14 +273,14 @@ export function UseCaseForm(props: UseCaseFormProps) {
                       <div className="w-10 flex items-center justify-center">{stepIndex + 1}</div>
                       <Input
                         value={step}
-                        onChange={(e) => updateStep('alternateFlows', flow.id, stepIndex, e.target.value)}
+                        onChange={(e) => updateStep('alternateFlows', flow.name, stepIndex, e.target.value)}
                         placeholder="Añadir paso..."
                       />
                       <Button
                         type="button"
                         variant="destructive"
                         size="icon"
-                        onClick={() => removeStep('alternateFlows', flow.id, stepIndex)}
+                        onClick={() => removeStep('alternateFlows', flow.name, stepIndex)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -288,7 +288,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
                   ))}
                   <Button 
                     type="button" 
-                    onClick={() => addStep('alternateFlows', flow.id)}
+                    onClick={() => addStep('alternateFlows', flow.name)}
                     className="mt-2"
                   >
                     <Plus className="h-4 w-4 mr-2" />
