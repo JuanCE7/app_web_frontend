@@ -9,22 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { z } from "zod"
 import { UseCaseFormProps } from "./UseCaseForm.types"
-
-const FlowSchema = z.object({
-  id: z.string(),
-  steps: z.array(z.string().min(1, "El paso no puede estar vacío"))
-})
-
-const FormSchema = z.object({
-  id: z.string().min(1, "El ID es requerido"),
-  name: z.string().min(1, "El nombre es requerido"),
-  description: z.string().min(1, "La descripción es requerida"),
-  inputs: z.array(z.string().min(1, "La entrada no puede estar vacía")).min(1, "Se requiere al menos una entrada"),
-  preconditions: z.array(z.string().min(1, "La precondición no puede estar vacía")).min(1, "Se requiere al menos una precondición"),
-  postconditions: z.array(z.string().min(1, "La postcondición no puede estar vacía")).min(1, "Se requiere al menos una postcondición"),
-  normalFlow: FlowSchema,
-  alternateFlows: z.array(FlowSchema)
-})
+import { createUseCase } from "../../../useCases.api"
+import { FormSchema } from "./UseCaseForm.form"
 
 type FormData = z.infer<typeof FormSchema>
 
@@ -100,6 +86,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
     const result = FormSchema.safeParse(formData)
     if (result.success) {
       console.log("Formulario válido:", result.data)
+      createUseCase(result.data)
       // Aquí puedes enviar los datos al backend
     } else {
       console.log("Errores de validación:", result.error.issues)
