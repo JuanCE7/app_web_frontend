@@ -13,7 +13,7 @@ export default async function OpenUseCase({
   return (
     <div>
       <HeaderUseCase projectId={params.projectId} useCaseId={params.useCaseId}/>
-      <UseCaseInformation useCase={useCase}/>
+      <UseCaseInformation useCase={useCase} projectId={params.projectId}/>
     </div>
   );
 }

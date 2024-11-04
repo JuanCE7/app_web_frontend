@@ -15,6 +15,7 @@ import { FormSchema } from "./UseCaseForm.form"
 type FormData = z.infer<typeof FormSchema>
 
 export function UseCaseForm(props: UseCaseFormProps) {
+  const { useCase, projectId } = props;
   const [formData, setFormData] = React.useState<FormData>({
     displayId: "UC01",
     name: "",
@@ -22,8 +23,9 @@ export function UseCaseForm(props: UseCaseFormProps) {
     entries: [""],
     preconditions: [""],
     postconditions: [""],
-    mainFlow: { name: Date.now().toString(), steps: [""] },
-    alternateFlows: []
+    mainFlow: { name: Date.now().toString(), steps: [{ number: 1, description: "" }] },
+    alternateFlows: [],
+    projectId: projectId
   })
   const [errors, setErrors] = React.useState<z.ZodIssue[]>([])
 
@@ -44,8 +46,12 @@ export function UseCaseForm(props: UseCaseFormProps) {
   }
 
   const addStep = (flowType: 'mainFlow' | 'alternateFlows', flowId: string) => {
+    const newStep = {
+      number: formData.mainFlow.steps.length + 1,
+      description: ""
+    };
     if (flowType === 'mainFlow') {
-      updateFormData('mainFlow', { ...formData.mainFlow, steps: [...formData.mainFlow.steps, ""] })
+      updateFormData('mainFlow', { ...formData.mainFlow, steps: [...formData.mainFlow.steps, newStep] })
     } else {
       updateFormData('alternateFlows', formData.alternateFlows.map(flow => 
         flow.name === flowId ? { ...flow, steps: [...flow.steps, ""] } : flow
@@ -65,11 +71,16 @@ export function UseCaseForm(props: UseCaseFormProps) {
 
   const updateStep = (flowType: 'mainFlow' | 'alternateFlows', flowId: string, stepIndex: number, value: string) => {
     if (flowType === 'mainFlow') {
-      updateFormData('mainFlow', { ...formData.mainFlow, steps: formData.mainFlow.steps.map((step, i) => i === stepIndex ? value : step) })
+      const updatedSteps = formData.mainFlow.steps.map((step, i) => 
+        i === stepIndex ? { ...step, description: value } : step // Solo actualiza la descripción
+      );
+      updateFormData('mainFlow', { ...formData.mainFlow, steps: updatedSteps });
     } else {
       updateFormData('alternateFlows', formData.alternateFlows.map(flow => 
-        flow.name === flowId ? { ...flow, steps: flow.steps.map((step, i) => i === stepIndex ? value : step) } : flow
-      ))
+        flow.name === flowId ? { ...flow, steps: flow.steps.map((step, i) => 
+          i === stepIndex ? { ...step, description: value } : step // Solo actualiza la descripción
+        ) } : flow
+      ));
     }
   }
 
@@ -87,7 +98,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
     if (result.success) {
       console.log("Formulario válido:", result.data)
       createUseCase(result.data)
-      // Aquí puedes enviar los datos al backend
+      console.log(result.data.projectId)
     } else {
       console.log("Errores de validación:", result.error.issues)
       setErrors(result.error.issues)
@@ -225,9 +236,9 @@ export function UseCaseForm(props: UseCaseFormProps) {
                 </div>
                 {formData.mainFlow.steps.map((step, stepIndex) => (
                   <div key={stepIndex} className="flex gap-2 mt-2">
-                    <div className="w-10 flex items-center justify-center">{stepIndex + 1}</div>
+                    <div className="w-10 flex items-center justify-center">{step.number}</div>
                     <Input
-                      value={step}
+                      value={step.description}
                       onChange={(e) => updateStep('mainFlow', formData.mainFlow.name, stepIndex, e.target.value)}
                       placeholder="Añadir paso..."
                     />
@@ -272,7 +283,7 @@ export function UseCaseForm(props: UseCaseFormProps) {
                     <div key={stepIndex} className="flex gap-2 mt-2">
                       <div className="w-10 flex items-center justify-center">{stepIndex + 1}</div>
                       <Input
-                        value={step}
+                        value={step.description}
                         onChange={(e) => updateStep('alternateFlows', flow.name, stepIndex, e.target.value)}
                         placeholder="Añadir paso..."
                       />
