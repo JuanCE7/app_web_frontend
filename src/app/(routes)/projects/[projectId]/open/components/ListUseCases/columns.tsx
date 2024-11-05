@@ -49,17 +49,7 @@ export const columns: ColumnDef<UseCase>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          UseCase name
-          <ArrowUpDown className="w-4 h-4 ml-2" />
-        </Button>
-      );
-    },
+    header: "Name"
   },
   {
     accessorKey: "description",
@@ -76,14 +66,6 @@ export const columns: ColumnDef<UseCase>[] = [
   {
     accessorKey: "postconditions",
     header: "Post-conditions",
-  },
-  {
-    accessorKey: "mainFlow",
-    header: "Main Flow",
-  },
-  {
-    accessorKey: "alternateFlows",
-    header: "Alternate Flows",
   },
   {
     id: "actions",

@@ -61,11 +61,15 @@ export function UseCaseForm(props: UseCaseFormProps) {
 
   const removeStep = (flowType: 'mainFlow' | 'alternateFlows', flowId: string, stepIndex: number) => {
     if (flowType === 'mainFlow') {
-      updateFormData('mainFlow', { ...formData.mainFlow, steps: formData.mainFlow.steps.filter((_, i) => i !== stepIndex) })
+      const updatedSteps = formData.mainFlow.steps.filter((_, i) => i !== stepIndex)
+        .map((step, index) => ({ ...step, number: index + 1 })); // Reasigna números
+  
+      updateFormData('mainFlow', { ...formData.mainFlow, steps: updatedSteps });
     } else {
       updateFormData('alternateFlows', formData.alternateFlows.map(flow => 
-        flow.name === flowId ? { ...flow, steps: flow.steps.filter((_, i) => i !== stepIndex) } : flow
-      ))
+        flow.name === flowId ? { ...flow, steps: flow.steps.filter((_, i) => i !== stepIndex)
+          .map((step, index) => ({ ...step, number: index + 1 })) } : flow
+      ));
     }
   }
 
