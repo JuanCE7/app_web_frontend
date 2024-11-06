@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { UseCaseInformation } from "./components/UseCaseInformation";
 import { getUseCaseById } from "../useCases.api";
 import { HeaderUseCase } from "./components/HeaderUseCase";
@@ -13,7 +12,7 @@ export default async function OpenUseCase({
   return (
     <div>
       <HeaderUseCase projectId={params.projectId} useCaseId={params.useCaseId}/>
-      <UseCaseInformation useCase={useCase} projectId={params.projectId}/>
+      <UseCaseInformation useCaseId={params.useCaseId} useCase={useCase} projectId={params.projectId}/>
     </div>
   );
 }

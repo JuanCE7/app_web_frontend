@@ -9,7 +9,7 @@ import "./globals.css";
 const noto = Noto_Sans_Display({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Test Use Case",
+  title: "CaseCraft",
   description: "System Case",
 };
 

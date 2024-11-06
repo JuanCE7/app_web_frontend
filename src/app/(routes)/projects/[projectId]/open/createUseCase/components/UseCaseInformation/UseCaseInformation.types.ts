@@ -1,6 +1,6 @@
 type Step = {
   number: number;
-  step: string; // O el nombre que desees para representar el paso
+  description: string; // O el nombre que desees para representar el paso
 };
 
 type Flow = {
@@ -11,6 +11,7 @@ type Flow = {
 type UseCase = {
   name: string;
   id: string;
+  displayId: string;
   description: string;
   entries: string[]; // Especifica el tipo de elementos que contendrá
   preconditions: string[]; // Asegúrate de que sea un arreglo de strings
@@ -22,4 +23,5 @@ type UseCase = {
 export type UseCaseInformationProps = {
   useCase: UseCase;
   projectId: string;
+  useCaseId: string;
 };

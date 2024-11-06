@@ -58,6 +58,7 @@ export default function AuthCard() {
   const [password, setPassword] = useState<string>("");
   const [passwordCopy, setPasswordCopy] = useState<string>("");
   const { data: session } = useSession();
+  const [showInfo, setShowInfo] = useState(true); // Nuevo estado para la sección de bienvenida
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -181,17 +182,6 @@ export default function AuthCard() {
                 {getButtonText()}
               </Button>
             </form>
-            <div className="flex items-center justify-center w-full">
-              <hr className="flex-grow border-t border-gray-300" />
-              <span className="mx-4 text-gray-500">O</span>
-              <hr className="flex-grow border-t border-gray-300" />
-            </div>
-            <Button
-              type="submit"
-              className="w-full mt-6 bg-[#3586ff] text-cyan-50 hover:bg-[#3a64a1]"
-            >
-              Inicia con Google
-            </Button>
             {errors.length > 0 && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2">
                 <ul className="mb-0">
@@ -363,11 +353,24 @@ export default function AuthCard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4 bg-[url('/background.png')]">
       <div className="absolute top-4 right-4">
         <ToggleTheme />
       </div>
-      <Card className="w-full max-w-md">
+      {showInfo ? (
+        <div className="w-full max-w-lg bg-black bg-opacity-50 p-8 rounded-lg shadow-lg text-center">
+          <Logo />
+          <h2 className="text-2xl font-bold mb-4">Bienvenido a Nuestra Plataforma</h2>
+          <p className="text-gray-700 mb-6">
+            Aquí puedes gestionar tu información y acceder a nuestros servicios.
+            Para continuar, haz clic en el botón de abajo.
+          </p>
+          <Button className="w-full mt-4" onClick={() => setShowInfo(false)}>
+            Iniciar Sesión
+          </Button>
+        </div>
+      ) : (
+        <Card className="w-full max-w-lg  bg-opacity-70 p-8 rounded-lg shadow-lg ">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <Logo />
@@ -414,6 +417,7 @@ export default function AuthCard() {
           )}
         </CardFooter>
       </Card>
+      )}
     </div>
   );
 }

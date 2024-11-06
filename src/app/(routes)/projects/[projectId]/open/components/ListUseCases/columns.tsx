@@ -30,6 +30,7 @@ export interface UseCase {
   postconditions?: string;
   mainFlow?: string;
   alternateFlows?: string;
+  projectId?: string;
 }
 
 export const columns: ColumnDef<UseCase>[] = [
@@ -81,7 +82,7 @@ export const columns: ColumnDef<UseCase>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/projects/${id}/edit`}>
+            <Link href={`open/createUseCase`}>
               <DropdownMenuItem>
                 <Pencil className="w-4 h-4 mr-2" />
                 Edit

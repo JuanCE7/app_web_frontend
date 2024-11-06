@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar/Sidebar";
-import SessionAuthProvider from "@/context/SessionAuthProvider";
 
 export default function LayoutDashboard({
   children,
