@@ -41,7 +41,6 @@ export function FormProject(props: FormProjectProps) {
       const fetchProject = async () => {
         try {
           const project = await getProjectById(projectId);
-          console.log(project)
           setProjectData(project); // Asigna los datos al estado
         } catch (error) {
           console.error("Error al obtener los datos del proyecto:", error);
@@ -74,7 +73,6 @@ export function FormProject(props: FormProjectProps) {
     try {
       if (session?.user?.email) {
         const user = await getUserLogged(session.user.email);
-        console.log("Final values with creatorId:", values);
         values.image = base64Image || ""
         if (projectId) {
           await updateProject(projectId, values);
@@ -104,7 +102,6 @@ export function FormProject(props: FormProjectProps) {
     if (file) {
       // Verifica si el archivo excede los 200 KB (200 * 1024 bytes)
       if (file.size > 200 * 1024) {
-        console.log(file)
         toast({
           title: "El archivo es demasiado grande",
           description: "El tamaño máximo permitido es 200 KB.",

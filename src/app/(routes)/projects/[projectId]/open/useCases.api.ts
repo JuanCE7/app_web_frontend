@@ -1,8 +1,6 @@
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL; 
 
 export async function createUseCase(useCaseData: any) {
-  console.log(useCaseData)
-  console.log("JSON enviado al backend:", JSON.stringify(useCaseData, null, 2));
   try {
     const res = await fetch(`${BACKEND_URL}/usecases`, {
       method: "POST",

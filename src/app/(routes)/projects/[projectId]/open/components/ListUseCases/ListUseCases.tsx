@@ -16,7 +16,6 @@ export default function ListUseCases(props: UseCaseProps) {
   useEffect(() => {
     const fetchUseCases = async () => {
       try {
-        console.log(projectId)
         if (session?.user?.email) {
           const useCases = await getUseCases(projectId);
           setListUseCases(useCases);

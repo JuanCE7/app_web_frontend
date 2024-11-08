@@ -16,11 +16,11 @@ import { FormUseCaseProps } from "./FormUseCase.types";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/app/login/login.api";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { createUseCase, updateUseCase } from "../../useCases.api";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   code: z.string().min(2),
@@ -40,6 +40,7 @@ export function FormUseCase(props: FormUseCaseProps) {
   const [useCaseData, setUseCaseData] = useState<z.infer<
     typeof formSchema
   > | null>(null);
+
   const [editorPreconditionsContent, setEditorPreconditionsContent] = useState<{
     html: string;
     text: string;
@@ -47,13 +48,14 @@ export function FormUseCase(props: FormUseCaseProps) {
     html: "",
     text: "",
   });
-  const [editorPostconditionsContent, setEditorPostconditionsContent] = useState<{
-    html: string;
-    text: string;
-  }>({
-    html: "",
-    text: "",
-  });
+  const [editorPostconditionsContent, setEditorPostconditionsContent] =
+    useState<{
+      html: string;
+      text: string;
+    }>({
+      html: "",
+      text: "",
+    });
   const [editorMainFlowContent, setEditorMainFlowContent] = useState<{
     html: string;
     text: string;
@@ -72,7 +74,6 @@ export function FormUseCase(props: FormUseCaseProps) {
   // Define the onChange function
   const handleEditorPreChange = (content: { html: string; text: string }) => {
     setEditorPreconditionsContent(content);
-
   };
   const handleEditorPostChange = (content: { html: string; text: string }) => {
     setEditorPostconditionsContent(content);
@@ -80,7 +81,10 @@ export function FormUseCase(props: FormUseCaseProps) {
   const handleEditorMainChange = (content: { html: string; text: string }) => {
     setEditorMainFlowContent(content);
   };
-  const handleEditorAlternateChange = (content: { html: string; text: string }) => {
+  const handleEditorAlternateChange = (content: {
+    html: string;
+    text: string;
+  }) => {
     setEditorAlternateFlowContent(content);
   };
   useEffect(() => {
@@ -101,6 +105,7 @@ export function FormUseCase(props: FormUseCaseProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onChange", // Verifica los cambios en tiempo real
   });
 
   useEffect(() => {
@@ -122,7 +127,6 @@ export function FormUseCase(props: FormUseCaseProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (session?.user?.email) {
-        console.log("Final values with creatorId:", values);
         if (projectId) {
           await updateUseCase(projectId, values);
           toast({ title: "Proyecto actualizado" });
@@ -145,9 +149,20 @@ export function FormUseCase(props: FormUseCaseProps) {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Codigo</FormLabel>
+              <FormControl>
+                <Input placeholder="UC01" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="grid grid-cols-2 gap-6">
           {/* Primera columna */}
           <div className="space-y-4">
@@ -158,7 +173,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                 <FormItem>
                   <FormLabel>Nombre</FormLabel>
                   <FormControl>
-                  <Textarea
+                    <Textarea
                       placeholder="Nombre del Proyecto"
                       className="resize-none"
                       {...field}
@@ -168,7 +183,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="preconditions"
@@ -177,8 +192,8 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormLabel>Precondiciones</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={editorPreconditionsContent.html}
-                      onChange={handleEditorPreChange}
+                      value={field.value || ""} // Asegura que el valor sea una cadena
+                      onChange={(content) => field.onChange(content.html)} // Pasa solo el HTML
                       toolbarOption={1}
                     />
                   </FormControl>
@@ -193,10 +208,10 @@ export function FormUseCase(props: FormUseCaseProps) {
                 <FormItem>
                   <FormLabel>Flujo Normal</FormLabel>
                   <FormControl>
-                    <RichTextEditor
-                      value={editorMainFlowContent.html}
-                      onChange={handleEditorMainChange}
-                      toolbarOption={2}
+                  <RichTextEditor
+                      value={field.value || ""} // Asegura que el valor sea una cadena
+                      onChange={(content) => field.onChange(content.html)} // Pasa solo el HTML
+                      toolbarOption={1}
                     />
                   </FormControl>
                   <FormMessage />
@@ -207,7 +222,7 @@ export function FormUseCase(props: FormUseCaseProps) {
 
           {/* Segunda columna */}
           <div className="space-y-4">
-          <FormField
+            <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
@@ -231,17 +246,17 @@ export function FormUseCase(props: FormUseCaseProps) {
                 <FormItem>
                   <FormLabel>Postcondiciones</FormLabel>
                   <FormControl>
-                    <RichTextEditor
-                      value={editorPostconditionsContent.html}
-                      onChange={handleEditorPostChange}
+                  <RichTextEditor
+                      value={field.value || ""} // Asegura que el valor sea una cadena
+                      onChange={(content) => field.onChange(content.html)} // Pasa solo el HTML
                       toolbarOption={1}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            />          
-            
+            />
+
             <FormField
               control={form.control}
               name="alternateFlows"
@@ -249,10 +264,10 @@ export function FormUseCase(props: FormUseCaseProps) {
                 <FormItem>
                   <FormLabel>Flujo Alterno</FormLabel>
                   <FormControl>
-                    <RichTextEditor
-                      value={editorAlternateFlowContent.html}
-                      onChange={handleEditorAlternateChange}
-                      toolbarOption={2}
+                  <RichTextEditor
+                      value={field.value || ""} // Asegura que el valor sea una cadena
+                      onChange={(content) => field.onChange(content.html)} // Pasa solo el HTML
+                      toolbarOption={1}
                     />
                   </FormControl>
                   <FormMessage />

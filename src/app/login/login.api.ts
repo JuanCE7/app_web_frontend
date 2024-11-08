@@ -14,7 +14,6 @@ export async function registerUser(values: any) {
     }), 
   });
   const data = await res.json();
-  console.log(data);
   return res;
 }
 
@@ -33,7 +32,6 @@ export async function getUserLogged(email: string): Promise<any> {
     }
 
     const data = await res.json();
-    console.log(data);
     return data;
   } catch (error) {
     console.error("Failed to fetch project:", error);

@@ -36,6 +36,7 @@ const RichTextEditor = ({
       }),
     ],
     content: value,
+    immediatelyRender:false,
     onUpdate: ({ editor }) => {
       const htmlContent = editor.getHTML();
       const textContent = editor.getText();

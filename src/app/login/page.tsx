@@ -99,8 +99,6 @@ export default function AuthCard() {
         redirect: false,
       });
 
-      console.log("Submitting registration with values:", values);
-
       if (responseNextAuth?.error) throw new Error(responseNextAuth.error);
 
       toast({ title: "Registration successful" });

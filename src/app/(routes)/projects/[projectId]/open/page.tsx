@@ -10,7 +10,7 @@ export default async function OpenProject({
 }) {
 
   const project = await getProjectById(params.projectId);
-  console.log(project)
+
   if (!project) {
     return redirect("/projects");
   }
