@@ -33,12 +33,12 @@ export function HeaderUseCases(props: UseCaseProps) {
         <DialogTrigger asChild>
           <Button>Crear Caso de Uso</Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[900px] sm:max-h-[800px] overflow-y-auto">
+        <DialogContent className="sm:max-w-[900px] sm:max-h-[700px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Crear Caso de Uso</DialogTitle>
             <DialogDescription>Ingresa la Información para Crear un Nuevo Caso de Uso</DialogDescription>
           </DialogHeader>
-          <FormUseCase setOpenModalCreate={setOpenModalCreate} />
+          <FormUseCase projectId={projectId} setOpenModalCreate={setOpenModalCreate} />
         </DialogContent>
       </Dialog>
     </div>

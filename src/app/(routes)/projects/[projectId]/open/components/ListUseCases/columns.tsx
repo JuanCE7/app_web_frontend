@@ -4,10 +4,16 @@ import {
   ArrowUpDown,
   MoreHorizontal,
   Pencil,
-  Share2,
+  Trash2,
   ExternalLink,
 } from "lucide-react";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -19,9 +25,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import Link from "next/link";
+import { useState } from "react";
+import { FormUseCase } from "../FormUseCase";
+import { useRouter } from "next/navigation";
+import { deleteUseCase } from "../../useCases.api";
+import { toast } from "@/hooks/use-toast";
 
 export interface UseCase {
-  displayId ?: string;
+  code ?: string;
   id?: string;
   name: string;
   description?: string;
@@ -29,19 +40,19 @@ export interface UseCase {
   postconditions?: string;
   mainFlow?: string;
   alternateFlows?: string;
-  projectId?: string;
+  projectId: string;
 }
 
 export const columns: ColumnDef<UseCase>[] = [
   {
-    accessorKey: "displayId",
+    accessorKey: "code",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Id
+          Código
           <ArrowUpDown className="w-4 h-4 ml-2" />
         </Button>
       );
@@ -67,8 +78,40 @@ export const columns: ColumnDef<UseCase>[] = [
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      const { code, name, description, preconditions,postconditions, mainFlow, alternateFlows, projectId } = row.original;
+      const [openModalCreate, setOpenModalCreate] = useState(false);
+      const [openModalDelete, setOpenModalDelete] = useState(false);
+      const [selectedUseCase, setSelectedUseCase] = useState<UseCase | null>(
+        null
+      );
+      const [selectedProjectId, setSelectedProjectId] = useState<
+        string | null
+      >();
       const { id } = row.original;
+      const router = useRouter();
+
+      const confirmDeleteProject = () => {
+        if (selectedProjectId) deleteUseCase(selectedProjectId);
+        closeModal()
+        router.refresh();
+        toast({
+          title: "Proyecto Eliminado Correctamente",
+        });        
+      };
+      const closeModal = () => {
+        setOpenModalDelete(false);
+      };
+
+      const handleEdit = () => {
+        selectedUseCase({ code, name, description, preconditions, postconditions, mainFlow, alternateFlows});
+        setOpenModalCreate(true);
+      };
+      const handleDelete = () => {
+        setSelectedProjectId(id);
+        setOpenModalDelete(true);
+      };
       return (
+        <>
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Button variant="ghost" className="w-8 h-4 p-0">
@@ -85,6 +128,58 @@ export const columns: ColumnDef<UseCase>[] = [
             </Link>
           </DropdownMenuContent>
         </DropdownMenu>
+        {/* Modal de edición */}
+        <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
+            <DialogContent className="sm:max-w-[625px]">
+              <DialogHeader>
+                <DialogTitle>Editar Proyecto</DialogTitle>
+                <DialogDescription>
+                  Modifica la información del proyecto
+                </DialogDescription>
+              </DialogHeader>
+              {selectedUseCase && (
+                <FormUseCase
+                  useCaseId={id}
+                  projectId={projectId}
+                  setOpenModalCreate={setOpenModalCreate}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={openModalDelete} onOpenChange={setOpenModalDelete}>
+            <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
+              <DialogHeader className="text-center">
+                <DialogTitle className="text-center">
+                  Confirmar Eliminación
+                </DialogTitle>
+                <DialogDescription className="text-center">
+                  ¿Estás seguro de que deseas eliminar este elemento? Esta
+                  acción no se puede deshacer.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="flex w-full space-x-4 mt-6">
+                <Button
+                  variant="secondary"
+                  onClick={closeModal}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmDeleteProject}
+                  className="flex-1"
+                >
+                  Eliminar
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+
+        
       );
     },
   },

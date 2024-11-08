@@ -101,11 +101,11 @@ export default function AuthCard() {
 
       if (responseNextAuth?.error) throw new Error(responseNextAuth.error);
 
-      toast({ title: "Registration successful" });
+      toast({ title: "Registrado Correctamente" });
       router.push("/");
     } catch (error) {
       toast({
-        title: "Registration failed",
+        title: "Registro Fallido",
         description:
           error instanceof Error ? res?.json.toString() : "An error occurred",
         variant: "destructive",
@@ -127,6 +127,7 @@ export default function AuthCard() {
       setErrors(responseNextAuth.error.split(","));
       return;
     }
+    toast({ title: "Bienvenido al Sistema" });
     router.push("/");
   };
 
@@ -199,7 +200,7 @@ export default function AuthCard() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
+                className="space-y-3"
               >
                 <FormField
                   control={form.control}
@@ -330,8 +331,6 @@ export default function AuthCard() {
         return "Iniciar sesión";
       case "register":
         return "Registrarse";
-      case "forgotUsername":
-        return "Recuperar Usuario";
       case "forgotPassword":
         return "Recuperar Contraseña";
     }
@@ -343,8 +342,6 @@ export default function AuthCard() {
         return "Iniciar sesión";
       case "register":
         return "Registrarse";
-      case "forgotUsername":
-        return "Recuperar Usuario";
       case "forgotPassword":
         return "Recuperar Contraseña";
     }

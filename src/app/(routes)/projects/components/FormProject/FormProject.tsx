@@ -108,8 +108,7 @@ export function FormProject(props: FormProjectProps) {
           variant: "destructive",
         });
         return; 
-      }
-  
+      }  
       const reader = new FileReader();
       reader.onloadend = () => {
         setBase64Image(reader.result as string);
