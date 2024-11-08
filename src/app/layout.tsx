@@ -19,12 +19,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SessionAuthProvider>
-      <html lang="en">
-        <head>
-          <link rel="icon" href="/favicon.ico" />
-        </head>
-        <body className={noto.className}>
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className={noto.className} suppressHydrationWarning>
+        <SessionAuthProvider>
           <ThemeProvider
             attribute="class"
             enableSystem
@@ -33,8 +33,8 @@ export default function RootLayout({
             {children}
             <Toaster />
           </ThemeProvider>
-        </body>
-      </html>
-    </SessionAuthProvider>
+        </SessionAuthProvider>
+      </body>
+    </html>
   );
 }

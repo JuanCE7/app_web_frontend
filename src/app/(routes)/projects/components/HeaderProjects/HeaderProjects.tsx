@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import { FormCreateProject } from "../FormCreateProject/FormCreateProject";
+import { FormProject } from "../FormProject/FormProject";
 
 export function HeaderProjects() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
@@ -24,10 +24,10 @@ export function HeaderProjects() {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>Create Proyecto</DialogTitle>
-            <DialogDescription>Crear Nuevo Proyecto</DialogDescription>
+            <DialogTitle>Crear Proyecto</DialogTitle>
+            <DialogDescription>Ingresa la Información para Crear un Nuevo Proyecto</DialogDescription>
           </DialogHeader>
-          <FormCreateProject setOpenModalCreate={setOpenModalCreate} />
+          <FormProject setOpenModalCreate={setOpenModalCreate} />
         </DialogContent>
       </Dialog>
     </div>

@@ -37,7 +37,9 @@ const handler = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log(user+"xxx"+token)
+      if(user){
+        token.lastActive = Date.now(); 
+      }
       return { ...token, ...user };
     },
     async session({ session, token }) {
@@ -48,11 +50,11 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
-  session:{
+  session: {
     strategy: "jwt",
-    maxAge: 10 * 60,
-    updateAge: 10 * 60,
-  }
+    maxAge: 60 * 60,
+    updateAge: 15 * 60,
+  },
 });
 
 export { handler as GET, handler as POST };
