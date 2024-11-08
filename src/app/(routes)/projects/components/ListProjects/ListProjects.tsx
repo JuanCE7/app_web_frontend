@@ -19,7 +19,7 @@ export default async function ListProjects() {
     <DataTable
       columns={columns}
       data={projects}
-      placeholder="Filter for name ..."
+      placeholder="Filtro por nombre..."
       filter="name"
     />
   );

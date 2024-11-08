@@ -3,23 +3,20 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { columns } from "./columns";
-import { redirect } from "next/navigation";
 import { getUseCases } from "../../useCases.api";
 import { UseCaseProps } from "./UseCase.types";
 import { DataTable } from "@/components/Data-Table";
 
 export default function ListUseCases(props: UseCaseProps) {
+  
   const { data: session } = useSession();
   const [listUseCases, setListUseCases] = useState([]);
   const { projectId } = props;
 
-  if (!session) {
-    return redirect("/");
-  }
-
   useEffect(() => {
     const fetchUseCases = async () => {
       try {
+        console.log(projectId)
         if (session?.user?.email) {
           const useCases = await getUseCases(projectId);
           setListUseCases(useCases);
@@ -38,7 +35,7 @@ export default function ListUseCases(props: UseCaseProps) {
     <DataTable
       columns={columns}
       data={listUseCases}
-      placeholder="Filter for name ..."
+      placeholder="Filtro por ID ..."
       filter="name"
     />
   );

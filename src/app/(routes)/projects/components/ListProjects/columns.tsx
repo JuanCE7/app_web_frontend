@@ -88,7 +88,7 @@ export const columns: ColumnDef<Project>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Acciones",
     cell: ({ row }) => {
       const { id, name, description, image } = row.original;
       const [openModalCreate, setOpenModalCreate] = useState(false);

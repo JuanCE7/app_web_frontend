@@ -12,7 +12,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { FormUseCaseProps } from "./FormUseCase.types";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -22,16 +21,15 @@ import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { createUseCase, updateUseCase } from "../../useCases.api";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
-import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
-  code: z.string(),
-  name: z.string(),
-  description: z.string().min(2),
-  preconditions: z.string().min(2),
-  postconditions: z.string().min(2),
-  mainFlow: z.string().min(2),
-  alternateFlows: z.string().min(2).optional(),
+  code: z.string().min(2),
+  name: z.string().min(3),
+  description: z.string().min(5),
+  preconditions: z.string().min(5),
+  postconditions: z.string().min(5),
+  mainFlow: z.string().min(5),
+  alternateFlows: z.string().min(5).optional(),
   projectId: z.string().optional(),
 });
 
@@ -39,11 +37,31 @@ export function FormUseCase(props: FormUseCaseProps) {
   const { setOpenModalCreate, projectId } = props;
   const router = useRouter();
   const { data: session } = useSession();
-  const [base64Image, setBase64Image] = useState<string | null>(null);
   const [useCaseData, setUseCaseData] = useState<z.infer<
     typeof formSchema
   > | null>(null);
-  const [editorContent, setEditorContent] = useState<{
+  const [editorPreconditionsContent, setEditorPreconditionsContent] = useState<{
+    html: string;
+    text: string;
+  }>({
+    html: "",
+    text: "",
+  });
+  const [editorPostconditionsContent, setEditorPostconditionsContent] = useState<{
+    html: string;
+    text: string;
+  }>({
+    html: "",
+    text: "",
+  });
+  const [editorMainFlowContent, setEditorMainFlowContent] = useState<{
+    html: string;
+    text: string;
+  }>({
+    html: "",
+    text: "",
+  });
+  const [editorAlternateFlowContent, setEditorAlternateFlowContent] = useState<{
     html: string;
     text: string;
   }>({
@@ -52,12 +70,19 @@ export function FormUseCase(props: FormUseCaseProps) {
   });
 
   // Define the onChange function
-  const handleEditorChange = (content: { html: string; text: string }) => {
-    setEditorContent(content);
-    console.log("HTML content:", content.html);
-    console.log("Plain text content:", content.text);
-  };
+  const handleEditorPreChange = (content: { html: string; text: string }) => {
+    setEditorPreconditionsContent(content);
 
+  };
+  const handleEditorPostChange = (content: { html: string; text: string }) => {
+    setEditorPostconditionsContent(content);
+  };
+  const handleEditorMainChange = (content: { html: string; text: string }) => {
+    setEditorMainFlowContent(content);
+  };
+  const handleEditorAlternateChange = (content: { html: string; text: string }) => {
+    setEditorAlternateFlowContent(content);
+  };
   useEffect(() => {
     if (projectId) {
       const fetchProject = async () => {
@@ -97,7 +122,6 @@ export function FormUseCase(props: FormUseCaseProps) {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (session?.user?.email) {
-        const user = await getUserLogged(session.user.email);
         console.log("Final values with creatorId:", values);
         if (projectId) {
           await updateUseCase(projectId, values);
@@ -116,30 +140,6 @@ export function FormUseCase(props: FormUseCaseProps) {
         title: "Something went wrong",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Verifica si el archivo excede los 200 KB (200 * 1024 bytes)
-      if (file.size > 200 * 1024) {
-        console.log(file);
-        toast({
-          title: "El archivo es demasiado grande",
-          description: "El tamaño máximo permitido es 200 KB.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBase64Image(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -171,14 +171,14 @@ export function FormUseCase(props: FormUseCaseProps) {
             
             <FormField
               control={form.control}
-              name="alternateFlows"
+              name="preconditions"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Precondiciones</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={editorContent.html}
-                      onChange={handleEditorChange}
+                      value={editorPreconditionsContent.html}
+                      onChange={handleEditorPreChange}
                       toolbarOption={1}
                     />
                   </FormControl>
@@ -188,14 +188,14 @@ export function FormUseCase(props: FormUseCaseProps) {
             />
             <FormField
               control={form.control}
-              name="alternateFlows"
+              name="mainFlow"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Flujo Normal</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={editorContent.html}
-                      onChange={handleEditorChange}
+                      value={editorMainFlowContent.html}
+                      onChange={handleEditorMainChange}
                       toolbarOption={2}
                     />
                   </FormControl>
@@ -226,14 +226,14 @@ export function FormUseCase(props: FormUseCaseProps) {
             />
             <FormField
               control={form.control}
-              name="alternateFlows"
+              name="postconditions"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Postcondiciones</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={editorContent.html}
-                      onChange={handleEditorChange}
+                      value={editorPostconditionsContent.html}
+                      onChange={handleEditorPostChange}
                       toolbarOption={1}
                     />
                   </FormControl>
@@ -250,8 +250,8 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormLabel>Flujo Alterno</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={editorContent.html}
-                      onChange={handleEditorChange}
+                      value={editorAlternateFlowContent.html}
+                      onChange={handleEditorAlternateChange}
                       toolbarOption={2}
                     />
                   </FormControl>

@@ -28,14 +28,14 @@ export function SidebarRoutes() {
         </div>
         <Separator />
         <div className="p-2 md:p-6">
-          <p>TOOLS</p>
+          <p>HERRAMIENTAS</p>
           {dataToolsSidebar.map((item) => (
             <SidebarItem key={item.label} item={item} />
           ))}
         </div>
         <Separator />
         <div className="p-2 md:p-6">
-          <p>SUPPORT</p>
+          <p>SOPORTE</p>
           {dataSuportSideBar.map((item) => (
             <SidebarItem key={item.label} item={item} />
           ))}
@@ -49,12 +49,12 @@ export function SidebarRoutes() {
             className="w-full"
             onClick={() => signOut({ callbackUrl: "/login" })}
           >
-            Signout
+            Cerrar Sesión
           </Button>
         </div>
         <Separator />
         <footer className="mt-3 p-3 text-center">
-          2024. All rights reserved.
+          2024. Todos los permisos reservados.
         </footer>
       </div>
     </div>

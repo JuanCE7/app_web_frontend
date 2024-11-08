@@ -9,25 +9,20 @@ import {
 export const dataGeneralSidebar = [
   {
     icon: PanelsTopLeft,
-    label: "Dashboard",
+    label: "Inicio",
     href: "/",
   },
   {
     icon: FolderKanban,
-    label: "Projects",
+    label: "Proyectos",
     href: "/projects",
-  },
-  {
-    icon: UserPen,
-    label: "Profile",
-    href: "/profile",
   },
 ];
 
 export const dataToolsSidebar = [
   {
     icon: Info,
-    label: "Information",
+    label: "Información",
     href: "/information",
   },
 ];
@@ -35,7 +30,7 @@ export const dataToolsSidebar = [
 export const dataSuportSideBar = [
   {
     icon: Settings,
-    label: "Settings",
+    label: "Configuración",
     href: "/settings",
   },
 ];

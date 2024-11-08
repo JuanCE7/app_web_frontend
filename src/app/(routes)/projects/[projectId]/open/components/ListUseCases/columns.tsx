@@ -25,7 +25,6 @@ export interface UseCase {
   id?: string;
   name: string;
   description?: string;
-  entries?: string;
   preconditions?: string;
   postconditions?: string;
   mainFlow?: string;
@@ -50,27 +49,23 @@ export const columns: ColumnDef<UseCase>[] = [
   },
   {
     accessorKey: "name",
-    header: "Name"
+    header: "Nombre"
   },
   {
     accessorKey: "description",
-    header: "Description",
-  },
-  {
-    accessorKey: "entries",
-    header: "Entries",
+    header: "Descripción",
   },
   {
     accessorKey: "preconditions",
-    header: "Pre-conditions",
+    header: "Pre-condiciones",
   },
   {
     accessorKey: "postconditions",
-    header: "Post-conditions",
+    header: "Post-condiciones",
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Acciones",
     cell: ({ row }) => {
       const { id } = row.original;
       return (
@@ -85,7 +80,7 @@ export const columns: ColumnDef<UseCase>[] = [
             <Link href={`open/createUseCase`}>
               <DropdownMenuItem>
                 <Pencil className="w-4 h-4 mr-2" />
-                Edit
+                Editar
               </DropdownMenuItem>
             </Link>
           </DropdownMenuContent>
