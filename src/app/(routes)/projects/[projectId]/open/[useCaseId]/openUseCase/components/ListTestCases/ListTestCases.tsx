@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { columns } from "./columns";
-import { getUseCases } from "../../useCases.api";
-import { UseCaseProps } from "./UseCase.types";
+import { UseCaseProps } from "./TestCase.types";
 import { DataTable } from "@/components/Data-Table";
 
-export default function ListUseCases(props: UseCaseProps) {
+export default function ListTestCases(props: UseCaseProps) {
   
   const { data: session } = useSession();
   const [listUseCases, setListUseCases] = useState([]);
@@ -17,8 +16,8 @@ export default function ListUseCases(props: UseCaseProps) {
     const fetchUseCases = async () => {
       try {
         if (session?.user?.email) {
-          const useCases = await getUseCases(projectId);
-          setListUseCases(useCases);
+          // const useCases = await getUseCases(projectId);
+          // setListUseCases(useCases);
         } else {
           throw new Error("User session not available");
         }

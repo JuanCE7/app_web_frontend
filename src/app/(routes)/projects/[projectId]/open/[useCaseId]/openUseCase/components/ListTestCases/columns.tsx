@@ -24,11 +24,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import Link from "next/link";
 import { useState } from "react";
-import { FormUseCase } from "../FormUseCase";
+import { FormTestCase } from "../FormTestCase";
 import { useRouter } from "next/navigation";
-import { deleteUseCase } from "../../useCases.api";
 import { toast } from "@/hooks/use-toast";
 
 export interface UseCase {
@@ -36,10 +34,9 @@ export interface UseCase {
   id?: string;
   name: string;
   description?: string;
-  preconditions?: string;
-  postconditions?: string;
-  mainFlow?: string;
-  alternateFlows?: string;
+  steps?: string;
+  inputData?: string;
+  expectResult?: string;
   projectId: string;
 }
 
@@ -67,12 +64,16 @@ export const columns: ColumnDef<UseCase>[] = [
     header: "Descripción",
   },
   {
-    accessorKey: "preconditions",
-    header: "Pre-condiciones",
+    accessorKey: "steps",
+    header: "Pasos",
   },
   {
-    accessorKey: "postconditions",
-    header: "Post-condiciones",
+    accessorKey: "inputData",
+    header: "Datos de entrada",
+  },
+  {
+    accessorKey: "expectResult",
+    header: "Resultado esperado",
   },
   {
     id: "actions",
@@ -82,10 +83,9 @@ export const columns: ColumnDef<UseCase>[] = [
         code,
         name,
         description,
-        preconditions,
-        postconditions,
-        mainFlow,
-        alternateFlows,
+        steps,
+        inputData,
+        expectResult,
         projectId,
       } = row.original;
       const [openModalCreate, setOpenModalCreate] = useState(false);
@@ -93,14 +93,14 @@ export const columns: ColumnDef<UseCase>[] = [
       const [selectedUseCase, setSelectedUseCase] = useState<UseCase | null>(
         null
       );
-      const [selectedUseCaseId, setSelectedUseCaseId] = useState<
+      const [selectedTestCaseId, setSelectedTestCaseId] = useState<
         string | null
       >();
       const { id } = row.original;
       const router = useRouter();
 
       const confirmDeleteUseCase = () => {
-        if (selectedUseCaseId) deleteUseCase(selectedUseCaseId);
+        // if (selectedTestCaseId) deleteUseCase(selectedTestCaseId);
         closeModal();
         router.refresh();
         toast({
@@ -116,16 +116,15 @@ export const columns: ColumnDef<UseCase>[] = [
           code,
           name,
           description,
-          preconditions,
-          postconditions,
-          mainFlow,
-          alternateFlows,
+          steps,
+          inputData,
+          expectResult,
           projectId,
         });
         setOpenModalCreate(true);
       };
       const handleDelete = () => {
-        setSelectedUseCaseId(id);
+        setSelectedTestCaseId(id);
         setOpenModalDelete(true);
       };
       return (
@@ -146,27 +145,25 @@ export const columns: ColumnDef<UseCase>[] = [
                 <Trash2 className="w-4 h-4 mr-2" />
                 Eliminar
               </DropdownMenuItem>
-              <Link href={`/projects/${projectId}/open/${id}/openUseCase`}>
-                <DropdownMenuItem>
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Abrir
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Explicación
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {/* Modal de edición */}
           <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
             <DialogContent className="sm:max-w-[900px] sm:max-h-[700px] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Editar Caso de Uso</DialogTitle>
+                <DialogTitle>Editar Caso de Prueba</DialogTitle>
                 <DialogDescription>
-                  Modifica la información del caso de uso
+                  Modifica la información del caso de prueba
                 </DialogDescription>
               </DialogHeader>
               {selectedUseCase && (
-                <FormUseCase
-                  useCaseId={id}
-                  projectId={projectId}
+                <FormTestCase
+                  testCaseId={id}
+                  useCaseId={projectId}
                   setOpenModalCreate={setOpenModalCreate}
                 />
               )}
