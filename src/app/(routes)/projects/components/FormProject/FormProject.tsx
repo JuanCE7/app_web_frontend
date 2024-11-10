@@ -23,8 +23,8 @@ import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
-  name: z.string(),
-  description: z.string().min(2),
+  name: z.string().min(5, "El nombre debe tener al menos 5 caracteres"),
+  description: z.string().min(5, "La descripción debe tener al menos 5 caracteres"),
   image: z.string().optional(),
   creatorId: z.string().optional(), 
 });
@@ -41,7 +41,8 @@ export function FormProject(props: FormProjectProps) {
       const fetchProject = async () => {
         try {
           const project = await getProjectById(projectId);
-          setProjectData(project); // Asigna los datos al estado
+          setProjectData(project);
+          console.log(form)
         } catch (error) {
           console.error("Error al obtener los datos del proyecto:", error);
         }
@@ -53,6 +54,7 @@ export function FormProject(props: FormProjectProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onChange"
   });
 
   useEffect(() => {

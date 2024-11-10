@@ -32,7 +32,7 @@ import { deleteUseCase } from "../../useCases.api";
 import { toast } from "@/hooks/use-toast";
 
 export interface UseCase {
-  code ?: string;
+  code?: string;
   id?: string;
   name: string;
   description?: string;
@@ -60,7 +60,7 @@ export const columns: ColumnDef<UseCase>[] = [
   },
   {
     accessorKey: "name",
-    header: "Nombre"
+    header: "Nombre",
   },
   {
     accessorKey: "description",
@@ -78,63 +78,87 @@ export const columns: ColumnDef<UseCase>[] = [
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { code, name, description, preconditions,postconditions, mainFlow, alternateFlows, projectId } = row.original;
+      const {
+        code,
+        name,
+        description,
+        preconditions,
+        postconditions,
+        mainFlow,
+        alternateFlows,
+        projectId,
+      } = row.original;
       const [openModalCreate, setOpenModalCreate] = useState(false);
       const [openModalDelete, setOpenModalDelete] = useState(false);
       const [selectedUseCase, setSelectedUseCase] = useState<UseCase | null>(
         null
       );
-      const [selectedProjectId, setSelectedProjectId] = useState<
+      const [selectedUseCaseId, setSelectedUseCaseId] = useState<
         string | null
       >();
       const { id } = row.original;
       const router = useRouter();
 
-      const confirmDeleteProject = () => {
-        if (selectedProjectId) deleteUseCase(selectedProjectId);
-        closeModal()
+      const confirmDeleteUseCase = () => {
+        if (selectedUseCaseId) deleteUseCase(selectedUseCaseId);
+        closeModal();
         router.refresh();
         toast({
-          title: "Proyecto Eliminado Correctamente",
-        });        
+          title: "Caso de Uso Eliminado Correctamente",
+        });
       };
       const closeModal = () => {
         setOpenModalDelete(false);
       };
 
       const handleEdit = () => {
-        selectedUseCase({ code, name, description, preconditions, postconditions, mainFlow, alternateFlows});
+        setSelectedUseCase({
+          code,
+          name,
+          description,
+          preconditions,
+          postconditions,
+          mainFlow,
+          alternateFlows,
+          projectId,
+        });
         setOpenModalCreate(true);
       };
       const handleDelete = () => {
-        setSelectedProjectId(id);
+        setSelectedUseCaseId(id);
         setOpenModalDelete(true);
       };
       return (
         <>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" className="w-8 h-4 p-0">
-              <span className="sr-only">Open Menu</span>
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <Link href={`open/createUseCase`}>
-              <DropdownMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="ghost" className="w-8 h-4 p-0">
+                <span className="sr-only">Open Menu</span>
+                <MoreHorizontal className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleEdit}>
                 <Pencil className="w-4 h-4 mr-2" />
                 Editar
               </DropdownMenuItem>
-            </Link>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        {/* Modal de edición */}
-        <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
-            <DialogContent className="sm:max-w-[625px]">
+              <DropdownMenuItem onClick={handleDelete}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Eliminar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleEdit}>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Abrir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* Modal de edición */}
+          <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
+            <DialogContent className="sm:max-w-[900px] sm:max-h-[700px] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Editar Proyecto</DialogTitle>
+                <DialogTitle>Editar Caso de Uso</DialogTitle>
                 <DialogDescription>
-                  Modifica la información del proyecto
+                  Modifica la información del caso de uso
                 </DialogDescription>
               </DialogHeader>
               {selectedUseCase && (
@@ -169,7 +193,7 @@ export const columns: ColumnDef<UseCase>[] = [
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={confirmDeleteProject}
+                  onClick={confirmDeleteUseCase}
                   className="flex-1"
                 >
                   Eliminar
@@ -178,8 +202,6 @@ export const columns: ColumnDef<UseCase>[] = [
             </DialogContent>
           </Dialog>
         </>
-
-        
       );
     },
   },

@@ -18,7 +18,11 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { createUseCase, updateUseCase } from "../../useCases.api";
+import {
+  createUseCase,
+  getUseCaseById,
+  updateUseCase,
+} from "../../useCases.api";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import { Input } from "@/components/ui/input";
 
@@ -27,7 +31,7 @@ const formSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
   description: z
     .string()
-    .min(5, "La descripción debe tener al menos 5 caracteres"),
+    .min(10, "La descripción debe tener al menos 10 caracteres"),
   preconditions: z
     .string()
     .min(5, "Las precondiciones deben tener al menos 5 caracteres"),
@@ -37,9 +41,7 @@ const formSchema = z.object({
   mainFlow: z
     .string()
     .min(5, "El flujo normal debe tener al menos 5 caracteres"),
-  alternateFlows: z
-    .string()
-    .optional(),
+  alternateFlows: z.string().optional(),
   projectId: z.string().optional(),
 });
 
@@ -47,50 +49,40 @@ export function FormUseCase(props: FormUseCaseProps) {
   const { setOpenModalCreate, projectId, useCaseId } = props;
   const router = useRouter();
   const { data: session } = useSession();
-  const [useCaseData, setUseCaseData] = useState<z.infer<typeof formSchema>>({
-    code: "",
-    name: "",
-    description: "",
-    preconditions: "",
-    postconditions: "",
-    mainFlow: "",
-    alternateFlows: "",
-    projectId: "",
-  });
+  const [useCaseData, setUseCaseData] = useState<z.infer<typeof formSchema>>();
 
   useEffect(() => {
     if (useCaseId) {
-      const fetchProject = async () => {
+      const fetchUseCase = async () => {
         try {
-          // const project = await getProjectById(projectId);
-          // console.log(project)
-          // setuseCaseData(project); // Asigna los datos al estado
+          const useCase = await getUseCaseById(useCaseId);
+          form.reset(useCase);
+          setUseCaseData(useCase);
         } catch (error) {
           console.error("Error al obtener los datos del proyecto:", error);
         }
       };
 
-      fetchProject();
+      fetchUseCase();
     }
   }, [useCaseId]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: useCaseData,
-    mode: "onChange",
+    mode: "onChange"
   });
 
   useEffect(() => {
     if (useCaseData) {
-      form.reset({
-        code: useCaseData.code || "",
-        name: useCaseData.name || "",
-        description: useCaseData.description || "",
-        preconditions: useCaseData.preconditions || "",
-        postconditions: useCaseData.postconditions || "",
-        mainFlow: useCaseData.mainFlow || "",
-        alternateFlows: useCaseData.alternateFlows || "",
-      });
+      if (useCaseData) {
+        form.setValue("code", useCaseData.code);
+        form.setValue("name", useCaseData.name);
+        form.setValue("description", useCaseData.description);
+        form.setValue("preconditions", useCaseData.preconditions);
+        form.setValue("postconditions", useCaseData.postconditions);
+        form.setValue("mainFlow", useCaseData.mainFlow);
+        form.setValue("alternateFlows", useCaseData.alternateFlows || "");
+      }
     }
   }, [useCaseData, form]);
 
@@ -131,7 +123,7 @@ export function FormUseCase(props: FormUseCaseProps) {
             <FormItem>
               <FormLabel>Codigo</FormLabel>
               <FormControl>
-                <Input placeholder="UC01" {...field} />
+                <Input placeholder="UC01" type="text" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -166,8 +158,10 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormLabel>Precondiciones</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={field.value || ""} // Asegura que el valor sea una cadena
-                      onChange={(content) => field.onChange(content.text)} // Pasa solo el HTML
+                      value={field.value || ""}
+                      onChange={(content) => {
+                        field.onChange(content.text);
+                      }}
                       toolbarOption={1}
                     />
                   </FormControl>
@@ -175,6 +169,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="mainFlow"
@@ -183,7 +178,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormLabel>Flujo Normal</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={field.value || ""}
+                      value={field.value}
                       onChange={(content) => field.onChange(content.text)}
                       toolbarOption={2}
                     />
@@ -221,7 +216,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormLabel>Postcondiciones</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={field.value || ""} // Asegura que el valor sea una cadena
+                      value={field.value} // Asegura que el valor sea una cadena
                       onChange={(content) => field.onChange(content.text)} // Pasa solo el HTML
                       toolbarOption={1}
                     />

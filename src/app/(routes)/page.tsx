@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default async function Dashboard() {
+export default function Dashboard() {
   return (
     <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
       <h1 className="text-6xl font-bold text-center mb-6">

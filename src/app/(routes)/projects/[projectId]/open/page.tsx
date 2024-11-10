@@ -16,7 +16,7 @@ export default async function OpenProject({
   }
 
   return (
-    <div>
+    <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
       <HeaderUseCases projectId={project.id}/>
       <ListUseCases projectId={project.id} />
     </div>

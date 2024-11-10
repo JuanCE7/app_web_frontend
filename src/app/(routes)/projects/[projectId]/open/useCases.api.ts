@@ -46,7 +46,7 @@ export async function getUseCases(projectId: string): Promise<any> {
 
 export async function getUseCaseById(id: string): Promise<any>  {
   try {
-    const res = await fetch(`${BACKEND_URL}/usecases/${id}`, {
+    const res = await fetch(`${BACKEND_URL}/usecases/usecase/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
