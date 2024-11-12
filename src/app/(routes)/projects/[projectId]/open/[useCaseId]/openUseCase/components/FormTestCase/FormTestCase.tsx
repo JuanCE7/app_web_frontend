@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import { Input } from "@/components/ui/input";
+import { createTestCase, updateTestCase } from "../../../testCases.api";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -36,6 +37,8 @@ const formSchema = z.object({
   expectResult: z
     .string()
     .min(5, "El flujo normal debe tener al menos 5 caracteres"),
+  explanationSummary: z.string().optional(),
+  explanationDetails: z.string().optional(),
   useCaseId: z.string().optional(),
 });
 
@@ -84,12 +87,12 @@ export function FormTestCase(props: FormTestCaseProps) {
       if (session?.user?.email) {
         values.useCaseId = useCaseId;
         if (useCaseId) {
-          // await updateUseCase(useCaseId, values);
-          toast({ title: "Proyecto actualizado" });
+          await updateTestCase(useCaseId, values);
+          toast({ title: "Caso de Prueba actualizado" });
         } else {
           console.log(values);
-          // await createUseCase(values);
-          toast({ title: "Proyecto creado" });
+          await createTestCase(values);
+          toast({ title: "Caso de Prueba creado" });
         }
         setOpenModalCreate(false);
         router.refresh();
@@ -189,8 +192,10 @@ export function FormTestCase(props: FormTestCaseProps) {
                   <FormLabel>Datos de Entrada</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={field.value} // Asegura que el valor sea una cadena
-                      onChange={(content) => field.onChange(content.text)} // Pasa solo el HTML
+                      value={field.value}
+                      onChange={(content) => {
+                        field.onChange(content.html, content.text);
+                      }}
                       toolbarOption={1}
                     />
                   </FormControl>

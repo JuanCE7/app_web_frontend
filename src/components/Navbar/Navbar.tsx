@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu } from "lucide-react";
 import { SidebarRoutes } from "../SidebarRoutes";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import { getUserLogged } from "@/app/login/login.api";
 
 export function Navbar() {
@@ -18,14 +18,14 @@ export function Navbar() {
       if (session?.user?.email) {
         try {
           let user = await getUserLogged(session.user.email);
-          setUserName(user.firstName+" "+user.lastName); 
+          setUserName(user.firstName + " " + user.lastName);
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
       }
     };
 
-    fetchUserData(); 
+    fetchUserData();
   }, [session?.user?.email]);
 
   return (
@@ -43,7 +43,12 @@ export function Navbar() {
       <div className="relative w-[300px]"></div>
       <div className="flex gap-x-2 items-center">
         <ToggleTheme />
-        {userName && <p>{userName}</p>}
+        {userName && (
+          <p className="text-sm md:text-base whitespace-nowrap">
+            <span className="block md:hidden">{userName.split(" ")[0]}</span>
+            <span className="hidden md:block">{userName}</span>
+          </p>
+        )}
         <Avatar>
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>

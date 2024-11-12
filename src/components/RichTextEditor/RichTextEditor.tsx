@@ -22,7 +22,6 @@ const RichTextEditor = ({
 
   const editor = useEditor({
     editorProps: {
-      immediatelyRender: false, 
       attributes: {
         class:
           "min-h-[150px] max-h-[150px] w-full rounded-md border px-3 py-2 text-sm overflow-auto",

@@ -69,7 +69,7 @@ export function FormUseCase(props: FormUseCaseProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    mode: "onChange"
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -160,7 +160,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                     <RichTextEditor
                       value={field.value || ""}
                       onChange={(content) => {
-                        field.onChange(content.text);
+                        field.onChange(content.html, content.text);
                       }}
                       toolbarOption={1}
                     />
@@ -179,7 +179,9 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormControl>
                     <RichTextEditor
                       value={field.value}
-                      onChange={(content) => field.onChange(content.text)}
+                      onChange={(content) =>
+                        field.onChange(content.html, content.text)
+                      }
                       toolbarOption={2}
                     />
                   </FormControl>
@@ -216,8 +218,10 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormLabel>Postcondiciones</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={field.value} // Asegura que el valor sea una cadena
-                      onChange={(content) => field.onChange(content.text)} // Pasa solo el HTML
+                      value={field.value}
+                      onChange={(content) =>
+                        field.onChange(content.html, content.text)
+                      }
                       toolbarOption={1}
                     />
                   </FormControl>
@@ -234,8 +238,10 @@ export function FormUseCase(props: FormUseCaseProps) {
                   <FormLabel>Flujo Alterno</FormLabel>
                   <FormControl>
                     <RichTextEditor
-                      value={field.value || ""} // Asegura que el valor sea una cadena
-                      onChange={(content) => field.onChange(content.text)} // Pasa solo el HTML
+                      value={field.value || ""}
+                      onChange={(content) =>
+                        field.onChange(content.html, content.text)
+                      }
                       toolbarOption={2}
                     />
                   </FormControl>

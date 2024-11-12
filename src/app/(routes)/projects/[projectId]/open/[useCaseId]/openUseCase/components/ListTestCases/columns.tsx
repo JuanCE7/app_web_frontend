@@ -39,7 +39,9 @@ export interface UseCase {
   expectResult?: string;
   projectId: string;
 }
-
+const removeHtmlTags = (text: string) => {
+  return text?.replace(/<[^>]*>/g, "\n") || "";
+};
 export const columns: ColumnDef<UseCase>[] = [
   {
     accessorKey: "code",
@@ -66,13 +68,15 @@ export const columns: ColumnDef<UseCase>[] = [
   {
     accessorKey: "steps",
     header: "Pasos",
+    cell: ({ row }) => <span>{removeHtmlTags(row.getValue("steps"))}</span>,
   },
   {
     accessorKey: "inputData",
-    header: "Datos de entrada",
+    header: "Datos de Entrada",
+    cell: ({ row }) => <span>{removeHtmlTags(row.getValue("inputData"))}</span>,
   },
   {
-    accessorKey: "expectResult",
+    accessorKey: "expectedResult",
     header: "Resultado esperado",
   },
   {

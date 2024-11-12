@@ -42,7 +42,9 @@ export interface UseCase {
   alternateFlows?: string;
   projectId: string;
 }
-
+const removeHtmlTags = (text: string) => {
+  return text?.replace(/<[^>]*>/g, "\n") || "";
+};
 export const columns: ColumnDef<UseCase>[] = [
   {
     accessorKey: "code",
@@ -69,10 +71,12 @@ export const columns: ColumnDef<UseCase>[] = [
   {
     accessorKey: "preconditions",
     header: "Pre-condiciones",
+    cell: ({ row }) => <span>{removeHtmlTags(row.getValue("preconditions"))}</span>,
   },
   {
     accessorKey: "postconditions",
     header: "Post-condiciones",
+    cell: ({ row }) => <span>{removeHtmlTags(row.getValue("postconditions"))}</span>,
   },
   {
     id: "actions",
