@@ -88,3 +88,24 @@ export async function updateTestCase(id: string, testCaseData: any) {
     throw error;
   }
 }
+
+export async function deleteTestCase(id: string) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/testcases/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || `Error deleting testcase: ${res.statusText}`);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete testcase:", error);
+    throw error;
+  }
+}

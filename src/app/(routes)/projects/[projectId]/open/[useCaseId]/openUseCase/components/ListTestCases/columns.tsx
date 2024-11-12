@@ -28,6 +28,7 @@ import { useState } from "react";
 import { FormTestCase } from "../FormTestCase";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import { deleteTestCase } from "../../../testCases.api";
 
 export interface UseCase {
   code?: string;
@@ -103,8 +104,8 @@ export const columns: ColumnDef<UseCase>[] = [
       const { id } = row.original;
       const router = useRouter();
 
-      const confirmDeleteUseCase = () => {
-        // if (selectedTestCaseId) deleteUseCase(selectedTestCaseId);
+      const confirmDeleteTestCase = () => {
+        if (selectedTestCaseId) deleteTestCase(selectedTestCaseId);
         closeModal();
         router.refresh();
         toast({
@@ -196,7 +197,7 @@ export const columns: ColumnDef<UseCase>[] = [
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={confirmDeleteUseCase}
+                  onClick={confirmDeleteTestCase}
                   className="flex-1"
                 >
                   Eliminar

@@ -34,7 +34,7 @@ const formSchema = z.object({
   inputData: z
     .string()
     .min(5, "Las postcondiciones deben tener al menos 5 caracteres"),
-  expectResult: z
+  expectedResult: z
     .string()
     .min(5, "El flujo normal debe tener al menos 5 caracteres"),
   explanationSummary: z.string().optional(),
@@ -43,13 +43,13 @@ const formSchema = z.object({
 });
 
 export function FormTestCase(props: FormTestCaseProps) {
-  const { setOpenModalCreate, useCaseId } = props;
+  const { setOpenModalCreate, useCaseId, testCaseId } = props;
   const router = useRouter();
   const { data: session } = useSession();
   const [useCaseData, setUseCaseData] = useState<z.infer<typeof formSchema>>();
 
   useEffect(() => {
-    if (useCaseId) {
+    if (testCaseId) {
       const fetchUseCase = async () => {
         try {
           // const useCase = await getUseCaseById(useCaseId);
@@ -62,7 +62,7 @@ export function FormTestCase(props: FormTestCaseProps) {
 
       fetchUseCase();
     }
-  }, [useCaseId]);
+  }, [testCaseId]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -76,7 +76,7 @@ export function FormTestCase(props: FormTestCaseProps) {
       form.setValue("description", useCaseData.description);
       form.setValue("steps", useCaseData.steps);
       form.setValue("inputData", useCaseData.inputData);
-      form.setValue("expectResult", useCaseData.expectResult);
+      form.setValue("expectedResult", useCaseData.expectedResult);
     }
   }, [useCaseData, form]);
 
@@ -86,8 +86,9 @@ export function FormTestCase(props: FormTestCaseProps) {
     try {
       if (session?.user?.email) {
         values.useCaseId = useCaseId;
-        if (useCaseId) {
-          await updateTestCase(useCaseId, values);
+        console.log(values);
+        if (testCaseId) {
+          await updateTestCase(testCaseId, values);
           toast({ title: "Caso de Prueba actualizado" });
         } else {
           console.log(values);
@@ -154,7 +155,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                     <RichTextEditor
                       value={field.value || ""}
                       onChange={(content) => {
-                        field.onChange(content.text);
+                        field.onChange(content.html, content.text);
                       }}
                       toolbarOption={1}
                     />
@@ -207,7 +208,7 @@ export function FormTestCase(props: FormTestCaseProps) {
         </div>
         <FormField
           control={form.control}
-          name="expectResult"
+          name="expectedResult"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Resultado Esperado</FormLabel>
@@ -225,7 +226,7 @@ export function FormTestCase(props: FormTestCaseProps) {
         {/* Botón de submit centrado */}
         <div className="flex justify-end pt-5">
           <Button type="submit" disabled={!isValid} className="w-full">
-            {useCaseId ? "Actualizar" : "Crear"}
+            {testCaseId ? "Actualizar" : "Crear"}
           </Button>
         </div>
       </form>
