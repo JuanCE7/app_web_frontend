@@ -28,7 +28,9 @@ import { useState } from "react";
 import { FormTestCase } from "../FormTestCase";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { deleteTestCase } from "../../../testCases.api";
+import { deleteTestCase, getExplanationById } from "../../../testCases.api";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 export interface TestCase {
   code?: string;
@@ -40,6 +42,10 @@ export interface TestCase {
   expectResult?: string;
   useCaseId: string;
 }
+type schemaExplanation = {
+  summary?: string;
+  details?: string;
+};
 const removeHtmlTags = (text: string) => {
   return text?.replace(/<[^>]*>/g, "\n") || "";
 };
@@ -95,9 +101,13 @@ export const columns: ColumnDef<TestCase>[] = [
       } = row.original;
       const [openModalCreate, setOpenModalCreate] = useState(false);
       const [openModalDelete, setOpenModalDelete] = useState(false);
+      const [openModalExplanation, setOpenModalExplanation] = useState(false);
       const [selectedTestCase, setSelectedTestCase] = useState<TestCase | null>(
         null
       );
+      const [explanationData, setExplanationData] =
+        useState<schemaExplanation>();
+
       const [selectedTestCaseId, setSelectedTestCaseId] = useState<
         string | null
       >();
@@ -132,6 +142,24 @@ export const columns: ColumnDef<TestCase>[] = [
         setSelectedTestCaseId(id);
         setOpenModalDelete(true);
       };
+      const handleExplanation = async () => {
+        setSelectedTestCaseId(id);
+        try {
+          // Espera a que la promesa se resuelva antes de asignar los datos
+          const explanation = await getExplanationById(id || "");
+          setExplanationData(explanation);
+          console.log(explanation);
+        } catch (error) {
+          console.error("Error al obtener la explicación:", error);
+          toast({
+            title: "Error",
+            description: "No se pudo obtener la explicación",
+            variant: "destructive",
+          });
+        }
+        setOpenModalExplanation(true);
+      };
+
       return (
         <>
           <DropdownMenu>
@@ -150,7 +178,7 @@ export const columns: ColumnDef<TestCase>[] = [
                 <Trash2 className="w-4 h-4 mr-2" />
                 Eliminar
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExplanation}>
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Explicación
               </DropdownMenuItem>
@@ -203,6 +231,34 @@ export const columns: ColumnDef<TestCase>[] = [
                   Eliminar
                 </Button>
               </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog
+            open={openModalExplanation}
+            onOpenChange={setOpenModalExplanation}
+          >
+            <DialogContent className="sm:max-w-[400px]">
+              <DialogHeader>
+                <DialogTitle className="text-center">{name}</DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="mt-4 h-[50vh] pr-4">
+                <div className="space-y-4">
+                  <div className="flex flex-col justify-center items-center text-center space-y-2">
+                    <h3 className="font-semibold">Código</h3>
+                    <Badge variant="secondary">{code}</Badge>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-center">Explicación</h3>
+                    <p>
+                      <strong>Resumen:</strong> {explanationData?.summary}
+                    </p>
+                    <p>
+                      <strong>Detalles:</strong> {explanationData?.details}
+                    </p>
+                  </div>
+                </div>
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </>

@@ -44,8 +44,8 @@ export function FormUser() {
           const user = await getUserLogged(session.user.email);
           setUserData(user);
           setIdUser(user.id);
-          setInitialEmail(user.email)
-          setBase64Image(user.image)
+          setInitialEmail(user.email);
+          setBase64Image(user.image);
         }
       } catch (error) {
         console.error("Error al obtener los datos del proyecto:", error);
@@ -71,8 +71,10 @@ export function FormUser() {
   }, [userData, form]);
 
   const { isValid } = form.formState;
-  
-  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       // Verifica si el archivo excede los 200 KB (200 * 1024 bytes)
@@ -97,14 +99,14 @@ export function FormUser() {
     try {
       if (idUser) {
         // Incluye la imagen base64 si existe
-        values.image = base64Image || ""
-        if(initialEmail!=values.email){
-          if (getUserLogged(values.email)) {
+        values.image = base64Image || "";
+        if (initialEmail != values.email) {
+          if (await getUserLogged(values.email)) {
             toast({ title: "Email existente" });
             return;
           }
-        }        
-        console.log(values)
+        }
+        console.log(values);
         // Actualiza el usuario
         await updateUser(idUser, values);
         toast({ title: "Usuario actualizado" });
@@ -172,8 +174,7 @@ export function FormUser() {
               </FormItem>
             )}
           />
-
-<FormField
+          <FormField
             control={form.control}
             name="image"
             render={({}) => (

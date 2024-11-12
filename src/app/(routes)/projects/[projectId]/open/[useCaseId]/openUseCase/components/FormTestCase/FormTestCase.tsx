@@ -86,7 +86,6 @@ export function FormTestCase(props: FormTestCaseProps) {
     try {
       if (session?.user?.email) {
         values.useCaseId = useCaseId;
-        console.log(values);
         if (testCaseId) {
           await updateTestCase(testCaseId, values);
           toast({ title: "Caso de Prueba actualizado" });
