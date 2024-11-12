@@ -14,11 +14,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormTestCase } from "../FormTestCase";
+import CardGenerateTestCase from "../CardGenerateTestCase/CardGenerateTestCase";
 
 export function HeaderTestCases(props: TestCaseProps) {
   const { useCaseId, projectId } = props;
   const router = useRouter();
   const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [openModalGenerate, setOpenModalGenerate] = useState(false);
 
   return (
     <div className="flex items-center text-xl justify-between">
@@ -29,18 +31,46 @@ export function HeaderTestCases(props: TestCaseProps) {
         />
         <h2 className="text-2xl">Lista de Casos de Prueba Funcionales</h2>
       </div>
-      <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
-        <DialogTrigger asChild>
-          <Button>Crear Caso de Prueba Funcional</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[900px] sm:max-h-[700px] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Crear Caso de Prueba Funcional</DialogTitle>
-            <DialogDescription>Ingresa la Información para Crear un Nuevo Caso de Prueba Funcional</DialogDescription>
-          </DialogHeader>
-          <FormTestCase useCaseId={useCaseId} setOpenModalCreate={setOpenModalCreate} />
-        </DialogContent>
-      </Dialog>
+      <div className="flex items-center text-xl">
+        <div className="pr-5">
+          <Dialog open={openModalGenerate} onOpenChange={setOpenModalGenerate}>
+            <DialogTrigger asChild>
+              <Button>Generar Casos de Prueba Funcionales</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[900px] sm:max-h-[700px] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Generar Caso de Prueba Funcional</DialogTitle>
+                <DialogDescription>
+                  Genera casos de prueba funcionales del caso de uso en el que
+                  te encuentras
+                </DialogDescription>
+              </DialogHeader>
+              <CardGenerateTestCase
+                setOpenModalGenerate={setOpenModalGenerate}
+                useCaseId={useCaseId}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
+          <DialogTrigger asChild>
+            <Button variant={"outline"}>Crear Caso de Prueba Funcional</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[900px] sm:max-h-[700px] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Crear Caso de Prueba Funcional</DialogTitle>
+              <DialogDescription>
+                Ingresa la Información para Crear un Nuevo Caso de Prueba
+                Funcional
+              </DialogDescription>
+            </DialogHeader>
+            <FormTestCase
+              useCaseId={useCaseId}
+              setOpenModalCreate={setOpenModalCreate}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

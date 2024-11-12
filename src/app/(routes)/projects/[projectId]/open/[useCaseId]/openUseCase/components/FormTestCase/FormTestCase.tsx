@@ -63,19 +63,17 @@ export function FormTestCase(props: FormTestCaseProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    mode: "onChange"
+    mode: "onChange",
   });
 
   useEffect(() => {
     if (useCaseData) {
-      if (useCaseData) {
-        form.setValue("code", useCaseData.code);
-        form.setValue("name", useCaseData.name);
-        form.setValue("description", useCaseData.description);
-        form.setValue("steps", useCaseData.steps);
-        form.setValue("inputData", useCaseData.inputData);
-        form.setValue("expectResult", useCaseData.expectResult);
-      }
+      form.setValue("code", useCaseData.code);
+      form.setValue("name", useCaseData.name);
+      form.setValue("description", useCaseData.description);
+      form.setValue("steps", useCaseData.steps);
+      form.setValue("inputData", useCaseData.inputData);
+      form.setValue("expectResult", useCaseData.expectResult);
     }
   }, [useCaseData, form]);
 
@@ -200,7 +198,6 @@ export function FormTestCase(props: FormTestCaseProps) {
                 </FormItem>
               )}
             />
-
           </div>
         </div>
         <FormField
@@ -210,7 +207,11 @@ export function FormTestCase(props: FormTestCaseProps) {
             <FormItem>
               <FormLabel>Resultado Esperado</FormLabel>
               <FormControl>
-                <Textarea placeholder="Resultado esperado..." className="resize-none" {...field} />
+                <Textarea
+                  placeholder="Resultado esperado..."
+                  className="resize-none"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

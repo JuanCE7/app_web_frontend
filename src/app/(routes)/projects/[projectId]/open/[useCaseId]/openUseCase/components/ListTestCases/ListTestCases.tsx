@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { columns } from "./columns";
-import { UseCaseProps } from "./TestCase.types";
+import { TestCaseProps } from "./TestCase.types";
 import { DataTable } from "@/components/Data-Table";
 
-export default function ListTestCases(props: UseCaseProps) {
+export default function ListTestCases(props: TestCaseProps) {
   
   const { data: session } = useSession();
   const [listUseCases, setListUseCases] = useState([]);
-  const { projectId } = props;
+  const { useCaseId } = props;
 
   useEffect(() => {
     const fetchUseCases = async () => {

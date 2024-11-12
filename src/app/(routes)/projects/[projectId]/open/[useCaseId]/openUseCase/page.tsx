@@ -4,13 +4,13 @@ import ListTestCases from "./components/ListTestCases/ListTestCases";
 export default async function OpenProject({
   params,
 }: {
-  params: { useCaseId: string };
+  params: { useCaseId: string , projectId: string};
 }) {
 
   return (
     <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
-      <HeaderTestCases projectId={params.useCaseId}/>
-      <ListTestCases projectId={params.useCaseId} />
+      <HeaderTestCases useCaseId={params.useCaseId} projectId={params.projectId}/>
+      <ListTestCases useCaseId={params.useCaseId} />
     </div>
   );
 }
