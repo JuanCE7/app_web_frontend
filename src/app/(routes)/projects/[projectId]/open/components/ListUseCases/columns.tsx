@@ -153,7 +153,7 @@ export const columns: ColumnDef<UseCase>[] = [
               <Link href={`/projects/${projectId}/open/${id}/openUseCase`}>
                 <DropdownMenuItem>
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  Abrir
+                  Ir al detalle
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuContent>
