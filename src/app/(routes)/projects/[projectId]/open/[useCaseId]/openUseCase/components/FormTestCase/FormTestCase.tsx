@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import { Input } from "@/components/ui/input";
-import { createTestCase, updateTestCase } from "../../../testCases.api";
+import { createTestCase, getTestCaseById, updateTestCase } from "../../../testCases.api";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -46,15 +46,15 @@ export function FormTestCase(props: FormTestCaseProps) {
   const { setOpenModalCreate, useCaseId, testCaseId } = props;
   const router = useRouter();
   const { data: session } = useSession();
-  const [useCaseData, setUseCaseData] = useState<z.infer<typeof formSchema>>();
+  const [testCaseData, setTestCaseData] = useState<z.infer<typeof formSchema>>();
 
   useEffect(() => {
     if (testCaseId) {
       const fetchUseCase = async () => {
         try {
-          // const useCase = await getUseCaseById(useCaseId);
-          // form.reset(useCase);
-          // setUseCaseData(useCase);
+          const testCase = await getTestCaseById(testCaseId);
+          form.reset(testCase);
+          setTestCaseData(testCase);
         } catch (error) {
           console.error("Error al obtener los datos del proyecto:", error);
         }
@@ -70,15 +70,15 @@ export function FormTestCase(props: FormTestCaseProps) {
   });
 
   useEffect(() => {
-    if (useCaseData) {
-      form.setValue("code", useCaseData.code);
-      form.setValue("name", useCaseData.name);
-      form.setValue("description", useCaseData.description);
-      form.setValue("steps", useCaseData.steps);
-      form.setValue("inputData", useCaseData.inputData);
-      form.setValue("expectedResult", useCaseData.expectedResult);
+    if (testCaseData) {
+      form.setValue("code", testCaseData.code);
+      form.setValue("name", testCaseData.name);
+      form.setValue("description", testCaseData.description);
+      form.setValue("steps", testCaseData.steps);
+      form.setValue("inputData", testCaseData.inputData);
+      form.setValue("expectedResult", testCaseData.expectedResult);
     }
-  }, [useCaseData, form]);
+  }, [testCaseData, form]);
 
   const { isValid } = form.formState;
 

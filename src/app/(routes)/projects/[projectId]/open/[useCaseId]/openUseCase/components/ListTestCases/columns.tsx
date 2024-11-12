@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { deleteTestCase } from "../../../testCases.api";
 
-export interface UseCase {
+export interface TestCase {
   code?: string;
   id?: string;
   name: string;
@@ -38,12 +38,12 @@ export interface UseCase {
   steps?: string;
   inputData?: string;
   expectResult?: string;
-  projectId: string;
+  useCaseId: string;
 }
 const removeHtmlTags = (text: string) => {
   return text?.replace(/<[^>]*>/g, "\n") || "";
 };
-export const columns: ColumnDef<UseCase>[] = [
+export const columns: ColumnDef<TestCase>[] = [
   {
     accessorKey: "code",
     header: ({ column }) => {
@@ -91,11 +91,11 @@ export const columns: ColumnDef<UseCase>[] = [
         steps,
         inputData,
         expectResult,
-        projectId,
+        useCaseId,
       } = row.original;
       const [openModalCreate, setOpenModalCreate] = useState(false);
       const [openModalDelete, setOpenModalDelete] = useState(false);
-      const [selectedUseCase, setSelectedUseCase] = useState<UseCase | null>(
+      const [selectedTestCase, setSelectedTestCase] = useState<TestCase | null>(
         null
       );
       const [selectedTestCaseId, setSelectedTestCaseId] = useState<
@@ -117,14 +117,14 @@ export const columns: ColumnDef<UseCase>[] = [
       };
 
       const handleEdit = () => {
-        setSelectedUseCase({
+        setSelectedTestCase({
           code,
           name,
           description,
           steps,
           inputData,
           expectResult,
-          projectId,
+          useCaseId,
         });
         setOpenModalCreate(true);
       };
@@ -165,10 +165,10 @@ export const columns: ColumnDef<UseCase>[] = [
                   Modifica la información del caso de prueba
                 </DialogDescription>
               </DialogHeader>
-              {selectedUseCase && (
+              {selectedTestCase && (
                 <FormTestCase
                   testCaseId={id}
-                  useCaseId={projectId}
+                  useCaseId={useCaseId}
                   setOpenModalCreate={setOpenModalCreate}
                 />
               )}

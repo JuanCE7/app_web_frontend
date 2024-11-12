@@ -109,3 +109,25 @@ export async function deleteTestCase(id: string) {
     throw error;
   }
 }
+
+export async function getTestCaseById(id: string): Promise<any>  {
+  try {
+    const res = await fetch(`${BACKEND_URL}/testcases/testcase/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json(); 
+      throw new Error(errorData.message || 'Error fetching testcase');
+    }
+
+    const data = await res.json(); 
+    return data; 
+  } catch (error) {
+    console.error("Failed to fetch testcase:", error);
+    throw error;
+  }
+}
