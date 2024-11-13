@@ -26,7 +26,7 @@ const formSchema = z.object({
   name: z.string().min(5, "El nombre debe tener al menos 5 caracteres"),
   description: z.string().min(5, "La descripción debe tener al menos 5 caracteres"),
   image: z.string().optional(),
-  creatorId: z.string().optional(), 
+  userId: z.string().optional(), 
 });
 
 export function FormProject(props: FormProjectProps) {
@@ -63,7 +63,7 @@ export function FormProject(props: FormProjectProps) {
         name: projectData.name || "",
         description: projectData.description || "",
         image: projectData.image || "",
-        creatorId: projectData.creatorId || "",
+        userId: projectData.userId || "",
       });
       setBase64Image(projectData.image || null);
     }
@@ -80,7 +80,7 @@ export function FormProject(props: FormProjectProps) {
           await updateProject(projectId, values);
           toast({ title: "Proyecto actualizado" });
         } else {
-          values.creatorId = user.id;
+          values.userId = user.id;
           await createProject(values);
           toast({ title: "Proyecto creado" });
         }

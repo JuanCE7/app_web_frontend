@@ -62,13 +62,13 @@ export default function Information() {
           Paso {currentStep + 1} de {steps.length}
         </div>
         <h2 className="text-2xl font-bold mb-4">{steps[currentStep].title}</h2>
-        {/* <div className="aspect-video relative mb-4">
-          <img
+        <div className="aspect-video relative mb-4">
+          {/* <img
             src={steps[currentStep].image}
             alt={`Ilustración para ${steps[currentStep].title}`}
             className="w-full h-full object-cover rounded-md"
-          />
-        </div> */}
+          /> */}
+        </div>
         <p className="text-muted-foreground mb-6">
           {steps[currentStep].content}
         </p>

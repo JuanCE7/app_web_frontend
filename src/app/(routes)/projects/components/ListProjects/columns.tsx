@@ -6,7 +6,10 @@ import {
   Pencil,
   Share2,
   Trash2,
+  LogOut,
   ExternalLink,
+  Check,
+  Copy,
 } from "lucide-react";
 import {
   Dialog,
@@ -32,12 +35,15 @@ import { FormProject } from "../FormProject";
 import { deleteProject } from "../../projects.api";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 
 export interface Project {
   id?: string;
+  code?: string;
   image?: string;
   name: string;
   description?: string;
+  role?: string;
 }
 
 export const columns: ColumnDef<Project>[] = [
@@ -83,16 +89,17 @@ export const columns: ColumnDef<Project>[] = [
     header: "Descripción",
   },
   {
-    accessorKey: "creatorId",
-    header: "Creador",
+    accessorKey: "role",
+    header: "Rol en el Proyecto",
   },
   {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, name, description, image } = row.original;
+      const { id, name, description, image, code, role } = row.original;
       const [openModalCreate, setOpenModalCreate] = useState(false);
       const [openModalDelete, setOpenModalDelete] = useState(false);
+      const [openModalShare, setOpenModalShare] = useState(false);
       const [selectedProject, setSelectedProject] = useState<Project | null>(
         null
       );
@@ -100,14 +107,21 @@ export const columns: ColumnDef<Project>[] = [
         string | null
       >();
       const router = useRouter();
+      const [copied, setCopied] = useState(false);
+      const [projectCode] = useState(code || "");
 
+      const handleCopy = async () => {
+        await navigator.clipboard.writeText(projectCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
       const confirmDeleteProject = () => {
         if (selectedProjectId) deleteProject(selectedProjectId);
-        closeModal()
+        closeModal();
         router.refresh();
         toast({
           title: "Proyecto Eliminado Correctamente",
-        });        
+        });
       };
       const closeModal = () => {
         setOpenModalDelete(false);
@@ -120,6 +134,10 @@ export const columns: ColumnDef<Project>[] = [
       const handleDelete = () => {
         setSelectedProjectId(id);
         setOpenModalDelete(true);
+      };
+      const handleShare = () => {
+        setSelectedProjectId(id);
+        setOpenModalShare(true);
       };
 
       return (
@@ -136,22 +154,31 @@ export const columns: ColumnDef<Project>[] = [
                 <Pencil className="w-4 h-4 mr-2" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete}>
-                <Trash2 className="w-4 h-4 mr-2" />
-                Eliminar
-              </DropdownMenuItem>
-              <Link href={`/projects/${id}/share`}>
-                <DropdownMenuItem>
+              {role === "Owner" && (
+                <DropdownMenuItem onClick={handleDelete}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Eliminar
+                </DropdownMenuItem>
+              )}
+              {role === "Owner" && (
+                <DropdownMenuItem onClick={handleShare}>
                   <Share2 className="w-4 h-4 mr-2" />
                   Compartir
                 </DropdownMenuItem>
-              </Link>
+              )}
+              
               <Link href={`/projects/${id}/open`}>
                 <DropdownMenuItem>
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Ir al detalle
                 </DropdownMenuItem>
               </Link>
+              {role === "Editor" && (
+                <DropdownMenuItem onClick={handleShare}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Salir del proyecto
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
           {/* Modal de edición */}
@@ -198,6 +225,36 @@ export const columns: ColumnDef<Project>[] = [
                   className="flex-1"
                 >
                   Eliminar
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={openModalShare} onOpenChange={setOpenModalShare}>
+            <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
+              <DialogHeader className="text-center">
+                <DialogTitle className="text-center">
+                  Compartir el proyecto
+                </DialogTitle>
+                <DialogDescription className="text-center">
+                  Código de acceso del proyecto, puedes compartir este código
+                  con los usuarios que desees compartir el proyecto
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="flex w-full space-x-4 mt-6">
+                <Input readOnly value={projectCode} className="flex-1" />
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={handleCopy}
+                  className="h-10 w-10"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </DialogContent>

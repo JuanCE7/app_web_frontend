@@ -1,4 +1,4 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL; 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export async function createProject(projectData: any) {
   try {
@@ -12,9 +12,8 @@ export async function createProject(projectData: any) {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.message || 'Error creating project');
+      throw new Error(errorData.message || "Error creating project");
     }
-
   } catch (error) {
     console.error("Failed to create project:", error);
     throw error;
@@ -43,7 +42,7 @@ export async function getProjects(userId: string): Promise<any> {
   }
 }
 
-export async function getProjectById(id: string): Promise<any>  {
+export async function getProjectById(id: string): Promise<any> {
   try {
     const res = await fetch(`${BACKEND_URL}/projects/project/${id}`, {
       method: "GET",
@@ -53,17 +52,40 @@ export async function getProjectById(id: string): Promise<any>  {
     });
 
     if (!res.ok) {
-      const errorData = await res.json(); 
-      throw new Error(errorData.message || 'Error fetching project');
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Error fetching project");
     }
 
-    const data = await res.json(); 
-    return data; 
+    const data = await res.json();
+    return data;
   } catch (error) {
     console.error("Failed to fetch project:", error);
     throw error;
   }
 }
+
+export async function getProjectRole(userId: string, projectId: string): Promise<string> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/projects/${projectId}/role?userId=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Error fetching project role");
+    }
+
+    const data = await res.json();
+    return data.role; // Asumimos que el backend retorna { role: "admin" }
+  } catch (error) {
+    console.error("Failed to fetch project role:", error);
+    throw error;
+  }
+}
+
 
 export async function updateProject(id: string, projectData: any) {
   try {
@@ -77,7 +99,9 @@ export async function updateProject(id: string, projectData: any) {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.message || `Error updating project: ${res.statusText}`);
+      throw new Error(
+        errorData.message || `Error updating project: ${res.statusText}`
+      );
     }
 
     const data = await res.json();
@@ -99,12 +123,89 @@ export async function deleteProject(id: string) {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.message || `Error deleting project: ${res.statusText}`);
+      throw new Error(
+        errorData.message || `Error deleting project: ${res.statusText}`
+      );
     }
 
     return { success: true };
   } catch (error) {
     console.error("Failed to delete project:", error);
+    throw error;
+  }
+}
+
+interface ShareProjectResponse {
+  success: boolean;
+  message: string;
+  member?: {
+    id: string;
+    role: string;
+    user: {
+      id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+    };
+    project: {
+      id: string;
+      name: string;
+      code: string;
+    };
+  };
+}
+
+export async function shareProject(shareData: { userId: string; code: string }): Promise<ShareProjectResponse> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/projects/shareProject`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(shareData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw {
+        response: {
+          data: {
+            statusCode: response.status,
+            message: data.message || 'Error al unirse al proyecto',
+            error: data.error
+          }
+        }
+      };
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Failed to share project:', error);
+    throw error;
+  }
+}
+
+export async function existsProject(code: string) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/projects/project/code/${code}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) return { exists: false }; // Si no se encuentra, retornamos false
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `Error checking project: ${res.statusText}`
+      );
+    }
+
+    return { exists: true };
+  } catch (error) {
+    console.error("Failed to check if project exists:", error);
     throw error;
   }
 }
