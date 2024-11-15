@@ -9,6 +9,7 @@ import {
   LogOut,
   ExternalLink,
   Check,
+  FileDown,
   Copy,
 } from "lucide-react";
 import {
@@ -36,6 +37,9 @@ import { deleteProject } from "../../projects.api";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import PDF from "@/components/pdf/pdf";
+import { GeneratePDF } from "../GeneratePDF";
 
 export interface Project {
   id?: string;
@@ -100,6 +104,7 @@ export const columns: ColumnDef<Project>[] = [
       const [openModalCreate, setOpenModalCreate] = useState(false);
       const [openModalDelete, setOpenModalDelete] = useState(false);
       const [openModalShare, setOpenModalShare] = useState(false);
+      const [openModalExport, setOpenModalExport] = useState(false);
       const [selectedProject, setSelectedProject] = useState<Project | null>(
         null
       );
@@ -139,6 +144,11 @@ export const columns: ColumnDef<Project>[] = [
         setSelectedProjectId(id);
         setOpenModalShare(true);
       };
+      const handleExport = () => {
+        setSelectedProject({ id, name, description, image: image ?? "" });
+        setSelectedProjectId(id);
+        setOpenModalExport(true);
+      };
 
       return (
         <>
@@ -166,13 +176,17 @@ export const columns: ColumnDef<Project>[] = [
                   Compartir
                 </DropdownMenuItem>
               )}
-              
+
               <Link href={`/projects/${id}/open`}>
                 <DropdownMenuItem>
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Ir al detalle
                 </DropdownMenuItem>
               </Link>
+              <DropdownMenuItem onClick={handleExport}>
+                <FileDown className="w-4 h-4 mr-2" />
+                Exportar en PDF
+              </DropdownMenuItem>
               {role === "Editor" && (
                 <DropdownMenuItem onClick={handleShare}>
                   <LogOut className="w-4 h-4 mr-2" />
@@ -181,6 +195,25 @@ export const columns: ColumnDef<Project>[] = [
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* Modal de exportación */}
+          <Dialog open={openModalExport} onOpenChange={setOpenModalExport}>
+            <DialogContent className="sm:max-w-[625px]">
+              <DialogHeader>
+                <DialogTitle>Exportar Proyecto en PDF</DialogTitle>
+                <DialogDescription>
+                  Visualiza la información del proyecto y descarga el pdf
+                  generado
+                </DialogDescription>
+              </DialogHeader>
+              {selectedProject && (
+                <GeneratePDF
+                  projectId={id}
+                  setOpenModalGenerate={setOpenModalExport}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+
           {/* Modal de edición */}
           <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
             <DialogContent className="sm:max-w-[625px]">

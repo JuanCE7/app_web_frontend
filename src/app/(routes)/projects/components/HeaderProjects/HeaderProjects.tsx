@@ -75,7 +75,7 @@ export function HeaderProjects() {
 
     try {
       const user = await getUserLogged(session.user.email);
-      
+
       if (user.error) {
         toast({
           title: "Error",
@@ -87,11 +87,11 @@ export function HeaderProjects() {
 
       const shareData = {
         userId: user.id,
-        code: projectCode.trim()
+        code: projectCode.trim(),
       };
 
       const response = await shareProject(shareData);
-      
+
       if (response.success) {
         toast({
           title: "¡Éxito!",
@@ -101,11 +101,10 @@ export function HeaderProjects() {
         setProjectCode("");
         // Aquí podrías agregar una función para actualizar la lista de proyectos
       }
-
     } catch (error) {
       console.error("Error al unirse al proyecto:", error);
       const errorMessage = getErrorMessage(error);
-      
+
       toast({
         title: "Error",
         description: errorMessage,
@@ -117,12 +116,14 @@ export function HeaderProjects() {
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <h2 className="text-2xl">Lista de Proyectos</h2>
-      <div className="flex gap-4">
+
+      <div className="flex flex-wrap gap-4">
+        {/* Botón para Ingresar a Proyecto */}
         <Dialog open={openModalShare} onOpenChange={setOpenModalShare}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <FolderInput className="mr-2 h-4 w-4" />
               Ingresar a Proyecto
             </Button>
@@ -141,7 +142,7 @@ export function HeaderProjects() {
                 placeholder="Código del Proyecto"
                 disabled={isLoading}
               />
-              <div className="flex justify-end space-x-2">
+              <div className="flex flex-wrap justify-end gap-2">
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -152,10 +153,7 @@ export function HeaderProjects() {
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                >
+                <Button onClick={handleSubmit} disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -170,9 +168,10 @@ export function HeaderProjects() {
           </DialogContent>
         </Dialog>
 
+        {/* Botón para Crear Proyecto */}
         <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Crear Proyecto
             </Button>
