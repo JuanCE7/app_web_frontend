@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +29,7 @@ import { z } from "zod";
 import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { registerUser } from "./login.api";
+import { getUserLogged, registerUser } from "./login.api";
 
 type FormType = "login" | "register" | "forgotUsername" | "forgotPassword";
 
@@ -117,18 +117,28 @@ export default function AuthCard() {
     event.preventDefault();
     setErrors([]);
 
+    const userResponse = await getUserLogged(email);
+
+    if (userResponse.status === false) {
+      toast({
+        title: "Cuenta desactivada",
+        description: "Tu cuenta ha sido desactivada, contacta con soporte.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const responseNextAuth = await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
-
     if (responseNextAuth?.error) {
       setErrors(responseNextAuth.error.split(","));
       return;
     }
     toast({ title: "Bienvenido al Sistema" });
-    router.push("/");
+      router.push("/");
   };
 
   const renderForm = () => {
