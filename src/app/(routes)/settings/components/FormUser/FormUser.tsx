@@ -101,7 +101,8 @@ export function FormUser() {
         // Incluye la imagen base64 si existe
         values.image = base64Image || "";
         if (initialEmail != values.email) {
-          if (await getUserLogged(values.email)) {
+          const response = await getUserLogged(values.email);
+          if (!response.error) {
             toast({ title: "Email existente" });
             return;
           }

@@ -26,15 +26,32 @@ export async function getUserLogged(email: string): Promise<any> {
       },
     });
 
+    // Verificamos si la respuesta no es exitosa
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Error fetching project");
+      let errorMessage = "Error fetching user";
+      // Intentamos obtener un mensaje de error detallado si está disponible
+      try {
+        const errorData = await res.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        // Si no se puede parsear el JSON, mantenemos el mensaje por defecto
+      }
+      return { error: errorMessage };
     }
 
-    const data = await res.json();
+    // Verificamos si la respuesta está vacía (por ejemplo, 204 No Content)
+    const text = await res.text();
+    if (!text) {
+      return { error: "No data received from server" };
+    }
+
+    // Parseamos la respuesta como JSON si hay contenido
+    const data = JSON.parse(text);
     return data;
-  } catch (error) {
-    console.error("Failed to fetch project:", error);
-    throw error;
+
+  } catch (error: any) {
+    console.error("Failed to fetch user:", error);
+    return { error: error.message || "Unknown error occurred" };
   }
 }
+

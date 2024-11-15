@@ -76,7 +76,7 @@ export function HeaderProjects() {
     try {
       const user = await getUserLogged(session.user.email);
       
-      if (!user) {
+      if (user.error) {
         toast({
           title: "Error",
           description: "No se pudo obtener la información del usuario.",

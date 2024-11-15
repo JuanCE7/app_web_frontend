@@ -2,7 +2,7 @@ import {
   FolderKanban,
   PanelsTopLeft,
   Info,
-  UserPen,
+  UsersRound ,
   Settings,
 } from "lucide-react";
 
@@ -32,5 +32,13 @@ export const dataSuportSideBar = [
     icon: Settings,
     label: "Configuración",
     href: "/settings",
+  },
+];
+
+export const dataAdminSideBar = [
+  {
+    icon: UsersRound ,
+    label: "Gestión de Roles",
+    href: "/users",
   },
 ];
