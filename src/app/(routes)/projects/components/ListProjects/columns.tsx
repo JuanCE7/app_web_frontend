@@ -20,7 +20,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ColumnDef } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,18 +27,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { FormProject } from "../FormProject";
-import { deleteProject } from "../../projects.api";
+import { deleteProject, exitProject } from "../../projects.api";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
-import PDF from "@/components/pdf/pdf";
 import { GeneratePDF } from "../GeneratePDF";
+import { useSession } from "next-auth/react";
+import { getUserLogged } from "@/app/login/login.api";
 
 export interface Project {
   id?: string;
@@ -68,7 +66,7 @@ export const columns: ColumnDef<Project>[] = [
             width={20}
             height={20}
             alt="Image"
-            className="w-20 h-20"
+            className="w-20 h-20 object-cover"
           />
         </div>
       );
@@ -105,6 +103,7 @@ export const columns: ColumnDef<Project>[] = [
       const [openModalDelete, setOpenModalDelete] = useState(false);
       const [openModalShare, setOpenModalShare] = useState(false);
       const [openModalExport, setOpenModalExport] = useState(false);
+      const [openModalExit, setOpenModalExit] = useState(false);
       const [selectedProject, setSelectedProject] = useState<Project | null>(
         null
       );
@@ -114,12 +113,14 @@ export const columns: ColumnDef<Project>[] = [
       const router = useRouter();
       const [copied, setCopied] = useState(false);
       const [projectCode] = useState(code || "");
+      const { data: session } = useSession();
 
       const handleCopy = async () => {
         await navigator.clipboard.writeText(projectCode);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       };
+
       const confirmDeleteProject = () => {
         if (selectedProjectId) deleteProject(selectedProjectId);
         closeModal();
@@ -128,33 +129,59 @@ export const columns: ColumnDef<Project>[] = [
           title: "Proyecto Eliminado Correctamente",
         });
       };
+
+      const confirmExitProject = async () => {
+        if (session?.user?.email) {
+          const user = await getUserLogged(session.user.email);
+          const exitData = {
+            userId: user.id || "",
+            projectId: selectedProjectId || "",
+          };
+          exitProject(exitData);
+          closeModal();
+          router.refresh();
+          toast({
+            title: "Has salido del proyecto correctamente",
+          });
+        }
+      };
+
       const closeModal = () => {
         setOpenModalDelete(false);
+        setOpenModalExit(false);
       };
 
       const handleEdit = () => {
         setSelectedProject({ id, name, description, image: image ?? "" });
         setOpenModalCreate(true);
       };
+
       const handleDelete = () => {
         setSelectedProjectId(id);
         setOpenModalDelete(true);
       };
+
       const handleShare = () => {
         setSelectedProjectId(id);
         setOpenModalShare(true);
       };
+
       const handleExport = () => {
         setSelectedProject({ id, name, description, image: image ?? "" });
         setSelectedProjectId(id);
         setOpenModalExport(true);
       };
 
+      const handleExit = () => {
+        setSelectedProjectId(id);
+        setOpenModalExit(true);
+      };
+
       return (
         <>
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" className="w-8 h-4 p-0">
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-8 h-8 p-0">
                 <span className="sr-only">Abrir Menu</span>
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
@@ -176,26 +203,25 @@ export const columns: ColumnDef<Project>[] = [
                   Compartir
                 </DropdownMenuItem>
               )}
-
-              <Link href={`/projects/${id}/open`}>
-                <DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/projects/${id}/open`}>
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Ir al detalle
-                </DropdownMenuItem>
-              </Link>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleExport}>
                 <FileDown className="w-4 h-4 mr-2" />
                 Exportar en PDF
               </DropdownMenuItem>
               {role === "Editor" && (
-                <DropdownMenuItem onClick={handleShare}>
+                <DropdownMenuItem onClick={handleExit}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Salir del proyecto
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-          {/* Modal de exportación */}
+
           <Dialog open={openModalExport} onOpenChange={setOpenModalExport}>
             <DialogContent className="sm:max-w-[625px]">
               <DialogHeader>
@@ -214,7 +240,6 @@ export const columns: ColumnDef<Project>[] = [
             </DialogContent>
           </Dialog>
 
-          {/* Modal de edición */}
           <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
             <DialogContent className="sm:max-w-[625px]">
               <DialogHeader>
@@ -238,12 +263,11 @@ export const columns: ColumnDef<Project>[] = [
                 <DialogTitle className="text-center">
                   Confirmar Eliminación
                 </DialogTitle>
-                <DialogDescription className="text-center">
+                <DialogDescription>
                   ¿Estás seguro de que deseas eliminar este elemento? Esta
                   acción no se puede deshacer.
                 </DialogDescription>
               </DialogHeader>
-
               <div className="flex w-full space-x-4 mt-6">
                 <Button
                   variant="secondary"
@@ -269,12 +293,11 @@ export const columns: ColumnDef<Project>[] = [
                 <DialogTitle className="text-center">
                   Compartir el proyecto
                 </DialogTitle>
-                <DialogDescription className="text-center">
+                <DialogDescription>
                   Código de acceso del proyecto, puedes compartir este código
                   con los usuarios que desees compartir el proyecto
                 </DialogDescription>
               </DialogHeader>
-
               <div className="flex w-full space-x-4 mt-6">
                 <Input readOnly value={projectCode} className="flex-1" />
                 <Button
@@ -288,6 +311,36 @@ export const columns: ColumnDef<Project>[] = [
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={openModalExit} onOpenChange={setOpenModalExit}>
+            <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
+              <DialogHeader className="text-center">
+                <DialogTitle className="text-center">
+                  Confirmar Salida del Proyecto
+                </DialogTitle>
+                <DialogDescription>
+                  ¿Estás seguro de que deseas salir de este proyecto? Esta
+                  acción no se puede deshacer.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex w-full space-x-4 mt-6">
+                <Button
+                  variant="secondary"
+                  onClick={closeModal}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmExitProject}
+                  className="flex-1"
+                >
+                  Salir del Proyecto
                 </Button>
               </div>
             </DialogContent>

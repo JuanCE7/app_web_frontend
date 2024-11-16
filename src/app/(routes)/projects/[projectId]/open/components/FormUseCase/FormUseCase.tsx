@@ -100,8 +100,8 @@ export function FormUseCase(props: FormUseCaseProps) {
           await createUseCase(values);
           toast({ title: "Proyecto creado" });
         }
-        setOpenModalCreate(false);
         router.refresh();
+        setOpenModalCreate(false);
       } else {
         throw new Error("User session not available");
       }

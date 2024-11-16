@@ -14,7 +14,7 @@ import { FormProject } from "../FormProject/FormProject";
 import { Plus, FolderInput } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { shareProject } from "../../projects.api";
+import { joinProject } from "../../projects.api";
 import { getUserLogged } from "@/app/login/login.api";
 import { useSession } from "next-auth/react";
 
@@ -90,7 +90,7 @@ export function HeaderProjects() {
         code: projectCode.trim(),
       };
 
-      const response = await shareProject(shareData);
+      const response = await joinProject(shareData);
 
       if (response.success) {
         toast({

@@ -64,14 +64,20 @@ export async function getProjectById(id: string): Promise<any> {
   }
 }
 
-export async function getProjectRole(userId: string, projectId: string): Promise<string> {
+export async function getProjectRole(
+  userId: string,
+  projectId: string
+): Promise<string> {
   try {
-    const res = await fetch(`${BACKEND_URL}/projects/${projectId}/role?userId=${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `${BACKEND_URL}/projects/${projectId}/role?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!res.ok) {
       const errorData = await res.json();
@@ -85,7 +91,6 @@ export async function getProjectRole(userId: string, projectId: string): Promise
     throw error;
   }
 }
-
 
 export async function updateProject(id: string, projectData: any) {
   try {
@@ -135,7 +140,7 @@ export async function deleteProject(id: string) {
   }
 }
 
-interface ShareProjectResponse {
+interface JoinProjectResponse {
   success: boolean;
   message: string;
   member?: {
@@ -155,12 +160,15 @@ interface ShareProjectResponse {
   };
 }
 
-export async function shareProject(shareData: { userId: string; code: string }): Promise<ShareProjectResponse> {
+export async function joinProject(shareData: {
+  userId: string;
+  code: string;
+}): Promise<JoinProjectResponse> {
   try {
     const response = await fetch(`${BACKEND_URL}/projects/shareProject`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(shareData),
     });
@@ -172,40 +180,47 @@ export async function shareProject(shareData: { userId: string; code: string }):
         response: {
           data: {
             statusCode: response.status,
-            message: data.message || 'Error al unirse al proyecto',
-            error: data.error
-          }
-        }
+            message: data.message || "Error al unirse al proyecto",
+            error: data.error,
+          },
+        },
       };
     }
 
     return data;
   } catch (error) {
-    console.error('Failed to share project:', error);
+    console.error("Failed to share project:", error);
     throw error;
   }
 }
 
-export async function existsProject(code: string) {
+export async function exitProject(exitData: { userId: string; projectId: string }) {
   try {
-    const res = await fetch(`${BACKEND_URL}/projects/project/code/${code}`, {
-      method: "GET",
+    const response = await fetch(`${BACKEND_URL}/projects/exitProject`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(exitData),
     });
 
-    if (!res.ok) {
-      if (res.status === 404) return { exists: false }; // Si no se encuentra, retornamos false
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || `Error checking project: ${res.statusText}`
-      );
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw {
+        response: {
+          data: {
+            statusCode: response.status,
+            message: data.message || "Error al unirse al proyecto",
+            error: data.error,
+          },
+        },
+      };
     }
 
-    return { exists: true };
+    return data;
   } catch (error) {
-    console.error("Failed to check if project exists:", error);
+    console.error("Failed to share project:", error);
     throw error;
   }
 }

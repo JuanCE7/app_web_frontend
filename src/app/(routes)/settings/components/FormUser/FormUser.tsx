@@ -30,11 +30,11 @@ const formSchema = z.object({
 export function FormUser() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [base64Image, setBase64Image] = useState<string | null>(null);
+  const [base64Image, setBase64Image] = useState<string>();
   const [idUser, setIdUser] = useState<string>();
   const [initialEmail, setInitialEmail] = useState<string>();
-  const [userData, setUserData] = useState<z.infer<typeof formSchema> | null>(
-    null
+  const [userData, setUserData] = useState<z.infer<typeof formSchema>>(
+    
   );
 
   useEffect(() => {
