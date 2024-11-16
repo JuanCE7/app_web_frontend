@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   tableCol: {
-    width: "25%",
+    width: "16.66%", // Ajustado para 6 columnas
     padding: 5,
     borderStyle: "solid",
     borderWidth: 1,
@@ -50,70 +50,84 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
 });
+const removeHtmlTags = (text: string | undefined): string => {
+  if (typeof text !== 'string') return '';
+  return text.replace(/<[^>]*>/g, '\n');
+};
 
 const PDF = ({ project, useCases, testCases }: pdfProps) => {
   return (
     <Document>
       <Page style={styles.page}>
-        {/* Título del documento */}
         <Text style={styles.title}>Reporte del Proyecto</Text>
 
-        {/* Información del proyecto */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Proyecto: {project.name}</Text>
-          <Text style={styles.paragraph}>Descripción: {project.description}</Text>
-          
+          <Text style={styles.sectionTitle}>Proyecto: {removeHtmlTags(project.name)}</Text>
+          <Text style={styles.paragraph}>Descripción: {removeHtmlTags(project.description)}</Text>
         </View>
 
-        {/* Casos de uso */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Casos de Uso</Text>
           {useCases.map((useCase, index) => (
             <View key={index}>
               <Text style={styles.paragraph}>
-                {index + 1}. {useCase.name}
+                {index + 1}. {removeHtmlTags(useCase.name)}
               </Text>
               <Text style={styles.paragraph}>
-                Objetivos: {useCase.description}
+                Descripción: {removeHtmlTags(useCase.description)}
               </Text>
               <Text style={styles.paragraph}>
-                Precondiciones: {useCase.preconditions}
+                Precondiciones: {removeHtmlTags(useCase.preconditions)}
               </Text>
               <Text style={styles.paragraph}>
-                Postcondiciones: {useCase.postconditions}
+                Postcondiciones: {removeHtmlTags(useCase.postconditions)}
               </Text>
-              
             </View>
           ))}
         </View>
 
-        {/* Casos de prueba */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Casos de Prueba</Text>
           <View style={styles.table}>
-            {/* Encabezados de la tabla */}
             <View style={styles.tableRow}>
               <View style={styles.tableCol}>
                 <Text style={styles.tableCell}>ID</Text>
               </View>
               <View style={styles.tableCol}>
+                <Text style={styles.tableCell}>Nombre</Text>
+              </View>
+              <View style={styles.tableCol}>
                 <Text style={styles.tableCell}>Descripción</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text style={styles.tableCell}>Pasos</Text>
+              </View>
+              <View style={styles.tableCol}>
+                <Text style={styles.tableCell}>Datos de Entrada</Text>
               </View>
               <View style={styles.tableCol}>
                 <Text style={styles.tableCell}>Resultado Esperado</Text>
               </View>
-              <View style={styles.tableCol}>
-                <Text style={styles.tableCell}>Estado</Text>
-              </View>
             </View>
-            {/* Filas dinámicas */}
             {testCases.map((testCase, index) => (
               <View key={index} style={styles.tableRow}>
                 <View style={styles.tableCol}>
-                  <Text style={styles.tableCell}>{testCase.id}</Text>
+                  <Text style={styles.tableCell}>{removeHtmlTags(testCase.code)}</Text>
                 </View>
                 <View style={styles.tableCol}>
-                  <Text style={styles.tableCell}>{testCase.description}</Text>
+                  <Text style={styles.tableCell}>{removeHtmlTags(testCase.name)}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{removeHtmlTags(testCase.description)}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{removeHtmlTags(testCase.steps)}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{removeHtmlTags(testCase.inputData)}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{removeHtmlTags(testCase.expectedResult)}</Text>
                 </View>
               </View>
             ))}

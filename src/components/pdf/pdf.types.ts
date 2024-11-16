@@ -21,10 +21,9 @@ export type TestCase = {
   code?: string;
   name: string;
   description?: string;
-  preconditions?: string;
-  postconditions?: string;
-  mainFlow?: string;
-  alternateFlows?: string;
+  steps?: string;
+  inputData?: string;
+  expectedResult?: string;
 };
 
 export type pdfProps = {
