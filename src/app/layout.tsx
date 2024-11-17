@@ -6,7 +6,11 @@ import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
 
-const noto = Noto_Sans_Display({ subsets: ["latin"] });
+const noto = Noto_Sans_Display({
+  subsets: ["latin"],
+  weight: ["400", "700"], // Asegúrate de incluir los pesos que necesitas
+  display: "swap", // Agrega esta opción para mejorar la carga
+});
 
 export const metadata: Metadata = {
   title: "CaseCraft",
@@ -19,17 +23,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning={true}>
+    <html lang="en" suppressHydrationWarning={true} className={noto.className}>
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className={noto.className} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <SessionAuthProvider>
-          <ThemeProvider
-            attribute="class"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
             {children}
             <Toaster />
           </ThemeProvider>

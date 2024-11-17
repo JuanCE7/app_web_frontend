@@ -195,7 +195,7 @@ export const columns: ColumnDef<Project>[] = [
               {actionType === "disable" || actionType === "enable" ? (
                 <div className="flex w-full space-x-4 mt-6">
                   <Button
-                    variant="secondary"
+                    variant="outline"
                     onClick={() => setOpenModal(false)}
                     className="flex-1"
                   >
