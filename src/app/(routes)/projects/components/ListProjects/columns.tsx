@@ -270,7 +270,7 @@ export const columns: ColumnDef<Project>[] = [
               </DialogHeader>
               <div className="flex w-full space-x-4 mt-6">
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   onClick={closeModal}
                   className="flex-1"
                 >

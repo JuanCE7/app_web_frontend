@@ -146,13 +146,13 @@ function ActionCell({ testCase }: { testCase: TestCase }) {
       <Dialog open={openModalDelete} onOpenChange={setOpenModalDelete}>
         <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
           <DialogHeader className="text-center">
-            <DialogTitle>Confirmar Eliminación</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-center">Confirmar Eliminación</DialogTitle>
+            <DialogDescription className="text-center">
               ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
             </DialogDescription>
           </DialogHeader>
           <div className="flex w-full space-x-4 mt-6">
-            <Button variant="secondary" onClick={() => setOpenModalDelete(false)} className="flex-1">
+            <Button variant="outline" onClick={() => setOpenModalDelete(false)} className="flex-1">
               Cancelar
             </Button>
             <Button variant="destructive" onClick={confirmDeleteTestCase} className="flex-1">

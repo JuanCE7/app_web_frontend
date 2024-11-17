@@ -11,6 +11,7 @@ import { getTestCases } from "../../[projectId]/open/[useCaseId]/testCases.api";
 import PDF from "@/components/pdf/pdf";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from 'lucide-react';
+import { GeneratePDFProps } from "./GeneratePDF.types";
 
 export interface Project {
   id?: string;
@@ -40,11 +41,6 @@ export interface TestCase {
   steps?: string;
   inputData?: string;
   expectedResult?: string;
-}
-
-export interface GeneratePDFProps {
-  setOpenModalGenerate: (open: boolean) => void;
-  projectId: string;
 }
 
 export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProps) {
