@@ -18,7 +18,7 @@ export function Navbar() {
       if (session?.user?.email) {
         try {
           let user = await getUserLogged(session.user.email);
-          setUserName(user.firstName + " " + user.lastName);
+          setUserName(user.entity.firstName + " " + user.entity.lastName);
         } catch (error) {
           console.error("Error fetching user data:", error);
         }

@@ -36,11 +36,15 @@ import {
 
 export interface Project {
   id?: string;
-  firstName?: string;
-  lastName?: string;
+  entity: {
+    firstName?: string;
+    lastName?: string;
+    image?: string;
+  };
   email?: string;
-  image?: string;
-  role?: "Administrator" | "Tester";
+  role:{
+    name: "Administrator" | "Tester";
+  }
   status?: string;
 }
 
@@ -58,16 +62,16 @@ export const columns: ColumnDef<Project>[] = [
     ),
   },
   {
-    accessorKey: "firstName",
     header: "Nombre",
+    accessorFn: (row) => row.entity?.firstName || "",
   },
   {
-    accessorKey: "lastName",
     header: "Apellido",
+    accessorFn: (row) => row.entity?.lastName || "",
   },
   {
-    accessorKey: "role",
     header: "Rol",
+    accessorFn: (row) => row.role?.name || "",
   },
   {
     accessorKey: "status",
@@ -84,10 +88,14 @@ export const columns: ColumnDef<Project>[] = [
     cell: ({ row }) => {
       const { id, role, status } = row.original;
       const [openModal, setOpenModal] = useState(false);
-      const [actionType, setActionType] = useState<"disable" | "role" | "enable" | null>(null);
-      const [newRole, setNewRole] = useState<"Administrator" | "Tester">(role || "Tester");
+      const [actionType, setActionType] = useState<
+        "disable" | "role" | "enable" | null
+      >(null);
+      const [newRole, setNewRole] = useState<"Administrator" | "Tester">(
+        role.name || "Tester"
+      );
       const router = useRouter();
-  
+
       // Función para actualizar el rol
       const handleUpdateRole = async () => {
         if (id) {
@@ -97,7 +105,7 @@ export const columns: ColumnDef<Project>[] = [
           toast({ title: "Rol actualizado correctamente" });
         }
       };
-  
+
       // Función para activar o desactivar usuario
       const handleToggleUserStatus = async () => {
         if (id) {
@@ -106,17 +114,19 @@ export const columns: ColumnDef<Project>[] = [
           setOpenModal(false);
           router.refresh();
           toast({
-            title: newStatus ? "Usuario activado correctamente" : "Usuario desactivado correctamente",
+            title: newStatus
+              ? "Usuario activado correctamente"
+              : "Usuario desactivado correctamente",
           });
         }
       };
-  
+
       // Controlador para abrir los diálogos
       const openDialog = (type: "disable" | "role" | "enable") => {
         setActionType(type);
         setOpenModal(true);
       };
-  
+
       return (
         <>
           <DropdownMenu>
@@ -131,7 +141,9 @@ export const columns: ColumnDef<Project>[] = [
                 <UserRoundPen className="w-4 h-4 mr-2" />
                 Cambiar Rol
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => openDialog(status ? "disable" : "enable")}>
+              <DropdownMenuItem
+                onClick={() => openDialog(status ? "disable" : "enable")}
+              >
                 {status ? (
                   <>
                     <UserRoundX className="w-4 h-4 mr-2" />
@@ -146,7 +158,7 @@ export const columns: ColumnDef<Project>[] = [
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-  
+
           {/* Diálogo para cambiar rol o activar/desactivar */}
           <Dialog open={openModal} onOpenChange={setOpenModal}>
             <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
@@ -166,7 +178,7 @@ export const columns: ColumnDef<Project>[] = [
                     : "¿Estás seguro de que deseas desactivar a este usuario?"}
                 </DialogDescription>
               </DialogHeader>
-  
+
               {actionType === "role" && (
                 <div className="w-full mt-4">
                   <Select
@@ -174,7 +186,7 @@ export const columns: ColumnDef<Project>[] = [
                     onValueChange={(value) =>
                       setNewRole(value as "Administrator" | "Tester")
                     }
-                    defaultValue={role}
+                    defaultValue={role.name}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecciona un rol">
@@ -182,7 +194,9 @@ export const columns: ColumnDef<Project>[] = [
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Administrator">Administrador</SelectItem>
+                      <SelectItem value="Administrator">
+                        Administrador
+                      </SelectItem>
                       <SelectItem value="Tester">Tester</SelectItem>
                     </SelectContent>
                   </Select>
@@ -191,7 +205,7 @@ export const columns: ColumnDef<Project>[] = [
                   </Button>
                 </div>
               )}
-  
+
               {actionType === "disable" || actionType === "enable" ? (
                 <div className="flex w-full space-x-4 mt-6">
                   <Button
@@ -202,7 +216,9 @@ export const columns: ColumnDef<Project>[] = [
                     Cancelar
                   </Button>
                   <Button
-                    variant={actionType === "disable" ? "destructive" : "default"}
+                    variant={
+                      actionType === "disable" ? "destructive" : "default"
+                    }
                     onClick={handleToggleUserStatus}
                     className="flex-1"
                   >
@@ -215,6 +231,5 @@ export const columns: ColumnDef<Project>[] = [
         </>
       );
     },
-  }
-  
+  },
 ];

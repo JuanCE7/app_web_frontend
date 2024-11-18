@@ -1,59 +1,66 @@
 "use client";
-
 import { useState, useEffect } from "react";
-import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
-import { getUserLogged, registerUser } from "./login.api";
+import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Logo } from "@/components/Logo";
 import { ToggleTheme } from "@/components/ToggleTheme";
+import { Separator } from "@/components/ui/separator";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { z } from "zod";
+import { toast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { getUserLogged, registerUser } from "./login.api";
 
-type FormType = "login" | "register" | "forgotPassword";
+type FormType = "login" | "register" | "forgotUsername" | "forgotPassword";
 
-const loginSchema = z.object({
-  email: z.string().email("Correo no válido"),
-  password: z.string().min(6, "La contraseña debe tener mínimo 6 carácteres"),
-});
+const formSchema = z
+  .object({
+    firstName: z.string().min(3, "El Nombre debe tener al menos 3 caracteres"),
+    lastName: z.string().min(3, "El Apellido debe tener al menos 3 caracteres"),
+    email: z.string().email("Correo No válido"),
+    password: z
+      .string()
+      .min(6, "La contraseña debe tener al menos 6 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-const registerSchema = z.object({
-  firstName: z.string().min(3, "El Nombre debe tener al menos 3 caracteres"),
-  lastName: z.string().min(3, "El Apellido debe tener al menos 3 caracteres"),
-  email: z.string().email("Correo no válido"),
+const formSchemaLogin = z.object({
+  email: z.string().email("Correo No válido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Las contraseñas no coinciden",
-  path: ["confirmPassword"],
-});
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Correo no válido"),
 });
 
 export default function AuthCard() {
   const [formType, setFormType] = useState<FormType>("login");
   const [showPassword, setShowPassword] = useState(false);
   const { data: session } = useSession();
-  const router = useRouter();
+  const [showInfo, setShowInfo] = useState(true);
 
-  const loginForm = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
-    mode: "onChange",
-  });
-
-  const registerForm = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -61,14 +68,17 @@ export default function AuthCard() {
       password: "",
       confirmPassword: "",
     },
-    mode: "onChange",
   });
 
-  const forgotPasswordForm = useForm<z.infer<typeof forgotPasswordSchema>>({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { email: "" },
-    mode: "onChange",
+  const formLogin = useForm<z.infer<typeof formSchemaLogin>>({
+    resolver: zodResolver(formSchemaLogin),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
+
+  const router = useRouter();
 
   useEffect(() => {
     if (session) {
@@ -76,40 +86,10 @@ export default function AuthCard() {
     }
   }, [session, router]);
 
-  const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
-    const userResponse = await getUserLogged(values.email);
-
-    if (userResponse.status === false) {
-      toast({
-        title: "Cuenta desactivada",
-        description: "Tu cuenta ha sido desactivada, contacta con soporte.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const responseNextAuth = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
-
-    if (responseNextAuth?.error) {
-      toast({
-        title: "Error de inicio de sesión",
-        description: responseNextAuth.error,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({ title: "Bienvenido al Sistema" });
-    router.push("/");
-  };
-
-  const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    let res;
     try {
-      const res = await registerUser(values);
+      res = await registerUser(values);
 
       if (!res.ok) {
         const responseAPI = await res.json();
@@ -129,25 +109,54 @@ export default function AuthCard() {
     } catch (error) {
       toast({
         title: "Registro Fallido",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description:
+          error instanceof Error ? res?.json.toString() : "An error occurred",
         variant: "destructive",
       });
     }
   };
 
-  const onForgotPasswordSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
-    // Implement forgot password logic here
-    toast({ title: "Recuperación de contraseña", description: "Se ha enviado un correo con instrucciones." });
+  const onSubmitLogin = async (values: z.infer<typeof formSchemaLogin>) => {
+    const userResponse = await getUserLogged(values.email);
+
+    if (userResponse.status === false) {
+      toast({
+        title: "Cuenta desactivada",
+        description: "Tu cuenta ha sido desactivada, contacta con soporte.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const responseNextAuth = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+    });
+
+    if (responseNextAuth?.error) {
+      formLogin.setError("root", {
+        type: "manual",
+        message: responseNextAuth.error,
+      });
+      return;
+    }
+
+    toast({ title: "Bienvenido al Sistema" });
+    router.push("/");
   };
 
   const renderForm = () => {
     switch (formType) {
       case "login":
         return (
-          <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+          <Form {...formLogin}>
+            <form
+              onSubmit={formLogin.handleSubmit(onSubmitLogin)}
+              className="space-y-4"
+            >
               <FormField
-                control={loginForm.control}
+                control={formLogin.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -160,7 +169,7 @@ export default function AuthCard() {
                 )}
               />
               <FormField
-                control={loginForm.control}
+                control={formLogin.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -201,18 +210,24 @@ export default function AuthCard() {
                 </button>
               </div>
               <Button type="submit" className="w-full mt-6">
-                Iniciar sesión
+                {getButtonText()}
               </Button>
+              {formLogin.formState.errors.root && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2">
+                  {formLogin.formState.errors.root.message}
+                </div>
+              )}
             </form>
           </Form>
         );
       case "register":
         return (
-          <Form {...registerForm}>
-            <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
-                control={registerForm.control}
+                control={form.control}
                 name="firstName"
+                key={"firstName"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nombre</FormLabel>
@@ -224,8 +239,9 @@ export default function AuthCard() {
                 )}
               />
               <FormField
-                control={registerForm.control}
+                control={form.control}
                 name="lastName"
+                key={"lastName"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Apellido</FormLabel>
@@ -237,20 +253,24 @@ export default function AuthCard() {
                 )}
               />
               <FormField
-                control={registerForm.control}
+                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingrese su correo" type="email" {...field} />
+                      <Input
+                        placeholder="Ingrese su correo"
+                        type="email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                control={registerForm.control}
+                control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -282,7 +302,7 @@ export default function AuthCard() {
                 )}
               />
               <FormField
-                control={registerForm.control}
+                control={form.control}
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
@@ -299,33 +319,31 @@ export default function AuthCard() {
                 )}
               />
               <Button type="submit" className="w-full mt-6">
-                Registro
+                {getButtonText()}
               </Button>
             </form>
           </Form>
         );
+      case "forgotUsername":
+        return (
+          <div className="space-y-2">
+            <Label htmlFor="email">Correo Electrónico</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Ingresa tu correo electrónico"
+            />
+          </div>
+        );
       case "forgotPassword":
         return (
-          <Form {...forgotPasswordForm}>
-            <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} className="space-y-4">
-              <FormField
-                control={forgotPasswordForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Correo Electrónico</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ingresa tu correo electrónico" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full mt-6">
-                Recuperar Contraseña
-              </Button>
-            </form>
-          </Form>
+          <div className="space-y-2">
+            <Label htmlFor="usernameOrEmail">Correo Electrónico</Label>
+            <Input
+              id="usernameOrEmail"
+              placeholder="Ingresa tu usuario o correo electrónico"
+            />
+          </div>
         );
     }
   };
@@ -341,12 +359,23 @@ export default function AuthCard() {
     }
   };
 
+  const getButtonText = () => {
+    switch (formType) {
+      case "login":
+        return "Iniciar sesión";
+      case "register":
+        return "Registrarse";
+      case "forgotPassword":
+        return "Recuperar Contraseña";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4 bg-[url('/background.png')]">
       <div className="absolute top-4 right-4">
         <ToggleTheme />
       </div>
-      <Card className="w-full max-w-lg bg-opacity-70 p-8 rounded-lg shadow-lg">
+      <Card className="w-full max-w-lg  bg-opacity-70 p-8 rounded-lg shadow-lg ">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <Logo />
@@ -373,6 +402,13 @@ export default function AuthCard() {
             </div>
           ) : (
             <div className="space-y-2 w-full">
+              <Button
+                type="submit"
+                variant={"destructive"}
+                className="w-full mt-6"
+              >
+                {getButtonText()}
+              </Button>
               <Separator />
               <Button
                 variant="default"

@@ -144,7 +144,7 @@ export function HeaderProjects() {
               />
               <div className="flex flex-wrap justify-end gap-2">
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   onClick={() => {
                     setOpenModalShare(false);
                     setProjectCode("");

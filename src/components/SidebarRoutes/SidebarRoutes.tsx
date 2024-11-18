@@ -27,7 +27,7 @@ export function SidebarRoutes() {
       if (session?.user?.email) {
         try {
           const user = await getUserLogged(session.user.email);
-          setUserRole(user.role);
+          setUserRole(user.role.name);
         } catch (error) {
           console.error("Error al obtener la información del usuario:", error);
         }
