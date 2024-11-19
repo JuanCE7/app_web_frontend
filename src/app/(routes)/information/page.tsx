@@ -48,7 +48,7 @@ export default function Information() {
     {
       title: "Generación de Casos de Prueba en la Aplicación",
       content:
-        "Para generar casos de prueba en nuestra aplicación, sigue estos pasos: 1) Crea un nuevo proyecto, 2) Define los casos de uso del sistema, 3) Utiliza las técnicas aprendidas para generar casos de prueba, 4) Selecciona los casos más relevantes y efectivos para tu proyecto.",
+        "Para generar casos de prueba en nuestra aplicación, sigue estos pasos: \n1) Crea un nuevo proyecto, \n2) Define los casos de uso del sistema, \n 3) Utiliza las técnicas aprendidas para generar casos de prueba, \n4) Selecciona los casos más relevantes y efectivos para tu proyecto.",
       image: "/7.png?height=200&width=400",
     },
     {
