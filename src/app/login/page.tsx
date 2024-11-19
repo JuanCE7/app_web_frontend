@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -29,9 +30,26 @@ import { z } from "zod";
 import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { getUserLogged, registerUser } from "./login.api";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@/components/ui/input-otp";
+import {
+  getUserLogged,
+  passwordRecovery,
+  registerUser,
+  verifyOtp,
+} from "./login.api";
+import { updateUser } from "../(routes)/settings/user.api";
 
-type FormType = "login" | "register" | "forgotUsername" | "forgotPassword";
+type FormType =
+  | "login"
+  | "register"
+  | "forgotPassword"
+  | "otpValidation"
+  | "changePassword";
 
 const formSchema = z
   .object({
@@ -44,20 +62,44 @@ const formSchema = z
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Las contraseñas no coinciden",
     path: ["confirmPassword"],
   });
 
-const formSchemaLogin = z.object({
+const loginSchema = z.object({
   email: z.string().email("Correo No válido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
 
+const forgotPasswordSchema = z.object({
+  emailOTP: z.string(),
+});
+
+const otpSchema = z.object({
+  otp: z.string().length(6, "El código OTP debe tener 6 dígitos"),
+});
+
+const changePasswordSchema = z
+  .object({
+    passwordReset: z
+      .string()
+      .min(6, "La contraseña debe tener al menos 6 caracteres"),
+    confirmPasswordReset: z.string(),
+  })
+  .refine((data) => data.passwordReset === data.confirmPasswordReset, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPassword"],
+  });
+
 export default function AuthCard() {
   const [formType, setFormType] = useState<FormType>("login");
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
   const { data: session } = useSession();
-  const [showInfo, setShowInfo] = useState(true);
+  const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
+
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,21 +112,45 @@ export default function AuthCard() {
     },
   });
 
-  const formLogin = useForm<z.infer<typeof formSchemaLogin>>({
-    resolver: zodResolver(formSchemaLogin),
+  const loginForm = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const router = useRouter();
+  const forgotPasswordForm = useForm<z.infer<typeof forgotPasswordSchema>>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      emailOTP: "",
+    },
+  });
+
+  const otpForm = useForm<z.infer<typeof otpSchema>>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      otp: "",
+    },
+  });
+
+  const changePasswordForm = useForm<z.infer<typeof changePasswordSchema>>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      passwordReset: "",
+      confirmPasswordReset: "",
+    },
+  });
 
   useEffect(() => {
     if (session) {
       router.push("/");
     }
   }, [session, router]);
+
+  useEffect(() => {
+    setErrors([]);
+  }, [formType]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let res;
@@ -110,54 +176,141 @@ export default function AuthCard() {
       toast({
         title: "Registro Fallido",
         description:
-          error instanceof Error ? res?.json.toString() : "An error occurred",
+          error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
     }
   };
 
-  const onSubmitLogin = async (values: z.infer<typeof formSchemaLogin>) => {
-    const userResponse = await getUserLogged(values.email);
+  const handleLogin = async (values: z.infer<typeof loginSchema>) => {
+    setErrors([]);
 
-    if (userResponse.status === false) {
+    try {
+      const userResponse = await getUserLogged(values.email);
+
+      if (userResponse.status === false) {
+        toast({
+          title: "Cuenta desactivada",
+          description: "Tu cuenta ha sido desactivada, contacta con soporte.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const responseNextAuth = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (responseNextAuth?.error) {
+        toast({
+          title: "Credenciales incorrectas",
+          description: "Has incluido credenciales incorrectas",
+          variant: "destructive",
+        });
+        throw new Error(responseNextAuth.error);
+      }
+
+      toast({ title: "Bienvenido al Sistema" });
+      router.push("/");
+    } catch (error) {
+      setErrors(
+        error instanceof Error ? [error.message] : ["An error occurred"]
+      );
+    }
+  };
+
+  const handleForgotPassword = async (
+    values: z.infer<typeof forgotPasswordSchema>
+  ) => {
+    try {
+      const response = await passwordRecovery(values.emailOTP);
+      console.log("response addsdas");
+      console.log(response.otpToken);
+      if (response) {
+        setEmail(values.emailOTP);
+        setToken(response.otpToken);
+        setFormType("otpValidation");
+        toast({
+          title: "Correo enviado",
+          description: "Por favor, revisa tu bandeja de entrada",
+        });
+      } else {
+        throw new Error("No se pudo enviar el correo de recuperación");
+      }
+    } catch (error) {
       toast({
-        title: "Cuenta desactivada",
-        description: "Tu cuenta ha sido desactivada, contacta con soporte.",
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
-      return;
     }
+  };
 
-    const responseNextAuth = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
-
-    if (responseNextAuth?.error) {
-      formLogin.setError("root", {
-        type: "manual",
-        message: responseNextAuth.error,
+  const handleOTPValidation = async (values: z.infer<typeof otpSchema>) => {
+    try {
+      const value = {
+        token: token,
+        otpCode: values.otp,
+      };
+      console.log(value)
+      const response = await verifyOtp(value);
+      if (response) {
+        setFormType("changePassword");
+        toast({ title: "OTP validado correctamente" });
+      } else {
+        throw new Error("Código OTP inválido");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
       });
-      return;
     }
+  };
 
-    toast({ title: "Bienvenido al Sistema" });
-    router.push("/");
+  const handleChangePassword = async (
+    values: z.infer<typeof changePasswordSchema>
+  ) => {
+    try {
+      const user = await getUserLogged(email);
+      const response = await updateUser(user.id, values.passwordReset);
+      if (response.ok) {
+        setFormType("login");
+        toast({
+          title: "Contraseña cambiada correctamente",
+          description: "Por favor, inicia sesión con tu nueva contraseña",
+        });
+      } else {
+        throw new Error("No se pudo cambiar la contraseña");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderForm = () => {
     switch (formType) {
       case "login":
         return (
-          <Form {...formLogin}>
+          <Form {...loginForm}>
             <form
-              onSubmit={formLogin.handleSubmit(onSubmitLogin)}
+              onSubmit={loginForm.handleSubmit(handleLogin)}
               className="space-y-4"
             >
               <FormField
-                control={formLogin.control}
+                control={loginForm.control}
                 name="email"
+                key={"email"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -169,7 +322,7 @@ export default function AuthCard() {
                 )}
               />
               <FormField
-                control={formLogin.control}
+                control={loginForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -210,13 +363,8 @@ export default function AuthCard() {
                 </button>
               </div>
               <Button type="submit" className="w-full mt-6">
-                {getButtonText()}
+                Iniciar sesión
               </Button>
-              {formLogin.formState.errors.root && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2">
-                  {formLogin.formState.errors.root.message}
-                </div>
-              )}
             </form>
           </Form>
         );
@@ -319,32 +467,150 @@ export default function AuthCard() {
                 )}
               />
               <Button type="submit" className="w-full mt-6">
-                {getButtonText()}
+                Registro
               </Button>
             </form>
           </Form>
         );
-      case "forgotUsername":
-        return (
-          <div className="space-y-2">
-            <Label htmlFor="email">Correo Electrónico</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Ingresa tu correo electrónico"
-            />
-          </div>
-        );
       case "forgotPassword":
         return (
-          <div className="space-y-2">
-            <Label htmlFor="usernameOrEmail">Correo Electrónico</Label>
-            <Input
-              id="usernameOrEmail"
-              placeholder="Ingresa tu usuario o correo electrónico"
-            />
-          </div>
+          <Form {...forgotPasswordForm}>
+            <form
+              onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)}
+              className="space-y-4"
+            >
+              <FormField
+                control={forgotPasswordForm.control}
+                name="emailOTP"
+                key={"emailOTP"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Correo Electrónico</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ingresa tu correo electrónico"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full mt-6">
+                Enviar correo de recuperación
+              </Button>
+            </form>
+          </Form>
         );
+      case "otpValidation":
+        return (
+          <Form {...otpForm}>
+            <form
+              onSubmit={otpForm.handleSubmit(handleOTPValidation)}
+              className="space-y-4"
+            >
+              <FormField
+                control={otpForm.control}
+                name="otp"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col items-center justify-center text-center">
+                    <FormLabel className="mb-4">Código OTP</FormLabel>
+                    <FormControl>
+                      <InputOTP
+                        maxLength={6}
+                        value={field.value}
+                        onChange={(value) => field.onChange(value)}
+                      >
+                        {/* Grupo 1 de slots */}
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                        </InputOTPGroup>
+                        {/* Separador */}
+                        <InputOTPSeparator className="mx-4" />
+                        {/* Grupo 2 de slots */}
+                        <InputOTPGroup>
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full mt-6">
+                Validar OTP
+              </Button>
+            </form>
+          </Form>
+        );
+      case "changePassword":
+        return (
+          <Form {...changePasswordForm}>
+            <form
+              onSubmit={changePasswordForm.handleSubmit(handleChangePassword)}
+              className="space-y-4"
+            >
+              <FormField
+                control={changePasswordForm.control}
+                name="passwordReset"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nueva Contraseña</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Ingresa tu nueva contraseña"
+                          {...field}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={changePasswordForm.control}
+                name="confirmPasswordReset"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirmar Nueva Contraseña</FormLabel>
+                    <FormControl>
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Confirma tu nueva contraseña"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full mt-6">
+                Cambiar Contraseña
+              </Button>
+            </form>
+          </Form>
+        );
+      default:
+        return null;
     }
   };
 
@@ -356,17 +622,12 @@ export default function AuthCard() {
         return "Registrarse";
       case "forgotPassword":
         return "Recuperar Contraseña";
-    }
-  };
-
-  const getButtonText = () => {
-    switch (formType) {
-      case "login":
-        return "Iniciar sesión";
-      case "register":
-        return "Registrarse";
-      case "forgotPassword":
-        return "Recuperar Contraseña";
+      case "otpValidation":
+        return "Validar OTP";
+      case "changePassword":
+        return "Cambiar Contraseña";
+      default:
+        return "";
     }
   };
 
@@ -403,15 +664,7 @@ export default function AuthCard() {
           ) : (
             <div className="space-y-2 w-full">
               <Button
-                type="submit"
-                variant={"destructive"}
-                className="w-full mt-6"
-              >
-                {getButtonText()}
-              </Button>
-              <Separator />
-              <Button
-                variant="default"
+                variant="outline"
                 className="w-full"
                 onClick={() => setFormType("login")}
               >

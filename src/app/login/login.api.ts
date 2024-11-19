@@ -11,10 +11,67 @@ export async function registerUser(values: any) {
       lastName: values.lastName,
       email: values.email,
       password: values.password,
-    }), 
+    }),
   });
   const data = await res.json();
   return res;
+}
+
+export async function passwordRecovery(email: string): Promise<any> { 
+  try {
+    const res = await fetch(`${BACKEND_URL}/auth/passwordRecovery/${email}`, { 
+      method: "GET", 
+      headers: { 
+        "Content-Type": "application/json", 
+      }, 
+    });
+    if (!res.ok) { 
+      let errorMessage = "Error fetching password"; 
+      try { 
+        const errorData = await res.json();
+        errorMessage = errorData.message || errorMessage; 
+      } catch { 
+        const errorData = "errorr"
+        errorMessage = errorData || errorMessage; 
+      } 
+      throw new Error(errorMessage);
+    } 
+    const text = await res.text();
+    if (!text) {
+      return { error: "No data received from server" };
+    }
+    const data = JSON.parse(text);
+    return data;
+
+  } catch (error) {
+    return {
+      success: false, 
+      error: error instanceof Error ? error.message : 'Error en la recuperación de contraseña'
+    };
+  }
+}
+
+export async function verifyOtp(values : any) { 
+  try {
+    const res = await fetch(`${BACKEND_URL}/auth/verifyOtp`, { 
+      method: "GET", 
+      headers: { 
+        "Content-Type": "application/json", 
+      }, 
+      body: JSON.stringify({
+        token: values.token,
+        enteredOtp: values.enteredOtp,
+      }),
+    });
+    const data = await res.json();
+    return res;
+
+  } catch (error) {
+    return {
+      success: false, 
+      error: error instanceof Error ? error.message : 'Error en la recuperación de contraseña'
+    };
+  }
 }
 
 export async function getUserLogged(email: string): Promise<any> {
@@ -48,10 +105,8 @@ export async function getUserLogged(email: string): Promise<any> {
     // Parseamos la respuesta como JSON si hay contenido
     const data = JSON.parse(text);
     return data;
-
   } catch (error: any) {
     console.error("Failed to fetch user:", error);
     return { error: error.message || "Unknown error occurred" };
   }
 }
-
