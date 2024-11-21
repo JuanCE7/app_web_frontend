@@ -54,6 +54,12 @@ export function FormProject(props: FormProjectProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      image: "",
+      userId: "",
+    },
     mode: "onChange"
   });
 

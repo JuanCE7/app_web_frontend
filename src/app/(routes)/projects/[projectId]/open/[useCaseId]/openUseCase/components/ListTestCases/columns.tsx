@@ -107,7 +107,7 @@ function ActionCell({ testCase }: { testCase: TestCase }) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="w-8 h-4 p-0">
             <span className="sr-only">Open Menu</span>
             <MoreHorizontal className="w-4 h-4" />

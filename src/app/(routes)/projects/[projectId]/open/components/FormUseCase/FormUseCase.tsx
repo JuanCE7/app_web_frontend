@@ -23,8 +23,8 @@ import {
   getUseCaseById,
   updateUseCase,
 } from "../../useCases.api";
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import { Input } from "@/components/ui/input";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -69,18 +69,27 @@ export function FormUseCase(props: FormUseCaseProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      preconditions: "",
+      postconditions: "",
+      mainFlow: "",
+      alternateFlows: "",
+      projectId: "",
+    },
     mode: "onChange",
   });
 
   useEffect(() => {
     if (useCaseData) {
       if (useCaseData) {
-        form.setValue("code", useCaseData.code);
-        form.setValue("name", useCaseData.name);
-        form.setValue("description", useCaseData.description);
-        form.setValue("preconditions", useCaseData.preconditions);
-        form.setValue("postconditions", useCaseData.postconditions);
-        form.setValue("mainFlow", useCaseData.mainFlow);
+        form.setValue("code", useCaseData.code || "");
+        form.setValue("name", useCaseData.name || "");
+        form.setValue("description", useCaseData.description || "");
+        form.setValue("preconditions", useCaseData.preconditions || "");
+        form.setValue("postconditions", useCaseData.postconditions || "");
+        form.setValue("mainFlow", useCaseData.mainFlow || "");
         form.setValue("alternateFlows", useCaseData.alternateFlows || "");
       }
     }

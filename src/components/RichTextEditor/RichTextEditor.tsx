@@ -6,7 +6,7 @@ import { Bold, List, ListOrdered } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
 
-const RichTextEditor = ({
+export const RichTextEditor = ({
   value,
   onChange,
   toolbarOption,
@@ -15,7 +15,6 @@ const RichTextEditor = ({
   onChange: (content: { html: string; text: string }) => void;
   toolbarOption: number;
 }) => {
-  // Evitar renderizado en el lado del servidor
   if (typeof window === "undefined") {
     return null;
   }
@@ -43,6 +42,7 @@ const RichTextEditor = ({
       const textContent = editor.getText();
       onChange({ html: htmlContent, text: textContent });
     },
+    immediatelyRender: false, 
   });
 
   useEffect(() => {
@@ -51,6 +51,9 @@ const RichTextEditor = ({
     }
   }, [value, editor]);
 
+  if (!editor) {
+    return null; // Retorna null si el editor aún no está listo
+  }
   return (
     <>
       {editor ? (

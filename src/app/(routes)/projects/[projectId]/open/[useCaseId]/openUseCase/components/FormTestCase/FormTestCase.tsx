@@ -18,9 +18,9 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import RichTextEditor from "@/components/RichTextEditor/RichTextEditor";
 import { Input } from "@/components/ui/input";
 import { createTestCase, getTestCaseById, updateTestCase } from "../../../testCases.api";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -66,17 +66,26 @@ export function FormTestCase(props: FormTestCaseProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      code: "",
+      name: "",
+      description: "",
+      steps: "",
+      inputData: "",
+      expectedResult: "",
+      useCaseId: "",
+    },
     mode: "onChange",
   });
 
   useEffect(() => {
     if (testCaseData) {
-      form.setValue("code", testCaseData.code);
-      form.setValue("name", testCaseData.name);
-      form.setValue("description", testCaseData.description);
-      form.setValue("steps", testCaseData.steps);
-      form.setValue("inputData", testCaseData.inputData);
-      form.setValue("expectedResult", testCaseData.expectedResult);
+      form.setValue("code", testCaseData.code || "");
+      form.setValue("name", testCaseData.name || "");
+      form.setValue("description", testCaseData.description || "");
+      form.setValue("steps", testCaseData.steps || "");
+      form.setValue("inputData", testCaseData.inputData || "");
+      form.setValue("expectedResult", testCaseData.expectedResult || "");
     }
   }, [testCaseData, form]);
 
