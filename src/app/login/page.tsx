@@ -94,7 +94,6 @@ const changePasswordSchema = z
 export default function AuthCard() {
   const [formType, setFormType] = useState<FormType>("login");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
   const { data: session } = useSession();
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
@@ -110,6 +109,7 @@ export default function AuthCard() {
       password: "",
       confirmPassword: "",
     },
+    mode: "onChange"
   });
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
@@ -125,6 +125,7 @@ export default function AuthCard() {
     defaultValues: {
       emailOTP: "",
     },
+    mode: "onChange"
   });
 
   const otpForm = useForm<z.infer<typeof otpSchema>>({
@@ -132,6 +133,7 @@ export default function AuthCard() {
     defaultValues: {
       otp: "",
     },
+    mode: "onChange"
   });
 
   const changePasswordForm = useForm<z.infer<typeof changePasswordSchema>>({
@@ -140,6 +142,7 @@ export default function AuthCard() {
       passwordReset: "",
       confirmPasswordReset: "",
     },
+    mode: "onChange"
   });
 
   useEffect(() => {
@@ -148,13 +151,10 @@ export default function AuthCard() {
     }
   }, [session, router]);
 
-  useEffect(() => {
-    setErrors([]);
-  }, [formType]);
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let res;
     try {
+      console.log(values)
       res = await registerUser(values);
 
       if (!res.ok) {
@@ -183,8 +183,6 @@ export default function AuthCard() {
   };
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
-    setErrors([]);
-
     try {
       const userResponse = await getUserLogged(values.email);
 
@@ -215,9 +213,12 @@ export default function AuthCard() {
       toast({ title: "Bienvenido al Sistema" });
       router.push("/");
     } catch (error) {
-      setErrors(
-        error instanceof Error ? [error.message] : ["An error occurred"]
-      );
+      toast({
+        title: "Inicio de Sesión Fallido",
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
     }
   };
 

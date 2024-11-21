@@ -1,4 +1,3 @@
-import { getUserLogged } from "@/app/login/login.api";
 import { columns } from "./columns";
 import { redirect } from "next/navigation";
 import { DataTable } from "@/components/Data-Table";

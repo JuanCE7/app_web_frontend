@@ -13,7 +13,6 @@ export async function registerUser(values: any) {
       password: values.password,
     }),
   });
-  const data = await res.json();
   return res;
 }
 
