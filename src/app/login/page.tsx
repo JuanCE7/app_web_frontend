@@ -226,9 +226,8 @@ export default function AuthCard() {
   ) => {
     try {
       const response = await passwordRecovery(values.emailOTP);
-      console.log("response addsdas");
       console.log(response.otpToken);
-      if (response) {
+      if (response.success) {
         setEmail(values.emailOTP);
         setToken(response.otpToken);
         setFormType("otpValidation");
@@ -237,7 +236,7 @@ export default function AuthCard() {
           description: "Por favor, revisa tu bandeja de entrada",
         });
       } else {
-        throw new Error("No se pudo enviar el correo de recuperación");
+        throw new Error("No se pudo enviar el correo de recuperación, ingrese una información correcta");
       }
     } catch (error) {
       toast({
@@ -324,6 +323,7 @@ export default function AuthCard() {
               <FormField
                 control={loginForm.control}
                 name="password"
+                key={"password"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contraseña</FormLabel>
@@ -403,6 +403,7 @@ export default function AuthCard() {
               <FormField
                 control={form.control}
                 name="email"
+                key={"email"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -420,6 +421,7 @@ export default function AuthCard() {
               <FormField
                 control={form.control}
                 name="password"
+                key={"password"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contraseña</FormLabel>
