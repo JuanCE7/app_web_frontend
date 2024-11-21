@@ -24,6 +24,7 @@ export type TestCase = {
   steps?: string;
   inputData?: string;
   expectedResult?: string;
+  useCaseId?: string;
 };
 
 export type pdfProps = {
