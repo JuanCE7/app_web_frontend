@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu } from "lucide-react";
 import { SidebarRoutes } from "../SidebarRoutes";
 import Image from "next/image";
+import { DialogDescription, DialogTitle } from "../ui/dialog";
 
 export async function Navbar() {
   // Obtener sesión y datos del usuario desde el servidor
@@ -29,17 +30,25 @@ export async function Navbar() {
             <Menu />
           </SheetTrigger>
           <SheetContent side="left">
+            <DialogTitle></DialogTitle>
+            <DialogDescription></DialogDescription>
             <SidebarRoutes />
           </SheetContent>
         </Sheet>
       </div>
-      
+
       <div className="relative w-[300px]"></div>
-      
+
       <div className="flex gap-x-2 items-center">
-      <div className="w-20 h-20 rounded-full flex items-center justify-center">
-        <Image src="/perro.gif" alt="logo" width={300} height={300} priority />
-      </div>
+        <div className="w-20 h-20 rounded-full flex items-center justify-center">
+          <Image
+            src="/perro.gif"
+            alt="logo"
+            width={300}
+            height={300}
+            priority
+          />
+        </div>
         <ToggleTheme />
         {userName && (
           <p className="text-sm md:text-base whitespace-nowrap">

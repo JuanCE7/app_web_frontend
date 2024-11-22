@@ -105,7 +105,7 @@ export function SidebarRoutes() {
         </div>
         <Separator />
         <footer className="mt-3 p-3 text-center">
-          2024. Todos los permisos reservados.
+          2024. Juan Castillo - Derechos reservados.
         </footer>
       </div>
     </div>

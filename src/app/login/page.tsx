@@ -635,7 +635,7 @@ export default function AuthCard() {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4 bg-[url('/background.png')]">
+    <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4 bg-[url('/bg.jpg')]">
       <div className="absolute top-4 right-4">
         <ToggleTheme />
       </div>

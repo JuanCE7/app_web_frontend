@@ -9,7 +9,7 @@ export default function Dashboard() {
 
       <div className="flex justify-center mb-6">
         <div className="w-30 h-30 rounded-full flex items-center justify-center">
-          <Image src="/programming.gif" alt="logo" width={300} height={300} priority />
+          <Image src="/programming.gif" alt="Programming" layout="intrinsic"  width={300} height={300} priority />
         </div>
       </div>
 
