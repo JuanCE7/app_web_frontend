@@ -70,6 +70,7 @@ export function FormUseCase(props: FormUseCaseProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      code: "",
       name: "",
       description: "",
       preconditions: "",
@@ -103,11 +104,11 @@ export function FormUseCase(props: FormUseCaseProps) {
         values.projectId = projectId;
         if (useCaseId) {
           await updateUseCase(useCaseId, values);
-          toast({ title: "Proyecto actualizado" });
+          toast({ title: "Caso de Uso actualizado" });
         } else {
           console.log(values);
           await createUseCase(values);
-          toast({ title: "Proyecto creado" });
+          toast({ title: "Caso de Uso creado" });
         }
         router.refresh();
         setOpenModalCreate(false);

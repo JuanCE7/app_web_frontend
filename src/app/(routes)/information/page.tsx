@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from "next/image";
 
 export default function Information() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -75,7 +76,7 @@ export default function Information() {
         </div>
         <h2 className="text-2xl font-bold mb-4">{steps[currentStep].title}</h2>
         <div className="relative mb-4 max-w-md mx-auto">
-          <img
+          <Image
             src={steps[currentStep].image}
             alt={`Ilustración para ${steps[currentStep].title}`}
             className="w-full h-50 object-cover rounded-md"

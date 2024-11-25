@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 import { getUserLogged } from "@/app/login/login.api";
 import { useEffect, useState } from "react";
 import { updateUser } from "../../user.api";
+import Image from "next/image";
 
 // Actualizamos el esquema para reflejar la estructura que recibes
 const formSchema = z.object({
@@ -161,7 +162,7 @@ export function FormUser() {
   return (
     <Form {...form}>
       {base64Image ? (
-        <img
+        <Image
           src={base64Image}
           alt="Imagen del Usuario"
           className="h-20 rounded-lg"

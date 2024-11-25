@@ -71,12 +71,16 @@ export const columns: ColumnDef<UseCase>[] = [
   {
     accessorKey: "preconditions",
     header: "Pre-condiciones",
-    cell: ({ row }) => <span>{removeHtmlTags(row.getValue("preconditions"))}</span>,
+    cell: ({ row }) => (
+      <span>{removeHtmlTags(row.getValue("preconditions"))}</span>
+    ),
   },
   {
     accessorKey: "postconditions",
     header: "Post-condiciones",
-    cell: ({ row }) => <span>{removeHtmlTags(row.getValue("postconditions"))}</span>,
+    cell: ({ row }) => (
+      <span>{removeHtmlTags(row.getValue("postconditions"))}</span>
+    ),
   },
   {
     id: "actions",
@@ -103,10 +107,10 @@ export const columns: ColumnDef<UseCase>[] = [
       const { id } = row.original;
       const router = useRouter();
 
-      const confirmDeleteUseCase = () => {
-        if (selectedUseCaseId) deleteUseCase(selectedUseCaseId);
-        closeModal();
+      const confirmDeleteUseCase = async () => {
+        if (selectedUseCaseId) await deleteUseCase(selectedUseCaseId);
         router.refresh();
+        closeModal();
         toast({
           title: "Caso de Uso Eliminado Correctamente",
         });

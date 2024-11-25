@@ -121,8 +121,8 @@ export const columns: ColumnDef<Project>[] = [
         setTimeout(() => setCopied(false), 2000);
       };
 
-      const confirmDeleteProject = () => {
-        if (selectedProjectId) deleteProject(selectedProjectId);
+      const confirmDeleteProject = async () => {
+        if (selectedProjectId) await deleteProject(selectedProjectId);
         closeModal();
         router.refresh();
         toast({

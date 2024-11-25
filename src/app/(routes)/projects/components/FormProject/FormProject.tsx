@@ -21,6 +21,7 @@ import { useSession } from "next-auth/react";
 import { getUserLogged } from "@/app/login/login.api";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 const formSchema = z.object({
   name: z.string().min(5, "El nombre debe tener al menos 5 caracteres"),
@@ -173,7 +174,7 @@ export function FormProject(props: FormProjectProps) {
 
                 {base64Image && (
                   <div className="mt-2">
-                    <img
+                    <Image
                       src={base64Image}
                       alt="Imagen del Proyecto"
                       className="h-20 rounded-lg"

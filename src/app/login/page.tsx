@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -17,7 +16,6 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Logo } from "@/components/Logo";
 import { ToggleTheme } from "@/components/ToggleTheme";
-import { Separator } from "@/components/ui/separator";
 import {
   Form,
   FormControl,
@@ -43,6 +41,8 @@ import {
   verifyOtp,
 } from "./login.api";
 import { updateUser } from "../(routes)/settings/user.api";
+import { formSchema } from "./register.form";
+import { loginSchema } from "./login.form";
 
 type FormType =
   | "login"
@@ -51,28 +51,8 @@ type FormType =
   | "otpValidation"
   | "changePassword";
 
-const formSchema = z
-  .object({
-    firstName: z.string().min(3, "El Nombre debe tener al menos 3 caracteres"),
-    lastName: z.string().min(3, "El Apellido debe tener al menos 3 caracteres"),
-    email: z.string().email("Correo No válido"),
-    password: z
-      .string()
-      .min(6, "La contraseña debe tener al menos 6 caracteres"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  });
-
-const loginSchema = z.object({
-  email: z.string().email("Correo No válido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-});
-
 const forgotPasswordSchema = z.object({
-  emailOTP: z.string(),
+  emailOTP: z.string().email("Correo No válido"),
 });
 
 const otpSchema = z.object({
@@ -88,7 +68,7 @@ const changePasswordSchema = z
   })
   .refine((data) => data.passwordReset === data.confirmPasswordReset, {
     message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
+    path: ["confirmPasswordReset"],
   });
 
 export default function AuthCard() {
@@ -109,7 +89,7 @@ export default function AuthCard() {
       password: "",
       confirmPassword: "",
     },
-    mode: "onChange"
+    mode: "onChange",
   });
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
@@ -125,7 +105,7 @@ export default function AuthCard() {
     defaultValues: {
       emailOTP: "",
     },
-    mode: "onChange"
+    mode: "onChange",
   });
 
   const otpForm = useForm<z.infer<typeof otpSchema>>({
@@ -133,7 +113,7 @@ export default function AuthCard() {
     defaultValues: {
       otp: "",
     },
-    mode: "onChange"
+    mode: "onChange",
   });
 
   const changePasswordForm = useForm<z.infer<typeof changePasswordSchema>>({
@@ -142,7 +122,7 @@ export default function AuthCard() {
       passwordReset: "",
       confirmPasswordReset: "",
     },
-    mode: "onChange"
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -154,7 +134,6 @@ export default function AuthCard() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let res;
     try {
-      console.log(values)
       res = await registerUser(values);
 
       if (!res.ok) {
@@ -227,7 +206,6 @@ export default function AuthCard() {
   ) => {
     try {
       const response = await passwordRecovery(values.emailOTP);
-      console.log(response.otpToken);
       if (response.success) {
         setEmail(values.emailOTP);
         setToken(response.otpToken);
@@ -237,7 +215,9 @@ export default function AuthCard() {
           description: "Por favor, revisa tu bandeja de entrada",
         });
       } else {
-        throw new Error("No se pudo enviar el correo de recuperación, ingrese una información correcta");
+        throw new Error(
+          "No se pudo enviar el correo de recuperación, ingrese una información correcta"
+        );
       }
     } catch (error) {
       toast({
@@ -255,7 +235,6 @@ export default function AuthCard() {
         token: token,
         otpCode: values.otp,
       };
-      console.log(value)
       const response = await verifyOtp(value);
       if (response) {
         setFormType("changePassword");
@@ -310,7 +289,6 @@ export default function AuthCard() {
               <FormField
                 control={loginForm.control}
                 name="email"
-                key={"email"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -324,7 +302,6 @@ export default function AuthCard() {
               <FormField
                 control={loginForm.control}
                 name="password"
-                key={"password"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contraseña</FormLabel>
@@ -404,7 +381,6 @@ export default function AuthCard() {
               <FormField
                 control={form.control}
                 name="email"
-                key={"email"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -422,7 +398,6 @@ export default function AuthCard() {
               <FormField
                 control={form.control}
                 name="password"
-                key={"password"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contraseña</FormLabel>
@@ -524,15 +499,12 @@ export default function AuthCard() {
                         value={field.value}
                         onChange={(value) => field.onChange(value)}
                       >
-                        {/* Grupo 1 de slots */}
                         <InputOTPGroup>
                           <InputOTPSlot index={0} />
                           <InputOTPSlot index={1} />
                           <InputOTPSlot index={2} />
                         </InputOTPGroup>
-                        {/* Separador */}
                         <InputOTPSeparator className="mx-4" />
-                        {/* Grupo 2 de slots */}
                         <InputOTPGroup>
                           <InputOTPSlot index={3} />
                           <InputOTPSlot index={4} />

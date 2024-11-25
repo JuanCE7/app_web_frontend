@@ -97,11 +97,11 @@ export function FormTestCase(props: FormTestCaseProps) {
         values.useCaseId = useCaseId;
         if (testCaseId) {
           await updateTestCase(testCaseId, values);
-          toast({ title: "Caso de Prueba actualizado" });
+          toast({ title: "Caso de Prueba Funcional actualizado" });
         } else {
           console.log(values);
           await createTestCase(values);
-          toast({ title: "Caso de Prueba creado" });
+          toast({ title: "Caso de Prueba Funcional creado" });
         }
         setOpenModalCreate(false);
         router.refresh();

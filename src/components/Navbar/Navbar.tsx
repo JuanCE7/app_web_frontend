@@ -43,10 +43,11 @@ export async function Navbar() {
         <div className="w-20 h-20 rounded-full flex items-center justify-center">
           <Image
             src="/perro.gif"
-            alt="logo"
+            alt="Perro animado"
             width={300}
             height={300}
             priority
+            unoptimized
           />
         </div>
         <ToggleTheme />
