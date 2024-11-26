@@ -165,7 +165,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                       onChange={(content) => {
                         field.onChange(content.html, content.text);
                       }}
-                      toolbarOption={1}
+                      toolbarOption={2}
                     />
                   </FormControl>
                   <FormMessage />

@@ -24,7 +24,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { AlertTriangle, Check, Info } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+type Improvement = {
+  issue: string;
+  suggestion: string;
+  example: string;
+};
+
+type ValidationError = {
+  message: string;
+  improvements: Improvement[];
+};
 
 type TestCase = {
   code: string;
@@ -45,17 +57,30 @@ export default function CardGenerateTestCase({
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [selectedTestCases, setSelectedTestCases] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [validationError, setValidationError] =
+    useState<ValidationError | null>(null);
 
   const generateTestCases = async () => {
     if (useCaseId) {
       setIsLoading(true);
+      setValidationError(null); 
+      setTestCases([]);
       try {
         const response = await generateTestCase(useCaseId);
-        setTestCases(response.generatedTestCases);
+        // Verificar si la respuesta indica un caso de uso no válido
+        if (!response.success) {
+          console.log("1213")
+          setValidationError({
+            message: response.generatedTestCases.error.message,
+            improvements: response.generatedTestCases.error.improvements || [],
+          });
+          return;
+        }
+        setTestCases(response.generatedTestCases.testCases);
       } catch (error) {
         toast({
           title: "Error",
-          description: "Hubo un problema generando los casos de prueba.",
+          description: "Hubo un problema generando los casos de prueba." +error,
           variant: "destructive",
         });
       } finally {
@@ -127,6 +152,54 @@ export default function CardGenerateTestCase({
                 unoptimized
               />
             </div>
+          </div>
+        )}
+        {validationError && !isLoading && (
+          <div className="space-y-4">
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Caso de uso no válido</AlertTitle>
+              <AlertDescription>{validationError.message}</AlertDescription>
+            </Alert>
+
+            {validationError.improvements.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Info className="h-5 w-5" />
+                    Sugerencias de mejora
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[300px]">
+                    <div className="space-y-4">
+                      {validationError.improvements.map(
+                        (improvement, index) => (
+                          <div key={index} className="p-4 border rounded-lg">
+                            <h4 className="font-semibold text-red-600 mb-2">
+                              Problema encontrado:
+                            </h4>
+                            <p className="mb-3">{improvement.issue}</p>
+
+                            <h4 className="font-semibold text-green-600 mb-2">
+                              Sugerencia de mejora:
+                            </h4>
+                            <p className="mb-3">{improvement.suggestion}</p>
+
+                            <h4 className="font-semibold text-blue-600 mb-2">
+                              Ejemplo:
+                            </h4>
+                            <p className=" p-2 rounded">
+                              {improvement.example}
+                            </p>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 
