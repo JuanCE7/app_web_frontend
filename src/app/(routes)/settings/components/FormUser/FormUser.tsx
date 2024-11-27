@@ -166,6 +166,8 @@ export function FormUser() {
           src={base64Image}
           alt="Imagen del Usuario"
           className="h-20 rounded-lg"
+          width={200}
+          height={200}
         />
       ) : (
         <p>No se ha seleccionado una imagen</p>

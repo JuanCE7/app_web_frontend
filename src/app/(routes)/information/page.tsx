@@ -80,6 +80,8 @@ export default function Information() {
             src={steps[currentStep].image}
             alt={`Ilustración para ${steps[currentStep].title}`}
             className="w-full h-50 object-cover rounded-md"
+            width={400}
+            height={200}
           />
         </div>
         <p className="text-muted-foreground mb-6">
