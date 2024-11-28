@@ -10,11 +10,11 @@ import {
   dataSuportSideBar,
   dataToolsSidebar,
 } from "./SidebarRoutes.data";
-import { Logo } from "@/components/Logo";
 import { useRouter } from "next/navigation";
 import { getUserLogged } from "@/app/login/login.api";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export function SidebarRoutes() {
   const router = useRouter();
@@ -42,7 +42,9 @@ export function SidebarRoutes() {
       <div>
         {/* Logo */}
         <div onClick={() => router.push("/")}>
-          <Logo />
+          <div className="min-h-20 h-20 flex items-center px-6 border-b cursor-pointer dark:bg-[#0A7075]">
+            <Image src="/carrera.png" alt="logo" width={300} height={300} priority />
+          </div>
         </div>
 
         {/* Sección General */}

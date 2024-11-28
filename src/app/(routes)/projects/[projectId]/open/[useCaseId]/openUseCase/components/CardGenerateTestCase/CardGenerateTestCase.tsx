@@ -244,7 +244,7 @@ export default function CardGenerateTestCase({
                       <DialogTrigger asChild>
                         <Link
                           href="#"
-                          className="text-sm text-white hover:underline"
+                          className="text-sm text-black dark:text-white  hover:underline"
                         >
                           Ver Detalles
                         </Link>
