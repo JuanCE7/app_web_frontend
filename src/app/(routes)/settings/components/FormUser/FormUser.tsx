@@ -19,14 +19,12 @@ import { useSession } from "next-auth/react";
 import { getUserLogged } from "@/app/login/login.api";
 import { useEffect, useState } from "react";
 import { updateUser } from "../../user.api";
-import Image from "next/image";
 
 // Actualizamos el esquema para reflejar la estructura que recibes
 const formSchema = z.object({
   entity: z.object({
     firstName: z.string().min(3, "El Nombre debe tener al menos 3 caracteres"),
     lastName: z.string().min(3, "El Apellido debe tener al menos 3 caracteres"),
-    imageEntity: z.string().optional(),
   }),
   email: z.string().email("Correo no válido"),
   status: z.boolean(),
@@ -67,7 +65,6 @@ export function FormUser() {
       entity: {
         firstName: "",
         lastName: "",
-        imageEntity: "",
       },
       email: "",
       status: false,
@@ -85,7 +82,6 @@ export function FormUser() {
         entity: {
           firstName: userData.entity?.firstName || "",
           lastName: userData.entity?.lastName || "",
-          imageEntity: userData.entity?.imageEntity || "",
         },
         email: userData.email || "",
         status: userData.status || false,
@@ -98,34 +94,9 @@ export function FormUser() {
 
   const { isValid } = form.formState;
 
-  const handleImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 200 * 1024) {
-        toast({
-          title: "El archivo es demasiado grande",
-          description: "El tamaño máximo permitido es 200 KB.",
-          variant: "destructive",
-        });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBase64Image(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (idUser) {
-        // Asigna la imagen base64 si existe
-        values.entity.imageEntity = base64Image || "";
-
-        // Validar si se ha cambiado el email
         if (initialEmail !== values.email) {
           const response = await getUserLogged(values.email);
           if (!response.error) {
@@ -134,14 +105,12 @@ export function FormUser() {
           }
         }
 
-        // Aplanar los datos para enviarlos en el formato correcto
         const flattenedValues = {
           email: values.email,
           firstName: values.entity.firstName,
           lastName: values.entity.lastName,
           status: values.status,
           role: values.role.name,
-          image: values.entity.imageEntity,
         };
 
         console.log("Datos enviados:", flattenedValues);
@@ -161,17 +130,7 @@ export function FormUser() {
 
   return (
     <Form {...form}>
-      {base64Image ? (
-        <Image
-          src={base64Image}
-          alt="Imagen del Usuario"
-          className="h-20 rounded-lg"
-          width={200}
-          height={200}
-        />
-      ) : (
-        <p>No se ha seleccionado una imagen</p>
-      )}
+      
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-3">
           <FormField
@@ -213,10 +172,7 @@ export function FormUser() {
               </FormItem>
             )}
           />
-          <FormItem>
-            <FormLabel>Imagen</FormLabel>
-            <Input type="file" onChange={handleImageChange} />
-          </FormItem>
+         
         </div>
         <Button type="submit" disabled={!isValid}>
           Actualizar

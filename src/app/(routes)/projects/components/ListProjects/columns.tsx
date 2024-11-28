@@ -42,36 +42,12 @@ import { getUserLogged } from "@/app/login/login.api";
 export interface Project {
   id?: string;
   code?: string;
-  image?: string;
   name: string;
   description?: string;
   role?: string;
 }
 
 export const columns: ColumnDef<Project>[] = [
-  {
-    accessorKey: "image",
-    header: "Imagen",
-    cell: ({ row }) => {
-      const image = row.getValue("image");
-
-      return (
-        <div className="px-3">
-          <Image
-            src={
-              image && typeof image === "string" && image !== ""
-                ? image
-                : "/no_image.png"
-            }
-            width={20}
-            height={20}
-            alt="Image"
-            className="w-20 h-20 object-cover"
-          />
-        </div>
-      );
-    },
-  },
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -98,7 +74,7 @@ export const columns: ColumnDef<Project>[] = [
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, name, description, image, code, role } = row.original;
+      const { id, name, description, code, role } = row.original;
       const [openModalCreate, setOpenModalCreate] = useState(false);
       const [openModalDelete, setOpenModalDelete] = useState(false);
       const [openModalShare, setOpenModalShare] = useState(false);
@@ -152,7 +128,7 @@ export const columns: ColumnDef<Project>[] = [
       };
 
       const handleEdit = () => {
-        setSelectedProject({ id, name, description, image: image ?? "" });
+        setSelectedProject({ id, name, description });
         setOpenModalCreate(true);
       };
 
@@ -167,7 +143,7 @@ export const columns: ColumnDef<Project>[] = [
       };
 
       const handleExport = () => {
-        setSelectedProject({ id, name, description, image: image ?? "" });
+        setSelectedProject({ id, name, description});
         setSelectedProjectId(id);
         setOpenModalExport(true);
       };

@@ -21,12 +21,10 @@ import { useSession } from "next-auth/react";
 import { getUserLogged } from "@/app/login/login.api";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import Image from "next/image";
 
 const formSchema = z.object({
   name: z.string().min(5, "El nombre debe tener al menos 5 caracteres"),
   description: z.string().min(5, "La descripción debe tener al menos 5 caracteres"),
-  image: z.string().optional(),
   userId: z.string().optional(), 
 });
 
@@ -34,7 +32,6 @@ export function FormProject(props: FormProjectProps) {
   const { setOpenModalCreate, projectId } = props;
   const router = useRouter();
   const { data: session } = useSession();
-  const [base64Image, setBase64Image] = useState<string | null>(null);
   const [projectData, setProjectData] = useState<z.infer<typeof formSchema> | null>(null);
 
   useEffect(() => {
@@ -58,7 +55,6 @@ export function FormProject(props: FormProjectProps) {
     defaultValues: {
       name: "",
       description: "",
-      image: "",
       userId: "",
     },
     mode: "onChange"
@@ -69,10 +65,8 @@ export function FormProject(props: FormProjectProps) {
       form.reset({
         name: projectData.name || "",
         description: projectData.description || "",
-        image: projectData.image || "",
         userId: projectData.userId || "",
       });
-      setBase64Image(projectData.image || null);
     }
   }, [projectData, form]);
 
@@ -82,7 +76,6 @@ export function FormProject(props: FormProjectProps) {
     try {
       if (session?.user?.email) {
         const user = await getUserLogged(session.user.email);
-        values.image = base64Image || ""
         if (projectId) {
           await updateProject(projectId, values);
           toast({ title: "Proyecto actualizado" });
@@ -101,28 +94,6 @@ export function FormProject(props: FormProjectProps) {
         title: "Something went wrong",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Verifica si el archivo excede los 200 KB (200 * 1024 bytes)
-      if (file.size > 200 * 1024) {
-        toast({
-          title: "El archivo es demasiado grande",
-          description: "El tamaño máximo permitido es 200 KB.",
-          variant: "destructive",
-        });
-        return; 
-      }  
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBase64Image(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -164,27 +135,7 @@ export function FormProject(props: FormProjectProps) {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="image"
-            render={({}) => (
-              <FormItem>
-                <FormLabel>Imagen</FormLabel>
-                <Input id="image" type="file" onChange={handleImageChange} />
-
-                {base64Image && (
-                  <div className="mt-2">
-                    <Image
-                      src={base64Image}
-                      alt="Imagen del Proyecto"
-                      className="h-20 rounded-lg"
-                    />
-                  </div>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          
         </div>
         <Button type="submit" disabled={!isValid}>
           {projectId ? "Actualizar" : "Crear"}
