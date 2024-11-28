@@ -42,8 +42,15 @@ export function SidebarRoutes() {
       <div>
         {/* Logo */}
         <div onClick={() => router.push("/")}>
-          <div className="min-h-20 h-20 flex items-center px-6 border-b cursor-pointer dark:bg-[#0A7075]">
-            <Image src="/carrera.png" alt="logo" width={300} height={300} priority />
+          <div className="min-h-20 h-20 flex items-center px-6 border-b cursor-pointer">
+            <Image
+              src="/carrera.png"
+              alt="logo"
+              width={300}
+              height={300}
+              priority
+              className="dark:filter dark:invert"
+            />
           </div>
         </div>
 

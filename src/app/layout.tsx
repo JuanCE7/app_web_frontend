@@ -8,8 +8,8 @@ import "./globals.css";
 
 const noto = Noto_Sans_Display({
   subsets: ["latin"],
-  weight: ["400", "700"], // Asegúrate de incluir los pesos que necesitas
-  display: "swap", // Agrega esta opción para mejorar la carga
+  weight: ["400", "700"], 
+  display: "swap", 
 });
 
 export const metadata: Metadata = {

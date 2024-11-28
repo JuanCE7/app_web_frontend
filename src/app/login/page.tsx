@@ -43,6 +43,7 @@ import {
 import { updateUser } from "../(routes)/settings/user.api";
 import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
+import Image from "next/image";
 
 type FormType =
   | "login"
@@ -611,8 +612,16 @@ export default function AuthCard() {
       <div className="absolute top-4 right-4">
         <ToggleTheme />
       </div>
-      <Card className="w-full max-w-lg  bg-opacity-70 p-8 rounded-lg shadow-lg ">
-        <CardHeader className="space-y-1">
+      <Card className="w-full max-w-lg  bg-opacity-70 p-8 rounded-lg shadow-lg">
+        <CardHeader className="space-y-1 items-center justify-center">
+            <Image
+              src="/carrera.png"
+              alt="logo"
+              width={300}
+              height={300}
+              priority
+              className="dark:filter dark:invert"
+            />
           <div className="flex justify-center mb-4">
             <Logo />
           </div>

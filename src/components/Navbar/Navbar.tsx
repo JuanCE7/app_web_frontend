@@ -42,7 +42,7 @@ export async function Navbar() {
       <div className="flex gap-x-2 items-center">
         <div className="w-20 h-20 rounded-full flex items-center justify-center">
           <Image
-            src="/perro.gif"
+            src="/gato.gif"
             alt="Perro animado"
             width={300}
             height={300}
