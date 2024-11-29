@@ -34,6 +34,7 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
+import { useTheme } from 'next-themes';
 
 import { updateUser } from "@/lib/user.api";
 import { formSchema } from "./register.form";
@@ -74,7 +75,7 @@ export default function AuthCard() {
   const { data: session } = useSession();
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
-
+  const { theme } = useTheme();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -611,12 +612,11 @@ export default function AuthCard() {
       <Card className="w-full max-w-lg  bg-opacity-70 p-8 rounded-lg shadow-lg">
         <CardHeader className="space-y-1 items-center justify-center">
             <Image
-              src="/carrera.png"
+              src={theme === 'dark' ? '/carrera2.png' : '/carrera.png'}
               alt="logo"
               width={300}
               height={300}
               priority
-              className="dark:filter dark:invert"
             />
           <div className="flex justify-center mb-4">
             <Logo />

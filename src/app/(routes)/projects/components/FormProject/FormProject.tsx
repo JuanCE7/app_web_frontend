@@ -45,7 +45,6 @@ export function FormProject(props: FormProjectProps) {
           console.error("Error al obtener los datos del proyecto:", error);
         }
       };
-
       fetchProject();
     }
   }, [projectId]);

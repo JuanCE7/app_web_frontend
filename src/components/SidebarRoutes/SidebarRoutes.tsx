@@ -15,12 +15,13 @@ import { getUserLogged } from "@/lib/login.api";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 
 export function SidebarRoutes() {
   const router = useRouter();
   const { data: session } = useSession();
   const [userRole, setUserRole] = useState<string | null>(null);
-
+  const { theme } = useTheme();
   // Obtener la información del usuario al cargar el componente
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -44,12 +45,11 @@ export function SidebarRoutes() {
         <div onClick={() => router.push("/")}>
           <div className="min-h-20 h-20 flex items-center px-6 border-b cursor-pointer">
             <Image
-              src="/carrera.png"
+              src={theme === "dark" ? "/carrera2.png" : "/carrera.png"}
               alt="logo"
               width={300}
               height={300}
               priority
-              className="dark:filter dark:invert"
             />
           </div>
         </div>
