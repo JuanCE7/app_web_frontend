@@ -28,16 +28,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { FormProject } from "../FormProject";
-import { deleteProject, exitProject } from "../../projects.api";
+import { deleteProject, exitProject } from "@/lib/projects.api";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { GeneratePDF } from "../GeneratePDF";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/app/login/login.api";
+import { getUserLogged } from "@/lib/login.api";
 
 export interface Project {
   id?: string;

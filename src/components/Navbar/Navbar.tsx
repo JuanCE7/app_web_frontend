@@ -1,12 +1,12 @@
 import { getServerSession } from "next-auth/next";
-import { getUserLogged } from "@/app/login/login.api";
+import { getUserLogged } from "@/lib/login.api";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ToggleTheme } from "../ToggleTheme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu } from "lucide-react";
 import { SidebarRoutes } from "../SidebarRoutes";
 import Image from "next/image";
-import { DialogDescription, DialogTitle } from "../ui/dialog";
+import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 export async function Navbar() {
   // Obtener sesión y datos del usuario desde el servidor

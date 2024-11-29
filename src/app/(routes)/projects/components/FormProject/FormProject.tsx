@@ -15,10 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { FormProjectProps } from "./FormProject.types";
 import { toast } from "@/hooks/use-toast";
-import { createProject, getProjectById, updateProject } from "../../projects.api";
+import { createProject, getProjectById, updateProject } from "@/lib/projects.api";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/app/login/login.api";
+import { getUserLogged } from "@/lib/login.api";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 

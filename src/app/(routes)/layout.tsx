@@ -13,7 +13,7 @@ export default function LayoutDashboard({
       </div>
       <div className="w-full xl:ml-80 h-full">
         <Navbar />
-        <div className="p-6 bg-[#fafbfc] dark:bg-secondary w-full h-full">{children}</div>
+        <div className="p-6 bg-[#fafbfc] dark:bg-secondary w-full h-auto">{children}</div>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { createTestCase, generateTestCase } from "../../../testCases.api";
+import { createTestCase, generateTestCase } from "@/lib/testCases.api";
 import { CardGenerateTestCaseProps } from "./CardGenerateTestCase.types";
 import {
   Dialog,

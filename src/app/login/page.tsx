@@ -34,16 +34,12 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
-import {
-  getUserLogged,
-  passwordRecovery,
-  registerUser,
-  verifyOtp,
-} from "./login.api";
-import { updateUser } from "../(routes)/settings/user.api";
+
+import { updateUser } from "@/lib/user.api";
 import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
 import Image from "next/image";
+import { getUserLogged, passwordRecovery, registerUser, verifyOtp } from "@/lib/login.api";
 
 type FormType =
   | "login"

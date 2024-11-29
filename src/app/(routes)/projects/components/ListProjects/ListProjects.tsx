@@ -1,5 +1,5 @@
-import { getUserLogged } from "@/app/login/login.api";
-import { getProjects } from "../../projects.api";
+import { getUserLogged } from "@/lib/login.api";
+import { getProjects } from "@/lib/projects.api";
 import { columns } from "./columns";
 import { redirect } from "next/navigation";
 import { DataTable } from "@/components/Data-Table";

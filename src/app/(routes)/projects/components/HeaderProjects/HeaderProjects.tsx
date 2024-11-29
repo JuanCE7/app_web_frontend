@@ -14,8 +14,8 @@ import { FormProject } from "../FormProject/FormProject";
 import { Plus, FolderInput } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { joinProject } from "../../projects.api";
-import { getUserLogged } from "@/app/login/login.api";
+import { joinProject } from "@/lib/projects.api";
+import { getUserLogged } from "@/lib/login.api";
 import { useSession } from "next-auth/react";
 
 interface ShareErrorResponse {

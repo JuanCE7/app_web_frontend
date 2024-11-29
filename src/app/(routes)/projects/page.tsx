@@ -5,7 +5,8 @@ export function page() {
   return (
     <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
       <HeaderProjects />
-      <ListProjects />
+      <ListProjects /><div className="space-y-4">
+    </div>
     </div>
   );
 }

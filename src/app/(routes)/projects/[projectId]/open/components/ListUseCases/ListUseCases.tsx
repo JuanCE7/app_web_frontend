@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { columns } from "./columns";
-import { getUseCases } from "../../useCases.api";
 import { UseCaseProps } from "./UseCase.types";
 import { DataTable } from "@/components/Data-Table";
+import { getUseCases } from "@/lib/useCases.api";
 
 export default function ListUseCases(props: UseCaseProps) {
   

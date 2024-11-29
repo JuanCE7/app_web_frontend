@@ -5,10 +5,9 @@ import { useSession } from "next-auth/react";
 import { columns } from "./columns";
 import { TestCaseProps } from "./TestCase.types";
 import { DataTable } from "@/components/Data-Table";
-import { getTestCases } from "../../../testCases.api";
+import { getTestCases } from "@/lib/testCases.api";
 
 export default function ListTestCases(props: TestCaseProps) {
-  
   const { data: session } = useSession();
   const [listTestCases, setLisTestCases] = useState([]);
   const { useCaseId } = props;

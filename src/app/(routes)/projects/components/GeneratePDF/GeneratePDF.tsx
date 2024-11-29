@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import { toast } from "@/hooks/use-toast";
-import { getProjectById } from "../../projects.api";
-import { getUseCases } from "../../[projectId]/open/useCases.api";
-import { getTestCases } from "../../[projectId]/open/[useCaseId]/testCases.api";
+import { getProjectById } from "@/lib/projects.api";
+import { getUseCases } from "@/lib/useCases.api";
+import { getTestCases } from "@/lib/testCases.api";
 import PDF from "@/components/pdf/pdf";
-import { Button } from "@/components/ui/button";
 import { Loader2 } from 'lucide-react';
 import { GeneratePDFProps } from "./GeneratePDF.types";
 

@@ -11,7 +11,7 @@ import {
   dataToolsSidebar,
 } from "./SidebarRoutes.data";
 import { useRouter } from "next/navigation";
-import { getUserLogged } from "@/app/login/login.api";
+import { getUserLogged } from "@/lib/login.api";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";

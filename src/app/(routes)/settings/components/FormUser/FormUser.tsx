@@ -16,9 +16,9 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/app/login/login.api";
+import { getUserLogged } from "@/lib/login.api";
 import { useEffect, useState } from "react";
-import { updateUser } from "../../user.api";
+import { updateUser } from "@/lib/user.api";
 
 // Actualizamos el esquema para reflejar la estructura que recibes
 const formSchema = z.object({

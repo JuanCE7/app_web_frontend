@@ -28,7 +28,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FormUseCase } from "../FormUseCase";
 import { useRouter } from "next/navigation";
-import { deleteUseCase } from "../../useCases.api";
+import { deleteUseCase } from "@/lib/useCases.api";
 import { toast } from "@/hooks/use-toast";
 
 export interface UseCase {

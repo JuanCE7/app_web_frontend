@@ -2,7 +2,7 @@ import { columns } from "./columns";
 import { redirect } from "next/navigation";
 import { DataTable } from "@/components/Data-Table";
 import { getServerSession } from "@/app/api/auth/[...nextauth]/auth";
-import { getUsers } from "../../users.api";
+import { getUsers } from "@/lib/users.api";
 
 export default async function ListUsers() {
   const session = await getServerSession();

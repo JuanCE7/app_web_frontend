@@ -22,7 +22,7 @@ import {
   createUseCase,
   getUseCaseById,
   updateUseCase,
-} from "../../useCases.api";
+} from "@/lib/useCases.api";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/RichTextEditor";
 

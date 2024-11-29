@@ -25,7 +25,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { updateUser } from "../../users.api";
+import { updateUser } from "@/lib/users.api";
 import {
   Select,
   SelectTrigger,
