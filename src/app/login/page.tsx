@@ -207,7 +207,6 @@ export default function AuthCard() {
       if (response.otpToken) {
         setEmail(values.emailOTP);
         setToken(response.otpToken);
-        console.log(response.otpToken)
         setFormType("otpValidation");
         toast({
           title: "Correo enviado",

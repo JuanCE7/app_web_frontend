@@ -57,7 +57,7 @@ export default function InformationCarousel() {
 
   return (
     <Card className="w-full h-full">
-      <CardContent className="p-4 sm:p-6">
+      <CardContent className="p-4 sm:p-6 animate-fadeInDown delay-[150ms]">
         <div className="mb-4 text-sm font-medium text-muted-foreground">
           Paso {currentStep + 1} de {steps.length}
         </div>

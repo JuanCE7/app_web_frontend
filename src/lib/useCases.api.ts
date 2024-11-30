@@ -17,7 +17,6 @@ export async function createUseCase(useCaseData: any) {
 
     const data = await res.json();
   } catch (error) {
-    console.error("Failed to create usecase:", error);
     throw error;
   }
 }
@@ -39,7 +38,6 @@ export async function getUseCases(projectId: string) : Promise<any> {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch usecase:", error);
     throw error;
   }
 }
@@ -61,7 +59,6 @@ export async function getUseCaseById(id: string): Promise<any>  {
     const data = await res.json(); 
     return data; 
   } catch (error) {
-    console.error("Failed to fetch usecase:", error);
     throw error;
   }
 }
@@ -84,7 +81,6 @@ export async function updateUseCase(id: string, useCaseData: any) {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to update usecase:", error);
     throw error;
   }
 }
@@ -105,7 +101,6 @@ export async function deleteUseCase(id: string) {
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete usecase:", error);
     throw error;
   }
 }

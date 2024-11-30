@@ -40,9 +40,12 @@ export function FormProject(props: FormProjectProps) {
         try {
           const project = await getProjectById(projectId);
           setProjectData(project);
-          console.log(form)
         } catch (error) {
-          console.error("Error al obtener los datos del proyecto:", error);
+          toast({
+            title: 'Error',
+            description: 'Error al obtener los datos del proyecto:',
+            variant: 'destructive',
+          });
         }
       };
       fetchProject();

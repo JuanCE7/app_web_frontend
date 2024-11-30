@@ -6,8 +6,6 @@ import { headers } from 'next/headers'
 export default async function ListTestCases({ useCaseId }: { useCaseId: string }) {
   headers();
   const listTestCases = await getTestCases(useCaseId);
-  console.log("listTestCases")
-  console.log(listTestCases)
   return (
     <DataTable
       columns={columns}

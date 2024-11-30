@@ -17,7 +17,6 @@ export async function getUsers(): Promise<any> {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch project:", error);
     throw error;
   }
 }
@@ -42,7 +41,6 @@ export async function updateUser(id: string, userData: any) {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to update project:", error);
     throw error;
   }
 }

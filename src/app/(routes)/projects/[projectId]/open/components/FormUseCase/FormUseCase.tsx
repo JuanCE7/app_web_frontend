@@ -59,7 +59,11 @@ export function FormUseCase(props: FormUseCaseProps) {
           form.reset(useCase);
           setUseCaseData(useCase);
         } catch (error) {
-          console.error("Error al obtener los datos del proyecto:", error);
+          toast({
+            title: 'Error',
+            description: 'Error al obtener los datos del caso de uso:',
+            variant: 'destructive',
+          });
         }
       };
 
@@ -106,7 +110,6 @@ export function FormUseCase(props: FormUseCaseProps) {
           await updateUseCase(useCaseId, values);
           toast({ title: "Caso de Uso actualizado" });
         } else {
-          console.log(values);
           await createUseCase(values);
           toast({ title: "Caso de Uso creado" });
         }        

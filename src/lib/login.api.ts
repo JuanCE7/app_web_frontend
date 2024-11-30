@@ -79,7 +79,6 @@ export async function verifyOtp(values: any) {
       data: data,
     };
   } catch (error) {
-    console.error("Error en la verificación de OTP:", error);
     return {
       success: false,
       error:
@@ -117,7 +116,6 @@ export async function getUserLogged(email: string): Promise<any> {
     const data = JSON.parse(text);
     return data;
   } catch (error: any) {
-    console.error("Failed to fetch user:", error);
     return { error: error.message || "Unknown error occurred" };
   }
 }

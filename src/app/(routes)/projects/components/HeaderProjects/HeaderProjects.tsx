@@ -99,7 +99,6 @@ export function HeaderProjects() {
         router.refresh();
       }
     } catch (error) {
-      console.error("Error al unirse al proyecto:", error);
       const errorMessage = getErrorMessage(error);
 
       toast({
@@ -113,7 +112,7 @@ export function HeaderProjects() {
   };
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-fadeInDown delay-[150ms]">
       <h2 className="text-2xl">Lista de Proyectos</h2>
 
       <div className="flex flex-wrap gap-4">

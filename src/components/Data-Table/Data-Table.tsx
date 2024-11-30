@@ -69,7 +69,7 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
+    <div className="p-4 mt-4 rounded-lg shadow-md bg-background animate-fadeInDown delay-[150ms]">
       <div className="flex items-center mb-2">
         <Input
           placeholder={placeholder}

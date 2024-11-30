@@ -102,7 +102,6 @@ function ActionCell({ testCase }: { testCase: TestCase }) {
         });
         setOpenModalExplanation(true);
       } else {
-        console.error('Error al obtener la explicación:', error);
         toast({
           title: 'Error',
           description: 'No se pudo obtener la explicación',

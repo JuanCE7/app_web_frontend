@@ -20,7 +20,6 @@ export async function updateUser(id: string, userData: any) {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to update user:", error);
     throw error;
   }
 }

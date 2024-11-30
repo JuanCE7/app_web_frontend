@@ -36,7 +36,6 @@ const formSchema = z.object({
 export function FormUser() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [base64Image, setBase64Image] = useState<string>();
   const [idUser, setIdUser] = useState<string>();
   const [initialEmail, setInitialEmail] = useState<string>();
   const [userData, setUserData] = useState<z.infer<typeof formSchema>>();
@@ -49,10 +48,13 @@ export function FormUser() {
           setUserData(user);
           setIdUser(user.id);
           setInitialEmail(user.email);
-          setBase64Image(user.entity.imageEntity || null);
         }
       } catch (error) {
-        console.error("Error al obtener los datos del usuario:", error);
+        toast({
+          title: 'Error',
+          description: 'Error al obtener los datos del usuario:',
+          variant: 'destructive',
+        });
       }
     };
 
@@ -112,10 +114,6 @@ export function FormUser() {
           status: values.status,
           role: values.role.name,
         };
-
-        console.log("Datos enviados:", flattenedValues);
-
-        // Actualiza el usuario con los datos aplanados
         await updateUser(idUser, flattenedValues);
         router.refresh();
         toast({ title: "Usuario actualizado correctamente" });
@@ -123,7 +121,6 @@ export function FormUser() {
         throw new Error("Sesión de usuario no disponible");
       }
     } catch (error) {
-      console.error("Error al actualizar el usuario:", error);
       toast({ title: "Algo salió mal", variant: "destructive" });
     }
   };
@@ -131,7 +128,7 @@ export function FormUser() {
   return (
     <Form {...form}>
       
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 animate-fadeInDown delay-[150ms]">
         <div className="grid grid-cols-1 gap-3">
           <FormField
             control={form.control}

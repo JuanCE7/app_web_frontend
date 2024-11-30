@@ -17,7 +17,6 @@ export async function createTestCase(testCaseData: any) {
 
     const data = await res.json();
   } catch (error) {
-    console.error("Failed to create testcase:", error);
     throw error;
   }
 }
@@ -39,7 +38,6 @@ export async function generateTestCase(id: string): Promise<any> {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch usecase:", error);
     throw error;
   }
 }
@@ -77,7 +75,6 @@ export async function updateTestCase(id: string, testCaseData: any) {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to update testcase:", error);
     throw error;
   }
 }
@@ -98,7 +95,6 @@ export async function deleteTestCase(id: string) {
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete testcase:", error);
     throw error;
   }
 }
@@ -120,7 +116,6 @@ export async function getTestCaseById(id: string): Promise<any>  {
     const data = await res.json(); 
     return data; 
   } catch (error) {
-    console.error("Failed to fetch testcase:", error);
     throw error;
   }
 }
@@ -133,7 +128,6 @@ export async function getExplanationById(id: string): Promise<any>  {
         "Content-Type": "application/json",
       },
     });
-    console.log(res)
     if (!res.ok) {
       if (res.status === 404) {
         throw new Error('Not Found');
@@ -144,7 +138,6 @@ export async function getExplanationById(id: string): Promise<any>  {
     const data = await res.json(); 
     return data; 
   } catch (error) {
-    console.error("Failed to fetch explanation:", error);
     throw error;
   }
 }

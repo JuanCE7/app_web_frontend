@@ -23,7 +23,7 @@ export function HeaderTestCases(props: TestCaseProps) {
   const [openModalGenerate, setOpenModalGenerate] = useState(false);
 
   return (
-    <div className="flex items-center text-xl justify-between flex-wrap md:flex-nowrap gap-4">
+    <div className="flex items-center text-xl justify-between flex-wrap md:flex-nowrap gap-4 animate-fadeInDown delay-[150ms]">
   <div className="flex items-center text-xl">
     <ArrowLeft
       className="w-5 h-5 mr-2 cursor-pointer"

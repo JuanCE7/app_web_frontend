@@ -15,7 +15,6 @@ export async function createProject(projectData: any) {
       throw new Error(errorData.message || "Error creating project");
     }
   } catch (error) {
-    console.error("Failed to create project:", error);
     throw error;
   }
 }
@@ -37,7 +36,6 @@ export async function getProjects(userId: string): Promise<any> {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch project:", error);
     throw error;
   }
 }
@@ -59,7 +57,6 @@ export async function getProjectById(id: string): Promise<any> {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch project:", error);
     throw error;
   }
 }
@@ -87,7 +84,6 @@ export async function getProjectRole(
     const data = await res.json();
     return data.role; // Asumimos que el backend retorna { role: "admin" }
   } catch (error) {
-    console.error("Failed to fetch project role:", error);
     throw error;
   }
 }
@@ -112,7 +108,6 @@ export async function updateProject(id: string, projectData: any) {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.error("Failed to update project:", error);
     throw error;
   }
 }
@@ -135,7 +130,6 @@ export async function deleteProject(id: string) {
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete project:", error);
     throw error;
   }
 }
@@ -189,12 +183,14 @@ export async function joinProject(shareData: {
 
     return data;
   } catch (error) {
-    console.error("Failed to share project:", error);
     throw error;
   }
 }
 
-export async function exitProject(exitData: { userId: string; projectId: string }) {
+export async function exitProject(exitData: {
+  userId: string;
+  projectId: string;
+}) {
   try {
     const response = await fetch(`${BACKEND_URL}/projects/exitProject`, {
       method: "POST",
@@ -220,7 +216,6 @@ export async function exitProject(exitData: { userId: string; projectId: string 
 
     return data;
   } catch (error) {
-    console.error("Failed to share project:", error);
     throw error;
   }
 }

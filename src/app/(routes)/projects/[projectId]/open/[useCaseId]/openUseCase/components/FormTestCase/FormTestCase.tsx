@@ -56,7 +56,11 @@ export function FormTestCase(props: FormTestCaseProps) {
           form.reset(testCase);
           setTestCaseData(testCase);
         } catch (error) {
-          console.error("Error al obtener los datos del proyecto:", error);
+          toast({
+            title: 'Error',
+            description: 'Error al obtener los datos del proyecto:',
+            variant: 'destructive',
+          });
         }
       };
 
@@ -99,7 +103,6 @@ export function FormTestCase(props: FormTestCaseProps) {
           await updateTestCase(testCaseId, values);
           toast({ title: "Caso de Prueba Funcional actualizado" });
         } else {
-          console.log(values);
           await createTestCase(values);
           toast({ title: "Caso de Prueba Funcional creado" });
         }

@@ -43,8 +43,6 @@ export interface TestCase {
 }
 
 export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProps) {
-  const router = useRouter();
-  const { data: session } = useSession();
   const [projectData, setProjectData] = useState<Project | null>(null);
   const [useCasesData, setUseCasesData] = useState<UseCase[]>([]);
   const [testCasesData, setTestCasesData] = useState<TestCase[]>([]);
@@ -64,7 +62,6 @@ export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProp
           );
           setTestCasesData(testCases.flat());
         } catch (error) {
-          console.error("Error al obtener los datos:", error);
           toast({
             title: "Error",
             description: "No se pudieron cargar los datos del proyecto",
