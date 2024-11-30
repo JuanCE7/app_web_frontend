@@ -46,23 +46,16 @@ export async function generateTestCase(id: string): Promise<any> {
 
 export async function getTestCases(useCaseId: string): Promise<any> {
   try {
-    const res = await fetch(`${BACKEND_URL}/testcases/${useCaseId}`, {
+    const response = await fetch(`${BACKEND_URL}/testcases/${useCaseId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Error fetching testcases");
-    }
-
-    const data = await res.json();
-    return data;
+    
+    return await response.json();
   } catch (error) {
-    console.error("Failed to fetch testcases:", error);
-    throw error;
+    return [];
   }
 }
 
@@ -140,10 +133,12 @@ export async function getExplanationById(id: string): Promise<any>  {
         "Content-Type": "application/json",
       },
     });
-
+    console.log(res)
     if (!res.ok) {
-      const errorData = await res.json(); 
-      throw new Error(errorData.message || 'Error fetching explanation');
+      if (res.status === 404) {
+        throw new Error('Not Found');
+      }
+      throw new Error('Error al obtener la explicación');
     }
 
     const data = await res.json(); 

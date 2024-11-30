@@ -26,6 +26,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AlertTriangle, Check, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useRouter } from 'next/navigation'
 
 type Improvement = {
   issue: string;
@@ -59,7 +60,7 @@ export default function CardGenerateTestCase({
   const [isLoading, setIsLoading] = useState(false);
   const [validationError, setValidationError] =
     useState<ValidationError | null>(null);
-
+    const router = useRouter()
   const generateTestCases = async () => {
     if (useCaseId) {
       setIsLoading(true);
@@ -69,7 +70,6 @@ export default function CardGenerateTestCase({
         const response = await generateTestCase(useCaseId);
         // Verificar si la respuesta indica un caso de uso no válido
         if (!response.success) {
-          console.log("1213")
           setValidationError({
             message: response.generatedTestCases.error.message,
             improvements: response.generatedTestCases.error.improvements || [],
@@ -99,6 +99,7 @@ export default function CardGenerateTestCase({
 
   const saveSelectedTestCases = async () => {
     if (selectedTestCases.length === 0) {
+      router.refresh();
       toast({
         title: "Error",
         description:

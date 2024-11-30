@@ -204,9 +204,10 @@ export default function AuthCard() {
   ) => {
     try {
       const response = await passwordRecovery(values.emailOTP);
-      if (response.success) {
+      if (response.otpToken) {
         setEmail(values.emailOTP);
         setToken(response.otpToken);
+        console.log(response.otpToken)
         setFormType("otpValidation");
         toast({
           title: "Correo enviado",
@@ -234,8 +235,10 @@ export default function AuthCard() {
         otpCode: values.otp,
       };
       const response = await verifyOtp(value);
-      if (response) {
+
+      if (response.success) {
         setFormType("changePassword");
+        otpForm.reset(); 
         toast({ title: "OTP validado correctamente" });
       } else {
         throw new Error("Código OTP inválido");
@@ -255,8 +258,8 @@ export default function AuthCard() {
   ) => {
     try {
       const user = await getUserLogged(email);
-      const response = await updateUser(user.id, values.passwordReset);
-      if (response.ok) {
+      const response = await updateUser(user.id, { password: values.passwordReset});
+      if (response) {
         setFormType("login");
         toast({
           title: "Contraseña cambiada correctamente",
@@ -530,6 +533,7 @@ export default function AuthCard() {
               <FormField
                 control={changePasswordForm.control}
                 name="passwordReset"
+                key={"passwordReset"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nueva Contraseña</FormLabel>
@@ -562,6 +566,7 @@ export default function AuthCard() {
               <FormField
                 control={changePasswordForm.control}
                 name="confirmPasswordReset"
+                key={"confirmPasswordReset"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Confirmar Nueva Contraseña</FormLabel>

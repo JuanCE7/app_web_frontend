@@ -15,7 +15,6 @@ export default async function ListProjects() {
   const user = await getUserLogged(session.user.email);
   const projects = await getProjects(user.id);
   
-
   return (
     <DataTable
       columns={columns}

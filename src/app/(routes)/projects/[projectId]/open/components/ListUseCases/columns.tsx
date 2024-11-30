@@ -101,22 +101,34 @@ export const columns: ColumnDef<UseCase>[] = [
       const [selectedUseCase, setSelectedUseCase] = useState<UseCase | null>(
         null
       );
-      const [selectedUseCaseId, setSelectedUseCaseId] = useState<
-        string | null
-      >();
+      const [selectedUseCaseId, setSelectedUseCaseId] = useState<string | null>(
+        null
+      );
+
       const { id } = row.original;
       const router = useRouter();
-
       const confirmDeleteUseCase = async () => {
-        if (selectedUseCaseId) await deleteUseCase(selectedUseCaseId);
-        router.refresh();
-        closeModal();
-        toast({
-          title: "Caso de Uso Eliminado Correctamente",
-        });
+        try {
+          if (selectedUseCaseId) {
+            await deleteUseCase(selectedUseCaseId);
+            closeModal();
+            router.refresh();
+            toast({
+              title: "Caso de Uso Eliminado Correctamente",
+            });
+          }
+        } catch (error) {
+          toast({
+            title: "Error al eliminar el caso de uso",
+            description: "Inténtalo de nuevo",
+            variant: "destructive",
+          });
+        }
       };
+
       const closeModal = () => {
         setOpenModalDelete(false);
+        setTimeout(() => router.refresh(), 100); 
       };
 
       const handleEdit = () => {
@@ -133,8 +145,10 @@ export const columns: ColumnDef<UseCase>[] = [
         setOpenModalCreate(true);
       };
       const handleDelete = () => {
-        setSelectedUseCaseId(id);
-        setOpenModalDelete(true);
+        if (id) {
+          setSelectedUseCaseId(id);
+          setOpenModalDelete(true);
+        }
       };
       return (
         <>
@@ -154,12 +168,12 @@ export const columns: ColumnDef<UseCase>[] = [
                 <Trash2 className="w-4 h-4 mr-2" />
                 Eliminar
               </DropdownMenuItem>
-              <Link href={`/projects/${projectId}/open/${id}/openUseCase`}>
-                <DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/projects/${projectId}/open/${id}/openUseCase`}>
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Ir al detalle
-                </DropdownMenuItem>
-              </Link>
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           {/* Modal de edición */}

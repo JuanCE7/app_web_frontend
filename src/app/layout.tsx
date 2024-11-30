@@ -13,8 +13,8 @@ const noto = Noto_Sans_Display({
 });
 
 export const metadata: Metadata = {
-  title: "CaseCraft",
-  description: "System Case",
+  title: "TestCaseCraft",
+  description: "TestCase from Use Case IA",
 };
 
 export default function RootLayout({

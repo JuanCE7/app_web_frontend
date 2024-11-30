@@ -16,63 +16,79 @@ export async function registerUser(values: any) {
   return res;
 }
 
-export async function passwordRecovery(email: string): Promise<any> { 
+export async function passwordRecovery(email: string): Promise<any> {
   try {
-    const res = await fetch(`${BACKEND_URL}/auth/passwordRecovery/${email}`, { 
-      method: "GET", 
-      headers: { 
-        "Content-Type": "application/json", 
-      }, 
+    const res = await fetch(`${BACKEND_URL}/auth/passwordRecovery/${email}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-    if (!res.ok) { 
-      let errorMessage = "Error fetching password"; 
-      try { 
+    if (!res.ok) {
+      let errorMessage = "Error fetching password";
+      try {
         const errorData = await res.json();
-        errorMessage = errorData.message || errorMessage; 
-      } catch { 
-        const errorData = "errorr"
-        errorMessage = errorData || errorMessage; 
-      } 
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        const errorData = "error";
+        errorMessage = errorData || errorMessage;
+      }
       throw new Error(errorMessage);
-    } 
+    }
     const text = await res.text();
     if (!text) {
       return { error: "No data received from server" };
     }
     const data = JSON.parse(text);
     return data;
-
   } catch (error) {
     return {
-      success: false, 
-      error: error instanceof Error ? error.message : 'Error en la recuperación de contraseña'
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error en la recuperación de contraseña",
     };
   }
 }
 
-export async function verifyOtp(values : any) { 
+export async function verifyOtp(values: any) {
   try {
-    const res = await fetch(`${BACKEND_URL}/auth/verifyOtp`, { 
-      method: "GET", 
-      headers: { 
-        "Content-Type": "application/json", 
-      }, 
+    const res = await fetch(`${BACKEND_URL}/auth/verifyOtp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         token: values.token,
-        enteredOtp: values.enteredOtp,
+        enteredOtp: values.otpCode,
       }),
     });
-    const data = await res.json();
-    return res;
 
-  } catch (error) {
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: data.message || "Error al verificar el OTP",
+      };
+    }
+
     return {
-      success: false, 
-      error: error instanceof Error ? error.message : 'Error en la recuperación de contraseña'
+      success: true,
+      data: data,
+    };
+  } catch (error) {
+    console.error("Error en la verificación de OTP:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error en la verificación de OTP",
     };
   }
 }
-
 export async function getUserLogged(email: string): Promise<any> {
   try {
     const res = await fetch(`${BACKEND_URL}/users/mail/${email}`, {
@@ -82,10 +98,8 @@ export async function getUserLogged(email: string): Promise<any> {
       },
     });
 
-    // Verificamos si la respuesta no es exitosa
     if (!res.ok) {
       let errorMessage = "Error fetching user";
-      // Intentamos obtener un mensaje de error detallado si está disponible
       try {
         const errorData = await res.json();
         errorMessage = errorData.message || errorMessage;
@@ -95,13 +109,11 @@ export async function getUserLogged(email: string): Promise<any> {
       return { error: errorMessage };
     }
 
-    // Verificamos si la respuesta está vacía (por ejemplo, 204 No Content)
     const text = await res.text();
     if (!text) {
       return { error: "No data received from server" };
     }
 
-    // Parseamos la respuesta como JSON si hay contenido
     const data = JSON.parse(text);
     return data;
   } catch (error: any) {

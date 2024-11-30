@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { joinProject } from "@/lib/projects.api";
 import { getUserLogged } from "@/lib/login.api";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface ShareErrorResponse {
   statusCode: number;
@@ -30,25 +31,21 @@ export function HeaderProjects() {
   const [projectCode, setProjectCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
-
+  const router = useRouter();
   const getErrorMessage = (error: any): string => {
-    // Si el error tiene una respuesta de la API
     if (error.response?.data) {
       const errorData = error.response.data as ShareErrorResponse;
       return errorData.message;
     }
 
-    // Si es un error de red o el servidor no responde
     if (error.message === "Network Error") {
       return "No se pudo conectar con el servidor. Por favor, verifica tu conexión.";
     }
 
-    // Si es un error genérico
     if (error instanceof Error) {
       return error.message;
     }
 
-    // Para cualquier otro tipo de error
     return "Ocurrió un error inesperado al unirse al proyecto.";
   };
 
@@ -99,7 +96,7 @@ export function HeaderProjects() {
         });
         setOpenModalShare(false);
         setProjectCode("");
-        // Aquí podrías agregar una función para actualizar la lista de proyectos
+        router.refresh();
       }
     } catch (error) {
       console.error("Error al unirse al proyecto:", error);

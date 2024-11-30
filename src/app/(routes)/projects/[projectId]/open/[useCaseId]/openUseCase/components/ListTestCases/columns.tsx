@@ -21,6 +21,8 @@ export interface TestCase {
   steps?: string
   inputData?: string
   expectResult?: string
+  explanationSummary?: string
+  explanationDetails?: string
   useCaseId: string
 }
 
@@ -80,18 +82,36 @@ function ActionCell({ testCase }: { testCase: TestCase }) {
 
   const handleExplanation = useCallback(async () => {
     try {
-      const explanation = await getExplanationById(testCase.id || '')
-      setExplanationData(explanation)
-      setOpenModalExplanation(true)
-    } catch (error) {
-      console.error('Error al obtener la explicación:', error)
-      toast({
-        title: 'Error',
-        description: 'No se pudo obtener la explicación',
-        variant: 'destructive',
-      })
+      const explanation = await getExplanationById(testCase.id || '');
+      
+      if (!explanation) {
+        setExplanationData({
+          summary: 'No existe Explicación',
+          details: 'Este caso de prueba funcional no ha sido generado por IA',
+        });
+      } else {
+        setExplanationData(explanation);
+      }
+  
+      setOpenModalExplanation(true);
+    } catch (error) { 
+      if (error.message === 'Not Found') {
+        setExplanationData({
+          summary: 'No existe Explicación',
+          details: 'Este caso de prueba funcional no ha sido generado por IA',
+        });
+        setOpenModalExplanation(true);
+      } else {
+        console.error('Error al obtener la explicación:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudo obtener la explicación',
+          variant: 'destructive',
+        });
+      }
     }
-  }, [testCase.id])
+  }, [testCase.id]);
+  
 
   const confirmDeleteTestCase = useCallback(async () => {
     if (testCase.id) {

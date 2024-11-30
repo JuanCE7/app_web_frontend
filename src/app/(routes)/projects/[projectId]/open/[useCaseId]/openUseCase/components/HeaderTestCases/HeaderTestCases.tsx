@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { TestCaseProps } from "../ListTestCases/TestCase.types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,

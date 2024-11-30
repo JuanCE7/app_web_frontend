@@ -1,34 +1,12 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { cache } from 'react';
 import { columns } from "./columns";
-import { UseCaseProps } from "./UseCase.types";
 import { DataTable } from "@/components/Data-Table";
 import { getUseCases } from "@/lib/useCases.api";
+import { headers } from 'next/headers'
 
-export default function ListUseCases(props: UseCaseProps) {
-  
-  const { data: session } = useSession();
-  const [listUseCases, setListUseCases] = useState([]);
-  const { projectId } = props;
-
-  useEffect(() => {
-    const fetchUseCases = async () => {
-      try {
-        if (session?.user?.email) {
-          const useCases = await getUseCases(projectId);
-          setListUseCases(useCases);
-        } else {
-          throw new Error("User session not available");
-        }
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
-
-    fetchUseCases();
-  }, [session]);
+export default async function ListUseCases({ projectId }: { projectId: string }) {
+  headers();
+  const listUseCases = await getUseCases(projectId);
 
   return (
     <DataTable

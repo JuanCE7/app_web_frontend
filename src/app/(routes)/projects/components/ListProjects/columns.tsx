@@ -82,27 +82,35 @@ export const columns: ColumnDef<Project>[] = [
       const [selectedProject, setSelectedProject] = useState<Project | null>(
         null
       );
-      const [selectedProjectId, setSelectedProjectId] = useState<
-        string | null
-      >();
+      const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+        null
+      );
+
       const router = useRouter();
       const [copied, setCopied] = useState(false);
       const [projectCode] = useState(code || "");
       const { data: session } = useSession();
 
       const handleCopy = async () => {
-        await navigator.clipboard.writeText(projectCode);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        try {
+          await navigator.clipboard.writeText(projectCode);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch {
+          toast({ title: "Error al copiar el código", variant: "destructive" });
+        }
       };
+      
 
       const confirmDeleteProject = async () => {
-        if (selectedProjectId) await deleteProject(selectedProjectId);
-        closeModal();
-        router.refresh();
-        toast({
-          title: "Proyecto Eliminado Correctamente",
-        });
+        try {
+          if (selectedProjectId) await deleteProject(selectedProjectId);
+          closeModal();
+          router.refresh();
+          toast({ title: "Proyecto Eliminado Correctamente" });
+        } catch (error) {
+          toast({ title: "Error al eliminar el proyecto", variant: "destructive" });
+        }
       };
 
       const confirmExitProject = async () => {
@@ -132,24 +140,32 @@ export const columns: ColumnDef<Project>[] = [
       };
 
       const handleDelete = () => {
-        setSelectedProjectId(id);
-        setOpenModalDelete(true);
+        if (id) {
+          setSelectedProjectId(id);
+          setOpenModalDelete(true);
+        }
       };
 
       const handleShare = () => {
-        setSelectedProjectId(id);
-        setOpenModalShare(true);
+        if (id) {
+          setSelectedProjectId(id);
+          setOpenModalShare(true);
+        }
       };
 
       const handleExport = () => {
-        setSelectedProject({ id, name, description});
-        setSelectedProjectId(id);
-        setOpenModalExport(true);
+        if (id) {
+          setSelectedProject({ id, name, description });
+          setSelectedProjectId(id);
+          setOpenModalExport(true);
+        }
       };
 
       const handleExit = () => {
-        setSelectedProjectId(id);
-        setOpenModalExit(true);
+        if (id) {
+          setSelectedProjectId(id);
+          setOpenModalExit(true);
+        }
       };
 
       return (

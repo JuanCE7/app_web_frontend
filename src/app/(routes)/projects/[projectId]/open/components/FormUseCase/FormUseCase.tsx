@@ -109,9 +109,9 @@ export function FormUseCase(props: FormUseCaseProps) {
           console.log(values);
           await createUseCase(values);
           toast({ title: "Caso de Uso creado" });
-        }
-        router.refresh();
+        }        
         setOpenModalCreate(false);
+        router.refresh();
       } else {
         throw new Error("User session not available");
       }

@@ -22,7 +22,7 @@ export async function createUseCase(useCaseData: any) {
   }
 }
 
-export async function getUseCases(projectId: string): Promise<any> {
+export async function getUseCases(projectId: string) : Promise<any> {
   try {
     const res = await fetch(`${BACKEND_URL}/usecases/${projectId}`, {
       method: "GET",
