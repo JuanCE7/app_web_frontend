@@ -11,22 +11,36 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              email: credentials?.email,
-              password: credentials?.password,
-            }),
-            headers: { "Content-Type": "application/json" },
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                email: credentials?.email,
+                password: credentials?.password,
+              }),
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+      
+          // Importante: log de la respuesta completa
+          console.log("Respuesta del backend - Status:", res.status);
+      
+          const user = await res.json();
+          console.log("Respuesta del backend - Datos:", user);
+      
+          if (res.ok) {
+            return user;
+          } else {
+            // Log de error más detallado
+            console.error("Error de autenticación:", user);
+            return null;
           }
-        );
-        const user = await res.json();
-
-        if (user.error) throw user;
-
-        return user;
+        } catch (error) {
+          console.error("Error en la solicitud de autenticación:", error);
+          return null;
+        }
       },
     }),
     GoogleProvider({
