@@ -27,10 +27,7 @@ const formSchema = z.object({
     lastName: z.string().min(3, "El Apellido debe tener al menos 3 caracteres"),
   }),
   email: z.string().email("Correo no válido"),
-  status: z.boolean(),
-  role: z.object({
-    name: z.string(),
-  }),
+
 });
 
 export function FormUser() {
@@ -69,10 +66,6 @@ export function FormUser() {
         lastName: "",
       },
       email: "",
-      status: false,
-      role: {
-        name: "",
-      },
     },
     mode: "onChange",
   });
@@ -86,10 +79,6 @@ export function FormUser() {
           lastName: userData.entity?.lastName || "",
         },
         email: userData.email || "",
-        status: userData.status || false,
-        role: {
-          name: userData.role?.name || "",
-        },
       });
     }
   }, [userData, form]);
@@ -111,8 +100,6 @@ export function FormUser() {
           email: values.email,
           firstName: values.entity.firstName,
           lastName: values.entity.lastName,
-          status: values.status,
-          role: values.role.name,
         };
         await updateUser(idUser, flattenedValues);
         router.refresh();
@@ -121,7 +108,7 @@ export function FormUser() {
         throw new Error("Sesión de usuario no disponible");
       }
     } catch (error) {
-      toast({ title: "Algo salió mal", variant: "destructive" });
+      toast({ title: "Algo salió mal", description: "error"+ error, variant: "destructive" });
     }
   };
 

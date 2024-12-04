@@ -169,6 +169,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                         field.onChange(content.html, content.text);
                       }}
                       toolbarOption={2}
+                      data_test="steps"
                     />
                   </FormControl>
                   <FormMessage />
@@ -209,6 +210,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                         field.onChange(content.html, content.text);
                       }}
                       toolbarOption={1}
+                      data_test="inputData"
                     />
                   </FormControl>
                   <FormMessage />

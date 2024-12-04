@@ -176,6 +176,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                         field.onChange(content.html, content.text);
                       }}
                       toolbarOption={1}
+                      data_test="preconditions"
                     />
                   </FormControl>
                   <FormMessage />
@@ -196,6 +197,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                         field.onChange(content.html, content.text)
                       }
                       toolbarOption={2}
+                      data_test="mainFlow"
                     />
                   </FormControl>
                   <FormMessage />
@@ -236,6 +238,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                         field.onChange(content.html, content.text)
                       }
                       toolbarOption={1}
+                      data_test="postconditions"
                     />
                   </FormControl>
                   <FormMessage />
@@ -256,6 +259,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                         field.onChange(content.html, content.text)
                       }
                       toolbarOption={2}
+                      data_test="alternateFlows"
                     />
                   </FormControl>
                   <FormMessage />

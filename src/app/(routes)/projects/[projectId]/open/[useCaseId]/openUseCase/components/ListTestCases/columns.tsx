@@ -32,8 +32,11 @@ type SchemaExplanation = {
 }
 
 const removeHtmlTags = (text: string) => {
-  return text?.replace(/<[^>]*>/g, '\n') || ''
-}
+  if (!text) return '';
+  const tagRegex = /<\/?[^>]+>/g;
+  return text.replace(tagRegex, '\n');
+};
+
 
 export const columns: ColumnDef<TestCase>[] = [
   {
@@ -127,8 +130,8 @@ function ActionCell({ testCase }: { testCase: TestCase }) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="w-8 h-4 p-0">
-            <span className="sr-only">Open Menu</span>
+          <Button variant="ghost" name="Open" className="w-8 h-8 p-0">
+            <span className="sr-only">Open</span>
             <MoreHorizontal className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>

@@ -11,7 +11,7 @@ interface Props {
 const AuthCheck = ({ children }: Props) => {
   const { status } = useSession();
   const router = useRouter();
-  console.log(status)
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");

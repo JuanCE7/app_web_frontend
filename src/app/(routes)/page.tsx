@@ -14,11 +14,11 @@ export default function Dashboard() {
         <div className="w-30 h-30 rounded-full flex items-center justify-center">
           <Image
             src="/diseno.gif"
-            alt="Programming"
-            layout="intrinsic"
+            alt="diseno"
             width={350}
             height={350}
             priority
+            className="rounded-md object-cover"
           />
         </div>
       </div>

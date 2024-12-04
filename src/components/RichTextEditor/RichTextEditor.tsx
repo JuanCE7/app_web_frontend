@@ -10,10 +10,12 @@ export const RichTextEditor = ({
   value,
   onChange,
   toolbarOption,
+  data_test,
 }: {
   value: string;
   onChange: (content: { html: string; text: string }) => void;
   toolbarOption: number;
+  data_test: string;
 }) => {
   if (typeof window === "undefined") {
     return null;
@@ -42,7 +44,7 @@ export const RichTextEditor = ({
       const textContent = editor.getText();
       onChange({ html: htmlContent, text: textContent });
     },
-    immediatelyRender: false, 
+    immediatelyRender: false,
   });
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export const RichTextEditor = ({
       {editor ? (
         <RichTextEditorToolbar editor={editor} toolbarOption={toolbarOption} />
       ) : null}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} data-testid={data_test} />
     </>
   );
 };

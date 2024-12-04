@@ -137,6 +137,7 @@ export function HeaderProjects() {
                 onChange={(e) => setProjectCode(e.target.value)}
                 placeholder="Código del Proyecto"
                 disabled={isLoading}
+                name="codeProject"
               />
               <div className="flex flex-wrap justify-end gap-2">
                 <Button

@@ -7,7 +7,7 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "email", type: "email"},
+        email: { label: "email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
@@ -23,13 +23,9 @@ const handler = NextAuth({
               headers: { "Content-Type": "application/json" },
             }
           );
-      
-          // Importante: log de la respuesta completa
-          console.log("Respuesta del backend - Status:", res.status);
-      
+          
           const user = await res.json();
-          console.log("Respuesta del backend - Datos:", user);
-      
+
           if (res.ok) {
             return user;
           } else {
@@ -45,13 +41,13 @@ const handler = NextAuth({
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ""
-    })
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if(user){
-        token.lastActive = Date.now(); 
+      if (user) {
+        token.lastActive = Date.now();
       }
       return { ...token, ...user };
     },

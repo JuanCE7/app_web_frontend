@@ -172,7 +172,7 @@ export const columns: ColumnDef<Project>[] = [
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-8 h-8 p-0">
+              <Button variant="ghost" name="Abrir Menu" className="w-8 h-8 p-0">
                 <span className="sr-only">Abrir Menu</span>
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
@@ -296,6 +296,7 @@ export const columns: ColumnDef<Project>[] = [
                   variant="outline"
                   onClick={handleCopy}
                   className="h-10 w-10"
+                  name="copy"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
