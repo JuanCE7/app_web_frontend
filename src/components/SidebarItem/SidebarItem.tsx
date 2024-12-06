@@ -12,7 +12,7 @@ export default function SidebarItem(props: SidebarItemProps) {
   const { href, icon: Icon, label } = item;
   const pathname = usePathname();
   const activePath = pathname === href;
-  console.log(href)
+
   return (
     <Link
       href={href}

@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
 
 const handler = NextAuth({
   providers: [
@@ -29,7 +28,6 @@ const handler = NextAuth({
           if (res.ok) {
             return user;
           } else {
-            // Log de error más detallado
             console.error("Error de autenticación:", user);
             return null;
           }
@@ -39,15 +37,16 @@ const handler = NextAuth({
         }
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger,session }) {
       if (user) {
         token.lastActive = Date.now();
+      }
+      if (trigger == "update") {
+        if (session?.user?.email) {
+          token.email = session.user.email
+        }
       }
       return { ...token, ...user };
     },

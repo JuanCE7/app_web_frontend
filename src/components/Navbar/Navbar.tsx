@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { getUserLogged } from "@/lib/login.api";
+import { getUserLogged } from "@/app/api/users/login.api";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ToggleTheme } from "../ToggleTheme";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -19,7 +19,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { createTestCase, getTestCaseById, updateTestCase } from "@/lib/testCases.api";
+import { createTestCase, getTestCaseById, updateTestCase } from "@/app/api/testCases/testCases.api";
 import { RichTextEditor } from "@/components/RichTextEditor";
 
 const formSchema = z.object({

@@ -14,8 +14,8 @@ import { FormProject } from "../FormProject/FormProject";
 import { Plus, FolderInput } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { joinProject } from "@/lib/projects.api";
-import { getUserLogged } from "@/lib/login.api";
+import { joinProject } from "@/app/api/projects/projects.api";
+import { getUserLogged } from "@/app/api/users/login.api";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 

@@ -36,11 +36,11 @@ import {
 } from "@/components/ui/input-otp";
 import { useTheme } from 'next-themes';
 
-import { updateUser } from "@/lib/user.api";
+import { updateUser } from "@/app/api/users/user.api";
 import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
 import Image from "next/image";
-import { getUserLogged, passwordRecovery, registerUser, verifyOtp } from "@/lib/login.api";
+import { getUserLogged, passwordRecovery, registerUser, verifyOtp } from "@/app/api/users/login.api";
 
 type FormType =
   | "login"
@@ -171,33 +171,36 @@ export default function AuthCard() {
         });
         return;
       }
-
+  
+      // Intentar inicio de sesión con NextAuth
       const responseNextAuth = await signIn("credentials", {
         email: values.email,
         password: values.password,
         redirect: false,
       });
-
-      if (responseNextAuth?.error) {
-        toast({
-          title: "Credenciales incorrectas",
-          description: "Has incluido credenciales incorrectas",
-          variant: "destructive",
-        });
-        throw new Error(responseNextAuth.error);
+  
+      if (!responseNextAuth || responseNextAuth.error) {
+        throw new Error(
+           "Correo o contraseña incorrectos"
+        );
       }
-
+  
+      // Login exitoso
       toast({ title: "Bienvenido al Sistema" });
       router.push("/");
     } catch (error) {
+      // Manejo de errores
+      const errorMessage =
+        error instanceof Error ? error.message : "Error desconocido";
+      console.error("Error de inicio de sesión:", error);
       toast({
         title: "Inicio de Sesión Fallido",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     }
   };
+  
 
   const handleForgotPassword = async (
     values: z.infer<typeof forgotPasswordSchema>

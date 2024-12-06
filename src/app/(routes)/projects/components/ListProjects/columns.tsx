@@ -28,15 +28,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { FormProject } from "../FormProject";
-import { deleteProject, exitProject } from "@/lib/projects.api";
+import { deleteProject, exitProject } from "@/app/api/projects/projects.api";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { GeneratePDF } from "../GeneratePDF";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/lib/login.api";
+import { getUserLogged } from "@/app/api/users/login.api";
 
 export interface Project {
   id?: string;
@@ -45,6 +45,55 @@ export interface Project {
   description?: string;
   role?: string;
 }
+
+interface ModalState {
+  create: boolean;
+  delete: boolean;
+  share: boolean;
+  export: boolean;
+  exit: boolean;
+}
+
+interface ConfirmDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  onConfirm: () => void;
+}
+
+const ConfirmDialog: React.FC<ConfirmDialogProps> = React.memo(({
+  open,
+  onOpenChange,
+  title,
+  description,
+  onConfirm
+}) => (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
+      <DialogHeader className="text-center">
+        <DialogTitle className="text-center">{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
+      </DialogHeader>
+      <div className="flex w-full space-x-4 mt-6">
+        <Button
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+          className="flex-1"
+        >
+          Cancelar
+        </Button>
+        <Button
+          variant="destructive"
+          onClick={onConfirm}
+          className="flex-1"
+        >
+          {title.includes('Eliminación') ? 'Eliminar' : 'Salir'}
+        </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
+));
 
 export const columns: ColumnDef<Project>[] = [
   {
@@ -74,164 +123,170 @@ export const columns: ColumnDef<Project>[] = [
     header: "Acciones",
     cell: ({ row }) => {
       const { id, name, description, code, role } = row.original;
-      const [openModalCreate, setOpenModalCreate] = useState(false);
-      const [openModalDelete, setOpenModalDelete] = useState(false);
-      const [openModalShare, setOpenModalShare] = useState(false);
-      const [openModalExport, setOpenModalExport] = useState(false);
-      const [openModalExit, setOpenModalExit] = useState(false);
-      const [selectedProject, setSelectedProject] = useState<Project | null>(
-        null
-      );
-      const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-        null
-      );
-
       const router = useRouter();
-      const [copied, setCopied] = useState(false);
-      const [projectCode] = useState(code || "");
       const { data: session } = useSession();
 
-      const handleCopy = async () => {
+      const [modalState, setModalState] = useState<ModalState>({
+        create: false,
+        delete: false,
+        share: false,
+        export: false,
+        exit: false
+      });
+      
+      const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+      const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+      const [copied, setCopied] = useState(false);
+
+      const toggleModal = useCallback((modalName: keyof ModalState, open: boolean) => {
+        setModalState(prev => ({ ...prev, [modalName]: open }));
+      }, []);
+
+      const handleCopy = useCallback(async () => {
         try {
-          await navigator.clipboard.writeText(projectCode);
+          await navigator.clipboard.writeText(code || '');
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
         } catch {
           toast({ title: "Error al copiar el código", variant: "destructive" });
         }
-      };
-      
+      }, [code]);
 
-      const confirmDeleteProject = async () => {
+      const confirmDeleteProject = useCallback(async () => {
         try {
-          if (selectedProjectId) await deleteProject(selectedProjectId);
-          closeModal();
-          router.refresh();
-          toast({ title: "Proyecto Eliminado Correctamente" });
+          if (selectedProjectId) {
+            await deleteProject(selectedProjectId);
+            toggleModal('delete', false);
+            router.refresh();
+            toast({ title: "Proyecto Eliminado Correctamente" });
+          }
         } catch (error) {
           toast({ title: "Error al eliminar el proyecto", variant: "destructive" });
         }
-      };
+      }, [selectedProjectId, router, toggleModal]);
 
-      const confirmExitProject = async () => {
-        if (session?.user?.email) {
-          const user = await getUserLogged(session.user.email);
-          const exitData = {
-            userId: user.id || "",
-            projectId: selectedProjectId || "",
-          };
-          exitProject(exitData);
-          closeModal();
-          router.refresh();
-          toast({
-            title: "Has salido del proyecto correctamente",
-          });
+      const confirmExitProject = useCallback(async () => {
+        if (session?.user?.email && selectedProjectId) {
+          try {
+            const user = await getUserLogged(session.user.email);
+            const exitData = {
+              userId: user.id || "",
+              projectId: selectedProjectId,
+            };
+            await exitProject(exitData);
+            toggleModal('exit', false);
+            router.refresh();
+            toast({ title: "Has salido del proyecto correctamente" });
+          } catch (error) {
+            toast({ title: "Error al salir del proyecto", variant: "destructive" });
+          }
         }
-      };
+      }, [session, selectedProjectId, router, toggleModal]);
 
-      const closeModal = () => {
-        setOpenModalDelete(false);
-        setOpenModalExit(false);
-      };
-
-      const handleEdit = () => {
+      const handleEdit = useCallback(() => {
         setSelectedProject({ id, name, description });
-        setOpenModalCreate(true);
-      };
+        toggleModal('create', true);
+      }, [id, name, description, toggleModal]);
 
-      const handleDelete = () => {
+      const handleDelete = useCallback(() => {
         if (id) {
           setSelectedProjectId(id);
-          setOpenModalDelete(true);
+          toggleModal('delete', true);
         }
-      };
+      }, [id, toggleModal]);
 
-      const handleShare = () => {
+      const handleShare = useCallback(() => {
         if (id) {
           setSelectedProjectId(id);
-          setOpenModalShare(true);
+          toggleModal('share', true);
         }
-      };
+      }, [id, toggleModal]);
 
-      const handleExport = () => {
+      const handleExport = useCallback(() => {
         if (id) {
           setSelectedProject({ id, name, description });
           setSelectedProjectId(id);
-          setOpenModalExport(true);
+          toggleModal('export', true);
         }
-      };
+      }, [id, name, description, toggleModal]);
 
-      const handleExit = () => {
+      const handleExit = useCallback(() => {
         if (id) {
           setSelectedProjectId(id);
-          setOpenModalExit(true);
+          toggleModal('exit', true);
         }
-      };
+      }, [id, toggleModal]);
 
-      return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" name="Abrir Menu" className="w-8 h-8 p-0">
-                <span className="sr-only">Abrir Menu</span>
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleEdit}>
-                <Pencil className="w-4 h-4 mr-2" />
-                Editar
-              </DropdownMenuItem>
-              {role === "Owner" && (
+      // Memoize dropdown menu to prevent unnecessary re-renders
+      const dropdownMenu = useMemo(() => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" name="Abrir Menu" className="w-8 h-8 p-0">
+              <span className="sr-only">Abrir Menu</span>
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleEdit}>
+              <Pencil className="w-4 h-4 mr-2" />
+              Editar
+            </DropdownMenuItem>
+            {role === "Owner" && (
+              <>
                 <DropdownMenuItem onClick={handleDelete}>
                   <Trash2 className="w-4 h-4 mr-2" />
                   Eliminar
                 </DropdownMenuItem>
-              )}
-              {role === "Owner" && (
                 <DropdownMenuItem onClick={handleShare}>
                   <Share2 className="w-4 h-4 mr-2" />
                   Compartir
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem asChild>
-                <Link href={`/projects/${id}/open`}>
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Ir al detalle
-                </Link>
+              </>
+            )}
+            <DropdownMenuItem asChild>
+              <Link href={`/projects/${id}/open`}>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Ir al detalle
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExport}>
+              <FileDown className="w-4 h-4 mr-2" />
+              Exportar en PDF
+            </DropdownMenuItem>
+            {role === "Editor" && (
+              <DropdownMenuItem onClick={handleExit}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Salir del proyecto
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExport}>
-                <FileDown className="w-4 h-4 mr-2" />
-                Exportar en PDF
-              </DropdownMenuItem>
-              {role === "Editor" && (
-                <DropdownMenuItem onClick={handleExit}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Salir del proyecto
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ), [role, handleEdit, handleDelete, handleShare, handleExport, handleExit]);
 
-          <Dialog open={openModalExport} onOpenChange={setOpenModalExport}>
+      return (
+        <>
+          {dropdownMenu}
+
+          {/* Export PDF Modal */}
+          <Dialog open={modalState.export} onOpenChange={(open) => toggleModal('export', open)}>
             <DialogContent className="sm:max-w-[625px]">
               <DialogHeader>
                 <DialogTitle>Exportar Proyecto en PDF</DialogTitle>
                 <DialogDescription>
-                  Visualiza la información del proyecto y descarga el pdf
-                  generado
+                  Visualiza la información del proyecto y descarga el pdf generado
                 </DialogDescription>
               </DialogHeader>
               {selectedProject && (
                 <GeneratePDF
                   projectId={id}
-                  setOpenModalGenerate={setOpenModalExport}
+                  setOpenModalGenerate={(open: boolean) => toggleModal('export', open)}
                 />
               )}
             </DialogContent>
           </Dialog>
 
-          <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
+          {/* Edit Project Modal */}
+          <Dialog open={modalState.create} onOpenChange={(open) => toggleModal('create', open)}>
             <DialogContent className="sm:max-w-[625px]">
               <DialogHeader>
                 <DialogTitle>Editar Proyecto</DialogTitle>
@@ -242,55 +297,34 @@ export const columns: ColumnDef<Project>[] = [
               {selectedProject && (
                 <FormProject
                   projectId={id}
-                  setOpenModalCreate={setOpenModalCreate}
+                  setOpenModalCreate={(open: boolean) => toggleModal('create', open)}
                 />
               )}
             </DialogContent>
           </Dialog>
 
-          <Dialog open={openModalDelete} onOpenChange={setOpenModalDelete}>
-            <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
-              <DialogHeader className="text-center">
-                <DialogTitle className="text-center">
-                  Confirmar Eliminación
-                </DialogTitle>
-                <DialogDescription>
-                  ¿Estás seguro de que deseas eliminar este elemento? Esta
-                  acción no se puede deshacer.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex w-full space-x-4 mt-6">
-                <Button
-                  variant="outline"
-                  onClick={closeModal}
-                  className="flex-1"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={confirmDeleteProject}
-                  className="flex-1"
-                >
-                  Eliminar
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          {/* Confirm Delete Modal */}
+          <ConfirmDialog 
+            open={modalState.delete}
+            onOpenChange={(open) => toggleModal('delete', open)}
+            title="Confirmar Eliminación"
+            description="¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer."
+            onConfirm={confirmDeleteProject}
+          />
 
-          <Dialog open={openModalShare} onOpenChange={setOpenModalShare}>
+          {/* Share Project Modal */}
+          <Dialog open={modalState.share} onOpenChange={(open) => toggleModal('share', open)}>
             <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
               <DialogHeader className="text-center">
                 <DialogTitle className="text-center">
                   Compartir el proyecto
                 </DialogTitle>
                 <DialogDescription>
-                  Código de acceso del proyecto, puedes compartir este código
-                  con los usuarios que desees compartir el proyecto
+                  Código de acceso del proyecto, puedes compartir este código con los usuarios que desees compartir el proyecto
                 </DialogDescription>
               </DialogHeader>
               <div className="flex w-full space-x-4 mt-6">
-                <Input readOnly value={projectCode} className="flex-1" />
+                <Input readOnly value={code || ''} className="flex-1" />
                 <Button
                   size="icon"
                   variant="outline"
@@ -308,35 +342,14 @@ export const columns: ColumnDef<Project>[] = [
             </DialogContent>
           </Dialog>
 
-          <Dialog open={openModalExit} onOpenChange={setOpenModalExit}>
-            <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
-              <DialogHeader className="text-center">
-                <DialogTitle className="text-center">
-                  Confirmar Salida del Proyecto
-                </DialogTitle>
-                <DialogDescription>
-                  ¿Estás seguro de que deseas salir de este proyecto? Esta
-                  acción no se puede deshacer.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex w-full space-x-4 mt-6">
-                <Button
-                  variant="outline"
-                  onClick={closeModal}
-                  className="flex-1"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={confirmExitProject}
-                  className="flex-1"
-                >
-                  Salir del Proyecto
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          {/* Exit Project Modal */}
+          <ConfirmDialog 
+            open={modalState.exit}
+            onOpenChange={(open) => toggleModal('exit', open)}
+            title="Confirmar Salida del Proyecto"
+            description="¿Estás seguro de que deseas salir de este proyecto? Esta acción no se puede deshacer."
+            onConfirm={confirmExitProject}
+          />
         </>
       );
     },

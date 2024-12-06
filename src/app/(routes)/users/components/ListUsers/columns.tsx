@@ -25,7 +25,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { updateUser } from "@/lib/users.api";
+import { updateUser } from "@/app/api/users/users.api";
 import {
   Select,
   SelectTrigger,
@@ -42,9 +42,9 @@ export interface Project {
     image?: string;
   };
   email?: string;
-  role:{
+  role: {
     name: "Administrator" | "Tester";
-  }
+  };
   status?: string;
 }
 
@@ -122,8 +122,12 @@ export const columns: ColumnDef<Project>[] = [
       };
 
       // Controlador para abrir los diálogos
-      const openDialog = (type: "disable" | "role" | "enable") => {
+      const openDialog = (
+        type: "disable" | "role" | "enable",
+        user: Project
+      ) => {
         setActionType(type);
+        setNewRole(user.role.name);
         setOpenModal(true);
       };
 
@@ -137,12 +141,16 @@ export const columns: ColumnDef<Project>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => openDialog("role")}>
+              <DropdownMenuItem
+                onClick={() => openDialog("role", row.original)}
+              >
                 <UserRoundPen className="w-4 h-4 mr-2" />
                 Cambiar Rol
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => openDialog(status ? "disable" : "enable")}
+                onClick={() =>
+                  openDialog(status ? "disable" : "enable", row.original)
+                }
               >
                 {status ? (
                   <>

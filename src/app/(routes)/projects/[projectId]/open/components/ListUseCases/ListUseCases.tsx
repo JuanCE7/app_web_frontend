@@ -1,12 +1,32 @@
-import { cache } from 'react';
-import { columns } from "./columns";
-import { DataTable } from "@/components/Data-Table";
-import { getUseCases } from "@/lib/useCases.api";
-import { headers } from 'next/headers'
+'use client'
 
-export default async function ListUseCases({ projectId }: { projectId: string }) {
-  headers();
-  const listUseCases = await getUseCases(projectId);
+import { useState, useEffect } from 'react'
+import { columns } from "./columns"
+import { DataTable } from "@/components/Data-Table"
+import { getUseCases } from "@/app/api/useCases/useCases.api"
+
+export default function ListUseCases({ projectId }: { projectId: string }) {
+  const [listUseCases, setListUseCases] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchUseCases() {
+      try {
+        const useCases = await getUseCases(projectId)
+        setListUseCases(useCases)
+      } catch (error) {
+        console.error("Error fetching use cases:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUseCases()
+  }, [projectId, listUseCases])
+
+  if (isLoading) {
+    return <div>Cargando casos de uso...</div>
+  }
 
   return (
     <DataTable
@@ -15,5 +35,6 @@ export default async function ListUseCases({ projectId }: { projectId: string })
       placeholder="Filtro por código ..."
       filter="code"
     />
-  );
+  )
 }
+

@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { FormTestCase } from '../FormTestCase'
 import { toast } from '@/hooks/use-toast'
-import { deleteTestCase, getExplanationById } from '@/lib/testCases.api'
+import { deleteTestCase, getExplanationById } from '@/app/api/testCases/testCases.api'
 
 export interface TestCase {
   code?: string
