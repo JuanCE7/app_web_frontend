@@ -35,7 +35,7 @@ export default function ListUsers() {
     if (status !== "loading") {
       fetchUsers();
     }
-  }, [session, status]); // Dependencias actualizadas
+  }, [session, status, listUsers]); // Dependencias actualizadas
 
   if (isLoading) {
     return <div>Cargando usuarios...</div>;

@@ -117,6 +117,18 @@ export const columns: ColumnDef<Project>[] = [
   {
     accessorKey: "role",
     header: "Rol en el Proyecto",
+    cell: ({ row }) => {
+      const role = row.getValue("role");
+      // Map role names to display values
+      switch (role) {
+        case "Owner":
+          return <span>Creador</span>;
+        case "Editor":
+          return <span>Invitado</span>;
+        default:
+          return <span> Desconocido </span>;
+      }
+    }
   },
   {
     id: "actions",

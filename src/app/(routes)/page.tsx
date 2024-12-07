@@ -1,12 +1,52 @@
+"use client";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState, useMemo } from "react";
+import { getUserLogged } from "../api/users/login.api";
 
 export default function Dashboard() {
+  const { data: session, status } = useSession();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  const fetchUserRole = useMemo(() => {
+    return async () => {
+      if (session?.user?.email) {
+        try {
+          const user = await getUserLogged(session.user.email);
+          if (user?.role?.name) {
+            setUserRole(user.role.name);
+          } else {
+            console.warn("User role is undefined or malformed:", user);
+            setUserRole(null);
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        }
+      }
+    };
+  }, [session]);
+
+  useEffect(() => {
+    if (session?.user?.email && !userRole) {
+      fetchUserRole();
+    }
+  }, [session, fetchUserRole, userRole]);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    return null;
+  }
+
+  const roleBasedRedirect = userRole === "Tester" ? "/projects" : "/users";
+
   return (
     <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
-      <h1 className="text-5xl font-bold text-center mb-6 animate-fadeInDown">
+      <h1 className="text-5xl font-bold text-center mb-6 animate-fadeInDown animate-pulse">
         ¡Bienvenido a TestCaseCraft!
       </h1>
 
@@ -30,17 +70,15 @@ export default function Dashboard() {
       </p>
       <p className="text-center mb-6 text-slate-500 animate-fadeInDown delay-[450ms]">
         Nuestra plataforma utiliza inteligencia artificial para automatizar la
-        creación de casos de prueba, garantizando una cobertura exhaustiva de
-        las funcionalidades del sistema. Simplifica tu trabajo, mejora la
-        calidad y asegura un desarrollo más eficiente.
+        creación de casos de prueba funcionales, garantizando una cobertura
+        exhaustiva de las funcionalidades del sistema. Simplifica tu trabajo,
+        mejora la calidad y asegura un desarrollo más eficiente.
       </p>
+
       <div className="flex justify-center items-center">
-        
-      <Button className="flex justify-center w-full sm:w-64 h-full transition ease-in-out delay-150hover:-translate-y-1 hover:scale-110 hover:bg-teal-600 duration-300">
-        <Link href={"/projects"}>
-        ¡Vamos allá!
-        </Link>
-      </Button>
+        <Button className="flex justify-center w-full sm:w-64 h-full transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-teal-600 duration-300">
+          <Link href={roleBasedRedirect}>¡Vamos allá!</Link>
+        </Button>
       </div>
     </div>
   );
