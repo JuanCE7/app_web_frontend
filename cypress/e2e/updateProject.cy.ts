@@ -14,10 +14,10 @@ describe("Actualizar Proyecto", () => {
         .should("be.visible")
         .click();
     });
-    cy.get("button").contains("¡Vamos allá!").should("be.visible").click();
-    
-    cy.get('button[name="Abrir Menu"]').should("be.visible").click();
+    cy.wait(1000);
+    cy.get(".items-center > a").should("be.visible").click();
 
+    cy.get('button[name="Abrir Menu"]').eq(0).should("be.visible").click();
 
     cy.contains("Editar").click();
 

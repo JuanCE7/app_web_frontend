@@ -56,6 +56,8 @@ export function UseCaseProvider({
       }
 
       const data = await res.json();
+      await refreshUseCases();
+      return data;
     } catch (error) {
       throw error;
     }
@@ -121,6 +123,7 @@ export function UseCaseProvider({
       }
 
       const data = await res.json();
+      await refreshUseCases();
       return data;
     } catch (error) {
       throw error;
@@ -142,7 +145,7 @@ export function UseCaseProvider({
           errorData.message || `Error deleting usecase: ${res.statusText}`
         );
       }
-
+      await refreshUseCases();
       return { success: true };
     } catch (error) {
       throw error;

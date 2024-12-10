@@ -211,7 +211,7 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
     () => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" name="Abrir Menu" className="w-8 h-8 p-0">
+          <Button variant="ghost" name="Abrir Menu" className="w-8 h-8 p-0" type="button">
             <span className="sr-only">Abrir Menu</span>
             <MoreHorizontal className="w-4 h-4" />
           </Button>
