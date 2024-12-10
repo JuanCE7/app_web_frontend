@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -19,7 +20,11 @@ const AuthCheck = ({ children }: Props) => {
   }, [status, router]);
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
   }
   return <>{children}</>;
 };

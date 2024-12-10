@@ -14,10 +14,10 @@ import { FormProject } from "../FormProject/FormProject";
 import { Plus, FolderInput } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { joinProject } from "@/app/api/projects/projects.api";
-import { getUserLogged } from "@/app/api/users/login.api";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useProjects } from "@/context/ProjectsContext";
+import { useUsers } from "@/context/UsersContext";
 
 interface ShareErrorResponse {
   statusCode: number;
@@ -32,6 +32,9 @@ export function HeaderProjects() {
   const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
+  const { joinProject } = useProjects();
+  const { getUserLogged } = useUsers();
+
   const getErrorMessage = (error: any): string => {
     if (error.response?.data) {
       const errorData = error.response.data as ShareErrorResponse;

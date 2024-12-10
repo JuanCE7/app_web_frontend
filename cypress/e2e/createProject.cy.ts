@@ -14,7 +14,8 @@ describe("Crear Proyecto", () => {
         .should("be.visible")
         .click();
     });
-    cy.get("button").contains("¡Vamos allá!").should("be.visible").click();
+    cy.wait(1000)
+    cy.get('.items-center > a').should("be.visible").click();
     cy.get("button").contains("Crear Proyecto").should("be.visible").click();
     cy.get("form").within(() => {
       cy.get('input[name="name"]')
@@ -28,5 +29,6 @@ describe("Crear Proyecto", () => {
         .should("be.visible")
         .click();
     });
+    cy.pause()
   });
 });

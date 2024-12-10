@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
 export type FormProjectProps = {
-  setOpenModalCreate: Dispatch<SetStateAction<boolean>>;
+  setOpenModalCreate: Dispatch<boolean>;
   projectId?: string;
 };

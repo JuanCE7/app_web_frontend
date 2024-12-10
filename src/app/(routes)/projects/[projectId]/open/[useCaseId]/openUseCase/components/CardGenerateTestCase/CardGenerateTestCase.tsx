@@ -11,7 +11,6 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { createTestCase, generateTestCase } from "@/app/api/testCases/testCases.api";
 import { CardGenerateTestCaseProps } from "./CardGenerateTestCase.types";
 import {
   Dialog,
@@ -26,7 +25,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { AlertTriangle, Check, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
+import { useTestCases } from "@/context/TestCaseContext";
 
 type Improvement = {
   issue: string;
@@ -58,13 +58,14 @@ export default function CardGenerateTestCase({
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [selectedTestCases, setSelectedTestCases] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { createTestCase, generateTestCase } = useTestCases();
   const [validationError, setValidationError] =
     useState<ValidationError | null>(null);
-    const router = useRouter()
+  const router = useRouter();
   const generateTestCases = async () => {
     if (useCaseId) {
       setIsLoading(true);
-      setValidationError(null); 
+      setValidationError(null);
       setTestCases([]);
       try {
         const response = await generateTestCase(useCaseId);
@@ -80,7 +81,8 @@ export default function CardGenerateTestCase({
       } catch (error) {
         toast({
           title: "Error",
-          description: "Hubo un problema generando los casos de prueba." +error,
+          description:
+            "Hubo un problema generando los casos de prueba." + error,
           variant: "destructive",
         });
       } finally {

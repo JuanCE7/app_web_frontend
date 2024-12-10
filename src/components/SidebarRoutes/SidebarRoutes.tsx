@@ -1,44 +1,45 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useSession } from "next-auth/react"
-import { getUserLogged } from "@/app/api/users/login.api"
-import { SidebarRoutesClient } from "./SidebarRoutesClient"
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { SidebarRoutesClient } from "./SidebarRoutesClient";
+import { useUsers } from "@/context/UsersContext";
+import { LoadingSpinner } from "../LoadingSpinner/LoadingSpinner";
 
 export function SidebarRoutes() {
-  const { data: session, status } = useSession()
-  const [userRole, setUserRole] = useState<string | null>(null)
-
+  const { data: session, status } = useSession();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const { getUserLogged } = useUsers();
   useEffect(() => {
     async function fetchUserRole() {
       if (session?.user?.email) {
         try {
-          console.log(session)
-          const user = await getUserLogged(session.user.email)
-
-          // Validar que 'user' y 'user.role' existan antes de usar 'role.name'
+          console.log(session);
+          const user = await getUserLogged(session.user.email);
           if (user?.role?.name) {
-            setUserRole(user.role.name)
+            setUserRole(user.role.name);
           } else {
-            console.warn("User role is undefined or malformed:", user)
-            setUserRole(null) // Asigna null o un valor predeterminado si no existe
+            console.warn("User role is undefined or malformed:", user);
+            setUserRole(null); 
           }
         } catch (error) {
-          console.error("Error fetching user role:", error)
+          console.error("Error fetching user role:", error);
         }
       }
     }
 
-    fetchUserRole()
-  }, [session])
+    fetchUserRole();
+  }, [session]);
 
   if (status === "loading" || !userRole) {
-    return <div>Loading...</div> // Puedes usar un componente de loading más robusto
+    return <div>
+      <LoadingSpinner/>
+    </div>;
   }
 
   if (status === "unauthenticated") {
-    return null // O redirigir a la página de login
+    return null; 
   }
 
-  return <SidebarRoutesClient userRole={userRole} />
+  return <SidebarRoutesClient userRole={userRole} />;
 }

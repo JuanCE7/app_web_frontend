@@ -5,11 +5,14 @@ import SessionAuthProvider from "../context/SessionAuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
+import { UserProvider } from "@/context/UsersContext";
+import { Suspense } from "react";
+import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 
 const noto = Noto_Sans_Display({
   subsets: ["latin"],
-  weight: ["400", "700"], 
-  display: "swap", 
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -29,10 +32,18 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <SessionAuthProvider>
-          <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
-            {children}
-            <Toaster />
-          </ThemeProvider>
+          <UserProvider>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ThemeProvider
+                attribute="class"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                <Toaster />
+              </ThemeProvider>
+            </Suspense>
+          </UserProvider>
         </SessionAuthProvider>
       </body>
     </html>

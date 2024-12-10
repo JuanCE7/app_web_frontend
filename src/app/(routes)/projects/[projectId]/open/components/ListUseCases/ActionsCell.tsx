@@ -1,16 +1,27 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Pencil, Trash2, MoreHorizontal, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { deleteUseCase } from "@/app/api/useCases/useCases.api";
 import { toast } from "@/hooks/use-toast";
 import { FormUseCase } from "../FormUseCase";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { useUseCases } from "@/context/UseCaseContext";
 
 interface ActionsCellProps {
-  row: any; // Ajusta el tipo según la estructura de tus datos.
+  row: any;
 }
 
 const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
@@ -28,9 +39,13 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
   const [selectedUseCase, setSelectedUseCase] = useState(null);
-  const [selectedUseCaseId, setSelectedUseCaseId] = useState<string | null>(null);
+  const [selectedUseCaseId, setSelectedUseCaseId] = useState<string | null>(
+    null
+  );
 
   const router = useRouter();
+
+  const { deleteUseCase, createUseCase } = useUseCases();
 
   const confirmDeleteUseCase = async () => {
     try {
@@ -96,7 +111,9 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
             Eliminar
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={`/projects/${projectId}/open/${row.original.id}/openUseCase`}>
+            <Link
+              href={`/projects/${projectId}/open/${row.original.id}/openUseCase`}
+            >
               <ExternalLink className="w-4 h-4 mr-2" />
               Ir al detalle
             </Link>
@@ -118,6 +135,7 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
               useCaseId={row.original.id}
               projectId={projectId}
               setOpenModalCreate={setOpenModalCreate}
+              createUseCase={createUseCase}
             />
           )}
         </DialogContent>
@@ -127,9 +145,12 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
       <Dialog open={openModalDelete} onOpenChange={setOpenModalDelete}>
         <DialogContent className="sm:max-w-[625px] flex flex-col items-center">
           <DialogHeader className="text-center">
-            <DialogTitle className="text-center">Confirmar Eliminación</DialogTitle>
+            <DialogTitle className="text-center">
+              Confirmar Eliminación
+            </DialogTitle>
             <DialogDescription className="text-center">
-              ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
+              ¿Estás seguro de que deseas eliminar este elemento? Esta acción no
+              se puede deshacer.
             </DialogDescription>
           </DialogHeader>
 
@@ -137,7 +158,11 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
             <Button variant="outline" onClick={closeModal} className="flex-1">
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={confirmDeleteUseCase} className="flex-1">
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteUseCase}
+              className="flex-1"
+            >
               Eliminar
             </Button>
           </div>

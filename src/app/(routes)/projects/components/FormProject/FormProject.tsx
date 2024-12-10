@@ -15,24 +15,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { FormProjectProps } from "./FormProject.types";
 import { toast } from "@/hooks/use-toast";
-import { createProject, getProjectById, updateProject } from "@/app/api/projects/projects.api";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/app/api/users/login.api";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { useProjects } from "@/context/ProjectsContext";
+import { useUsers } from "@/context/UsersContext";
 
 const formSchema = z.object({
   name: z.string().min(5, "El nombre debe tener al menos 5 caracteres"),
-  description: z.string().min(5, "La descripción debe tener al menos 5 caracteres"),
-  userId: z.string().optional(), 
+  description: z
+    .string()
+    .min(5, "La descripción debe tener al menos 5 caracteres"),
+  userId: z.string().optional(),
 });
 
 export function FormProject(props: FormProjectProps) {
   const { setOpenModalCreate, projectId } = props;
-  const router = useRouter();
   const { data: session } = useSession();
-  const [projectData, setProjectData] = useState<z.infer<typeof formSchema> | null>(null);
+  const [projectData, setProjectData] = useState<z.infer<
+    typeof formSchema
+  > | null>(null);
+  const { createProject, updateProject, getProjectById } = useProjects();
+  const { getUserLogged } = useUsers();
 
   useEffect(() => {
     if (projectId) {
@@ -42,9 +46,9 @@ export function FormProject(props: FormProjectProps) {
           setProjectData(project);
         } catch (error) {
           toast({
-            title: 'Error',
-            description: 'Error al obtener los datos del proyecto:',
-            variant: 'destructive',
+            title: "Error",
+            description: "Error al obtener los datos del proyecto:",
+            variant: "destructive",
           });
         }
       };
@@ -59,7 +63,7 @@ export function FormProject(props: FormProjectProps) {
       description: "",
       userId: "",
     },
-    mode: "onChange"
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -87,7 +91,6 @@ export function FormProject(props: FormProjectProps) {
           toast({ title: "Proyecto creado" });
         }
         setOpenModalCreate(false);
-        router.refresh();
       } else {
         throw new Error("User session not available");
       }
@@ -137,7 +140,6 @@ export function FormProject(props: FormProjectProps) {
               </FormItem>
             )}
           />
-          
         </div>
         <Button type="submit" disabled={!isValid}>
           {projectId ? "Actualizar" : "Crear"}

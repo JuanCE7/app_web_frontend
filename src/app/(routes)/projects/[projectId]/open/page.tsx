@@ -1,8 +1,11 @@
+import { Suspense } from 'react';
 import ListUseCases from "./components/ListUseCases/ListUseCases";
 import { HeaderUseCases } from "./components/HeaderUseCases";
 import SessionRoleProvider from "@/context/RoleProvider";
+import { UseCaseProvider } from '@/context/UseCaseContext';
+import { LoadingSpinner } from '@/components/LoadingSpinner/LoadingSpinner';
 
-export default async function OpenProject({
+export default function OpenProject({
   params,
 }: {
   params: { projectId: string };
@@ -10,9 +13,14 @@ export default async function OpenProject({
   return (
     <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
       <SessionRoleProvider allowedRoles={["Tester"]}>
-        <HeaderUseCases projectId={params.projectId} />
-        <ListUseCases projectId={params.projectId} />
+        <UseCaseProvider projectId={params.projectId}>
+          <Suspense fallback={<LoadingSpinner />}>
+            <HeaderUseCases projectId={params.projectId} />
+            <ListUseCases projectId={params.projectId} />
+          </Suspense>
+        </UseCaseProvider>
       </SessionRoleProvider>
     </div>
   );
 }
+

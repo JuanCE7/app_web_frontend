@@ -4,22 +4,25 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
-import { getUserLogged } from "../api/users/login.api";
+import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
+import { useUsers } from "@/context/UsersContext";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>();
+  const { getUserLogged } = useUsers();
 
   const fetchUserRole = useMemo(() => {
     return async () => {
       if (session?.user?.email) {
         try {
           const user = await getUserLogged(session.user.email);
-          if (user?.role?.name) {
-            setUserRole(user.role.name);
+          if (user?.role) {
+            let role = user.role.name;
+            setUserRole(role);
           } else {
             console.warn("User role is undefined or malformed:", user);
-            setUserRole(null);
+            setUserRole("");
           }
         } catch (error) {
           console.error("Error fetching user role:", error);
@@ -29,20 +32,28 @@ export default function Dashboard() {
   }, [session]);
 
   useEffect(() => {
-    if (session?.user?.email && !userRole) {
+    if (session?.user?.email) {
       fetchUserRole();
     }
-  }, [session, fetchUserRole, userRole]);
+  }, [session]);
+
+  useEffect(() => {
+    console.log("User role updated:", userRole);
+  }, [userRole]);
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (status === "unauthenticated") {
     return null;
   }
 
-  const roleBasedRedirect = userRole === "Tester" ? "/projects" : "/users";
+  const roleBasedRedirect = userRole === "Tester" ? "/projects" : "";
 
   return (
     <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
@@ -76,7 +87,10 @@ export default function Dashboard() {
       </p>
 
       <div className="flex justify-center items-center">
-        <Button className="flex justify-center w-full sm:w-64 h-full transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-teal-600 duration-300">
+        <Button
+          name="go"
+          className="flex justify-center w-full sm:w-64 h-full transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-teal-600 duration-300"
+        >
           <Link href={roleBasedRedirect}>¡Vamos allá!</Link>
         </Button>
       </div>

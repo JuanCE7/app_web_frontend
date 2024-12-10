@@ -16,9 +16,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getUserLogged } from "@/app/api/users/login.api";
 import { useEffect, useState } from "react";
-import { updateUser } from "@/app/api/users/user.api";
 import {
   Select,
   SelectTrigger,
@@ -27,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useUsers } from "@/context/UsersContext";
 
 // Esquema de validación actualizado para que `role` sea obligatorio si el usuario es admin
 const formSchema = z.object({
@@ -50,7 +49,7 @@ export function FormUser() {
   const [userData, setUserData] = useState<z.infer<typeof formSchema>>();
   const [isAdmin, setIsAdmin] = useState(false);
   const [newRole, setNewRole] = useState<"Administrator" | "Tester">("Tester");
-
+  const {getUserLogged, updateUser} = useUsers()
   useEffect(() => {
     const fetchUser = async () => {
       try {

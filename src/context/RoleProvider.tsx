@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { getUserLogged } from "@/app/api/users/login.api";
+import { useUsers } from "./UsersContext";
+import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 
 interface Props {
   children: React.ReactNode;
@@ -14,7 +15,8 @@ const RoleCheck = ({ children, allowedRoles }: Props) => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [userRole, setUserRole] = useState<string | null>(null);
-
+  const { getUserLogged } = useUsers();
+  
   useEffect(() => {
     async function fetchUserRole() {
       if (session?.user?.email) {
@@ -42,23 +44,29 @@ const RoleCheck = ({ children, allowedRoles }: Props) => {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated" && userRole && !allowedRoles.includes(userRole)) {
+    } else if (
+      status === "authenticated" &&
+      userRole &&
+      !allowedRoles.includes(userRole)
+    ) {
       // Redirect user if their role is not in the allowedRoles list
       router.push("/unauthorized");
     }
   }, [status, userRole, allowedRoles, router]);
 
   if (status === "loading" || !userRole) {
-    return <div>Loading...</div>; // Or a spinner or any loading indicator
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return <>{children}</>;
 };
 
 const SessionRoleProvider = ({ children, allowedRoles }: Props) => {
-  return (
-      <RoleCheck allowedRoles={allowedRoles}>{children}</RoleCheck>
-  );
+  return <RoleCheck allowedRoles={allowedRoles}>{children}</RoleCheck>;
 };
 
 export default SessionRoleProvider;

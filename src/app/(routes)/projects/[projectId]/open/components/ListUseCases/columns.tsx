@@ -2,6 +2,7 @@ import { ArrowUpDown } from "lucide-react";
 import ActionsCell from "./ActionsCell"; // Ajusta la ruta
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
+import { UseCase } from "@/components/pdf/pdf.types";
 
 const removeHtmlTags = (text: string) => {
   return text?.replace(/<[^>]*>/g, "\n") || "";

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,21 +6,39 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserRoundX, UserRoundPen, ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { updateUser } from "@/app/api/users/users.api";
+import {
+  UserRoundX,
+  UserRoundPen,
+  ArrowUpDown,
+  MoreHorizontal,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import { useUsers } from "@/context/UsersContext";
+import { ColumnDef } from "@tanstack/react-table";
 
-export interface Project {
+export interface User {
   id?: string;
-  entity: {
+  entity?: {
     firstName?: string;
     lastName?: string;
     image?: string;
   };
   email?: string;
-  role: {
+  role?: {
     name: "Administrator" | "Tester";
   };
   status?: string;
@@ -31,16 +48,19 @@ export interface Project {
 const ActionsCell = ({ row }: { row: any }) => {
   const { id, role, status } = row.original;
   const [openModal, setOpenModal] = useState(false);
-  const [actionType, setActionType] = useState<"disable" | "role" | "enable" | null>(null);
-  const [newRole, setNewRole] = useState<"Administrator" | "Tester">(role.name || "Tester");
-  const router = useRouter();
-
+  const [actionType, setActionType] = useState<
+    "disable" | "role" | "enable" | null
+  >(null);
+  const [newRole, setNewRole] = useState<"Administrator" | "Tester">(
+    role.name || "Tester"
+  );
+  const { updateUser } = useUsers();
   // Función para actualizar el rol
   const handleUpdateRole = async () => {
     if (id) {
       await updateUser(id, { role: newRole });
       setOpenModal(false);
-      router.refresh();
+      
       toast({ title: "Rol actualizado correctamente" });
     }
   };
@@ -51,17 +71,18 @@ const ActionsCell = ({ row }: { row: any }) => {
       const newStatus = status ? false : true;
       await updateUser(id, { status: newStatus });
       setOpenModal(false);
-      router.refresh();
       toast({
-        title: newStatus ? "Usuario activado correctamente" : "Usuario desactivado correctamente",
+        title: newStatus
+          ? "Usuario activado correctamente"
+          : "Usuario desactivado correctamente",
       });
     }
   };
 
   // Controlador para abrir los diálogos
-  const openDialog = (type: "disable" | "role" | "enable", user: Project) => {
+  const openDialog = (type: "disable" | "role" | "enable", user: User) => {
     setActionType(type);
-    setNewRole(user.role.name);
+    if (user?.role?.name) setNewRole(user.role.name);
     setOpenModal(true);
   };
 
@@ -79,7 +100,11 @@ const ActionsCell = ({ row }: { row: any }) => {
             <UserRoundPen className="w-4 h-4 mr-2" />
             Cambiar Rol
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => openDialog(status ? "disable" : "enable", row.original)}>
+          <DropdownMenuItem
+            onClick={() =>
+              openDialog(status ? "disable" : "enable", row.original)
+            }
+          >
             {status ? (
               <>
                 <UserRoundX className="w-4 h-4 mr-2" />
@@ -119,11 +144,15 @@ const ActionsCell = ({ row }: { row: any }) => {
             <div className="w-full mt-4">
               <Select
                 value={newRole}
-                onValueChange={(value) => setNewRole(value as "Administrator" | "Tester")}
+                onValueChange={(value) =>
+                  setNewRole(value as "Administrator" | "Tester")
+                }
                 defaultValue={role.name}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecciona un rol">{newRole}</SelectValue>
+                  <SelectValue placeholder="Selecciona un rol">
+                    {newRole}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Administrator">Administrador</SelectItem>
@@ -138,7 +167,11 @@ const ActionsCell = ({ row }: { row: any }) => {
 
           {actionType === "disable" || actionType === "enable" ? (
             <div className="flex w-full space-x-4 mt-6">
-              <Button variant="outline" onClick={() => setOpenModal(false)} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={() => setOpenModal(false)}
+                className="flex-1"
+              >
                 Cancelar
               </Button>
               <Button
@@ -156,7 +189,7 @@ const ActionsCell = ({ row }: { row: any }) => {
   );
 };
 
-export const columns: ColumnDef<Project>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "email",
     header: ({ column }) => (
@@ -193,6 +226,6 @@ export const columns: ColumnDef<Project>[] = [
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <ActionsCell row={row} />, // Use the new ActionsCell component here
+    cell: ({ row }) => <ActionsCell row={row} />,
   },
 ];

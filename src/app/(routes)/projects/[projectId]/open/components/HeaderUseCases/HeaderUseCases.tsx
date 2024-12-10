@@ -14,11 +14,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormUseCase } from "../FormUseCase";
+import { useUseCases } from "@/context/UseCaseContext";
 
 export function HeaderUseCases(props: UseCaseProps) {
   const { projectId } = props;
   const router = useRouter();
   const [openModalCreate, setOpenModalCreate] = useState(false);
+  const { refreshUseCases } = useUseCases();
 
   return (
     <div className="flex items-center text-xl justify-between animate-fadeInDown delay-[150ms]">
@@ -38,7 +40,7 @@ export function HeaderUseCases(props: UseCaseProps) {
             <DialogTitle>Crear Caso de Uso</DialogTitle>
             <DialogDescription>Ingresa la Información para Crear un Nuevo Caso de Uso</DialogDescription>
           </DialogHeader>
-          <FormUseCase projectId={projectId} setOpenModalCreate={setOpenModalCreate} />
+          <FormUseCase projectId={projectId} setOpenModalCreate={setOpenModalCreate}/>
         </DialogContent>
       </Dialog>
     </div>

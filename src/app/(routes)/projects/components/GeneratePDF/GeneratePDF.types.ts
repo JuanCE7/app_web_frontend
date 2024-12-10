@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch } from "react";
 
 export type GeneratePDFProps = {
-  setOpenModalGenerate: Dispatch<SetStateAction<boolean>>;
+  setOpenModalGenerate: Dispatch<boolean>;
   projectId?: string;
 };

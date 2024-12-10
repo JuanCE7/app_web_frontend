@@ -19,8 +19,9 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { createTestCase, getTestCaseById, updateTestCase } from "@/app/api/testCases/testCases.api";
+
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { useTestCases } from "@/context/TestCaseContext";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -47,6 +48,7 @@ export function FormTestCase(props: FormTestCaseProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [testCaseData, setTestCaseData] = useState<z.infer<typeof formSchema>>();
+  const { createTestCase, getTestCaseById, updateTestCase } = useTestCases();
 
   useEffect(() => {
     if (testCaseId) {
@@ -107,7 +109,6 @@ export function FormTestCase(props: FormTestCaseProps) {
           toast({ title: "Caso de Prueba Funcional creado" });
         }
         setOpenModalCreate(false);
-        router.refresh();
       } else {
         throw new Error("User session not available");
       }

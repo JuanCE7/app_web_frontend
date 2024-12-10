@@ -9,7 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { FormTestCase } from '../FormTestCase'
 import { toast } from '@/hooks/use-toast'
-import { deleteTestCase, getExplanationById } from '@/app/api/testCases/testCases.api'
+import { TestCase } from '@/components/pdf/pdf.types'
+import { useTestCases } from '@/context/TestCaseContext'
 
 interface ActionCellProps {
   testCase: TestCase
@@ -34,6 +35,7 @@ const ActionCell: React.FC<ActionCellProps> = ({ testCase }) => {
   const handleDelete = useCallback(() => {
     setOpenModalDelete(true)
   }, [])
+  const { deleteTestCase, getExplanationById } = useTestCases();
 
   const handleExplanation = useCallback(async () => {
     try {

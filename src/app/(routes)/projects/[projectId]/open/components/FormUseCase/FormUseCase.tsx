@@ -14,17 +14,12 @@ import {
 } from "@/components/ui/form";
 import { FormUseCaseProps } from "./FormUseCase.types";
 import { toast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  createUseCase,
-  getUseCaseById,
-  updateUseCase,
-} from "@/app/api/useCases/useCases.api";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { useUseCases } from "@/context/UseCaseContext";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -47,9 +42,9 @@ const formSchema = z.object({
 
 export function FormUseCase(props: FormUseCaseProps) {
   const { setOpenModalCreate, projectId, useCaseId } = props;
-  const router = useRouter();
   const { data: session } = useSession();
   const [useCaseData, setUseCaseData] = useState<z.infer<typeof formSchema>>();
+  const { createUseCase, getUseCaseById, updateUseCase } = useUseCases();
 
   useEffect(() => {
     if (useCaseId) {
@@ -60,9 +55,9 @@ export function FormUseCase(props: FormUseCaseProps) {
           setUseCaseData(useCase);
         } catch (error) {
           toast({
-            title: 'Error',
-            description: 'Error al obtener los datos del caso de uso:',
-            variant: 'destructive',
+            title: "Error",
+            description: "Error al obtener los datos del caso de uso:",
+            variant: "destructive",
           });
         }
       };
@@ -112,9 +107,8 @@ export function FormUseCase(props: FormUseCaseProps) {
         } else {
           await createUseCase(values);
           toast({ title: "Caso de Uso creado" });
-        }        
+        }
         setOpenModalCreate(false);
-        router.refresh();
       } else {
         throw new Error("User session not available");
       }

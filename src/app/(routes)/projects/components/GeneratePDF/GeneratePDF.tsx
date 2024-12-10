@@ -1,16 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import { toast } from "@/hooks/use-toast";
-import { getProjectById } from "@/app/api/projects/projects.api";
-import { getUseCases } from "@/app/api/useCases/useCases.api";
-import { getTestCases } from "@/app/api/testCases/testCases.api";
 import PDF from "@/components/pdf/pdf";
 import { Loader2 } from 'lucide-react';
 import { GeneratePDFProps } from "./GeneratePDF.types";
+import { useProjects } from "@/context/ProjectsContext";
+import { useUseCases } from "@/context/UseCaseContext";
+import { useTestCases } from "@/context/TestCaseContext";
 
 export interface Project {
   id?: string;
@@ -47,6 +45,9 @@ export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProp
   const [useCasesData, setUseCasesData] = useState<UseCase[]>([]);
   const [testCasesData, setTestCasesData] = useState<TestCase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { getProjectById } = useProjects();
+  const { getUseCases } = useUseCases();
+  const { getTestCases } = useTestCases();
 
   useEffect(() => {
     const fetchData = async () => {

@@ -35,12 +35,10 @@ import {
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
 import { useTheme } from 'next-themes';
-
-import { updateUser } from "@/app/api/users/user.api";
 import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
 import Image from "next/image";
-import { getUserLogged, passwordRecovery, registerUser, verifyOtp } from "@/app/api/users/login.api";
+import { useUsers } from "@/context/UsersContext";
 
 type FormType =
   | "login"
@@ -77,7 +75,7 @@ export default function AuthCard() {
   const [token, setToken] = useState("");
   const { theme } = useTheme();
   const router = useRouter();
-
+  const {registerUser, getUserLogged, passwordRecovery, verifyOtp, updateUser} = useUsers()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
