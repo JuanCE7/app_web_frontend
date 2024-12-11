@@ -90,7 +90,7 @@ const ActionsCell = ({ row }: { row: any }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="w-8 h-4 p-0">
+          <Button variant="ghost" name="Abrir Menu" className="w-8 h-4 p-0">
             <span className="sr-only">Abrir Menu</span>
             <MoreHorizontal className="w-4 h-4" />
           </Button>
