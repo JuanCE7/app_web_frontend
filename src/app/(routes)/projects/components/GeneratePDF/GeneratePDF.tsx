@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import { toast } from "@/hooks/use-toast";
 import PDF from "@/components/pdf/pdf";
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
 import { GeneratePDFProps } from "./GeneratePDF.types";
 import { useProjects } from "@/context/ProjectsContext";
-import { useUseCases } from "@/context/UseCaseContext";
-import { useTestCases } from "@/context/TestCaseContext";
+import { UseCaseProvider, useUseCases } from "@/context/UseCaseContext";
+import { TestCaseProvider, useTestCases } from "@/context/TestCaseContext";
 
 export interface Project {
   id?: string;
@@ -40,7 +40,10 @@ export interface TestCase {
   expectedResult?: string;
 }
 
-export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProps) {
+function GeneratePDFContent({
+  setOpenModalGenerate,
+  projectId,
+}: GeneratePDFProps) {
   const [projectData, setProjectData] = useState<Project | null>(null);
   const [useCasesData, setUseCasesData] = useState<UseCase[]>([]);
   const [testCasesData, setTestCasesData] = useState<TestCase[]>([]);
@@ -59,7 +62,7 @@ export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProp
           const useCases = await getUseCases(projectId);
           setUseCasesData(useCases);
           const testCases = await Promise.all(
-            useCases.map((useCase: { id: string; }) => getTestCases(useCase.id))
+            useCases.map((useCase: { id: string }) => getTestCases(useCase.id))
           );
           setTestCasesData(testCases.flat());
         } catch (error) {
@@ -103,9 +106,10 @@ export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProp
             testCases={testCasesData}
           />
         }
-        fileName={`${projectData.name.replace(/\s+/g, '_').toLowerCase()}_report.pdf`}
+        fileName={`${projectData.name
+          .replace(/\s+/g, "_")
+          .toLowerCase()}_report.pdf`}
       >
-        
       </PDFDownloadLink>
 
       <div className="w-full h-[60vh] border border-gray-300 rounded-md overflow-hidden">
@@ -118,5 +122,17 @@ export function GeneratePDF({ setOpenModalGenerate, projectId }: GeneratePDFProp
         </PDFViewer>
       </div>
     </div>
+  );
+}
+
+export function GeneratePDF(props: GeneratePDFProps) {
+  const { projectId } = props;
+
+  return (
+    <UseCaseProvider projectId={projectId || ""}>
+      <TestCaseProvider projectId={projectId || ""} useCaseId={""}>
+        <GeneratePDFContent {...props} />
+      </TestCaseProvider>
+    </UseCaseProvider>
   );
 }

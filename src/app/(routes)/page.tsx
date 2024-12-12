@@ -53,7 +53,7 @@ export default function Dashboard() {
     return null;
   }
 
-  const roleBasedRedirect = userRole === "Tester" ? "/projects" : "";
+  const roleBasedRedirect = userRole === "Tester" ? "/projects" : "/users";
 
   return (
     <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
