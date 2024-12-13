@@ -14,11 +14,10 @@ export function SidebarRoutes() {
     async function fetchUserRole() {
       if (session?.user?.email) {
         try {
-          console.log(session);
           const user = await getUserLogged(session.user.email);
           if (user?.role?.name) {
             setUserRole(user.role.name);
-          } else {
+          } else { 
             console.warn("User role is undefined or malformed:", user);
             setUserRole(null); 
           }
