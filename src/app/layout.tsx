@@ -16,7 +16,7 @@ const noto = Noto_Sans_Display({
 });
 
 export const metadata: Metadata = {
-  title: "TestCaseCraft",
+  title: "TestCaseCraft Test",
   description: "TestCase from Use Case IA",
 };
 
