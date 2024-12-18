@@ -104,22 +104,23 @@ export function FormProject(props: FormProjectProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 gap-3">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6 md:space-y-8">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-6">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre</FormLabel>
+                <FormLabel className="text-sm sm:text-base">Nombre</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Nombre del Proyecto"
                     type="text"
+                    className="w-full text-sm sm:text-base p-2 sm:p-3"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
           />
@@ -128,20 +129,24 @@ export function FormProject(props: FormProjectProps) {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Descripción</FormLabel>
+                <FormLabel className="text-sm sm:text-base">Descripción</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Descripción del Proyecto"
-                    className="resize-none"
+                    className="resize-none w-full text-sm sm:text-base p-2 sm:p-3 min-h-[100px] sm:min-h-[120px]"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs sm:text-sm" />
               </FormItem>
             )}
           />
         </div>
-        <Button type="submit" disabled={!isValid}>
+        <Button 
+          type="submit" 
+          disabled={!isValid}
+          className="w-full sm:w-auto text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6"
+        >
           {projectId ? "Actualizar" : "Crear"}
         </Button>
       </form>

@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { useTestCases } from "@/context/TestCaseContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -47,7 +48,8 @@ export function FormTestCase(props: FormTestCaseProps) {
   const { setOpenModalCreate, useCaseId, testCaseId } = props;
   const router = useRouter();
   const { data: session } = useSession();
-  const [testCaseData, setTestCaseData] = useState<z.infer<typeof formSchema>>();
+  const [testCaseData, setTestCaseData] =
+    useState<z.infer<typeof formSchema>>();
   const { createTestCase, getTestCaseById, updateTestCase } = useTestCases();
 
   useEffect(() => {
@@ -59,9 +61,9 @@ export function FormTestCase(props: FormTestCaseProps) {
           setTestCaseData(testCase);
         } catch (error) {
           toast({
-            title: 'Error',
-            description: 'Error al obtener los datos del proyecto:',
-            variant: 'destructive',
+            title: "Error",
+            description: "Error al obtener los datos del proyecto:",
+            variant: "destructive",
           });
         }
       };
@@ -123,126 +125,128 @@ export function FormTestCase(props: FormTestCaseProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Codigo</FormLabel>
-              <FormControl>
-                <Input placeholder="TC01..." type="text" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-2 gap-6">
-          {/* Primera columna */}
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Nombre del caso de prueba..."
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <ScrollArea className="h-[calc(100vh-200px)] pr-4">
+          <FormField
+            control={form.control}
+            name="code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Codigo</FormLabel>
+                <FormControl>
+                  <Input placeholder="TC01..." type="text" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="grid grid-cols-2 gap-6">
+            {/* Primera columna */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Nombre del caso de prueba..."
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="steps"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pasos</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      value={field.value || ""}
-                      onChange={(content) => {
-                        field.onChange(content.html, content.text);
-                      }}
-                      toolbarOption={2}
-                      data_test="steps"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+              <FormField
+                control={form.control}
+                name="steps"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pasos</FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value || ""}
+                        onChange={(content) => {
+                          field.onChange(content.html, content.text);
+                        }}
+                        toolbarOption={2}
+                        data_test="steps"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          {/* Segunda columna */}
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descripción del Caso de Prueba"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="inputData"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Datos de Entrada</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      value={field.value}
-                      onChange={(content) => {
-                        field.onChange(content.html, content.text);
-                      }}
-                      toolbarOption={1}
-                      data_test="inputData"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Segunda columna */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descripción</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Descripción del Caso de Prueba"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="inputData"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Datos de Entrada</FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={(content) => {
+                          field.onChange(content.html, content.text);
+                        }}
+                        toolbarOption={1}
+                        data_test="inputData"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-        </div>
-        <FormField
-          control={form.control}
-          name="expectedResult"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Resultado Esperado</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Resultado esperado..."
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Botón de submit centrado */}
-        <div className="flex justify-end pt-5">
-          <Button type="submit" disabled={!isValid} className="w-full">
-            {testCaseId ? "Actualizar" : "Crear"}
-          </Button>
-        </div>
+          <FormField
+            control={form.control}
+            name="expectedResult"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Resultado Esperado</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Resultado esperado..."
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Botón de submit centrado */}
+          <div className="flex justify-end pt-5">
+            <Button type="submit" disabled={!isValid} className="w-full">
+              {testCaseId ? "Actualizar" : "Crear"}
+            </Button>
+          </div>
+        </ScrollArea>
       </form>
     </Form>
   );

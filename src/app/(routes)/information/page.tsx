@@ -232,18 +232,18 @@ export default function ImprovedTestCaseTutorial() {
 
   return (
     <Card className="w-full h-full shadow-lg">
-      <CardContent className="p-6 sm:p-8 animate-fadeInDown">
+      <CardContent className="p-4 sm:p-6 md:p-8 animate-fadeInDown">
         <div className="flex items-center mb-4 space-x-3">
           {steps[currentStep].icon}
-          <div className="text-sm font-medium text-muted-foreground">
+          <div className="text-xs sm:text-sm font-medium text-muted-foreground">
             Paso {currentStep + 1} de {steps.length}
           </div>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-primary">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-primary">
           {steps[currentStep].title}
         </h2>
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div className="relative w-full sm:w-1/2 h-[250px] sm:h-[350px]">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
+          <div className="relative w-full lg:w-1/2 h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px]">
             <Image
               src={steps[currentStep].image}
               alt={`Ilustración para ${steps[currentStep].title}`}
@@ -253,28 +253,29 @@ export default function ImprovedTestCaseTutorial() {
               priority={currentStep === 0}
             />
           </div>
-          <div className="w-full sm:w-1/2">
-            <p className="text-muted-foreground text-lg mb-6 h-[250px] sm:h-[350px] overflow-y-auto pr-4">
+          <div className="w-full lg:w-1/2">
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg mb-4 sm:mb-6 h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] overflow-y-auto pr-2 sm:pr-4">
               {formatContent(steps[currentStep].content)}
             </p>
           </div>
         </div>
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-4 sm:mt-6 space-y-4 sm:space-y-0">
           <Button
             onClick={prevStep}
             disabled={currentStep === 0}
             variant="outline"
             aria-label="Paso anterior"
+            className="w-full sm:w-auto"
           >
             <ChevronLeft className="mr-2 h-4 w-4" /> Anterior
           </Button>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 order-first sm:order-none mb-4 sm:mb-0">
             {steps.map((_, index) => (
               <div
                 key={index}
                 className={`h-2 w-2 rounded-full transition-all duration-300 ${
                   index === currentStep
-                    ? "bg-primary w-6"
+                    ? "bg-primary w-4 sm:w-6"
                     : "bg-muted hover:bg-primary/50"
                 }`}
                 aria-hidden="true"
@@ -287,6 +288,7 @@ export default function ImprovedTestCaseTutorial() {
             aria-label={
               currentStep === steps.length - 1 ? "Finalizar" : "Siguiente paso"
             }
+            className="w-full sm:w-auto"
           >
             {currentStep === steps.length - 1 ? "Finalizar" : "Siguiente"}{" "}
             <ChevronRight className="ml-2 h-4 w-4" />

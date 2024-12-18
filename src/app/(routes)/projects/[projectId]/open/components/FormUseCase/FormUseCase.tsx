@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { useUseCases } from "@/context/UseCaseContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const formSchema = z.object({
   code: z.string().min(2, "El código debe tener al menos 2 caracteres"),
@@ -123,6 +124,7 @@ export function FormUseCase(props: FormUseCaseProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
+      <ScrollArea className="h-[calc(100vh-200px)] pr-4">
         <FormField
           control={form.control}
           name="code"
@@ -269,6 +271,7 @@ export function FormUseCase(props: FormUseCaseProps) {
             {useCaseId ? "Actualizar" : "Crear"}
           </Button>
         </div>
+      </ScrollArea>
       </form>
     </Form>
   );

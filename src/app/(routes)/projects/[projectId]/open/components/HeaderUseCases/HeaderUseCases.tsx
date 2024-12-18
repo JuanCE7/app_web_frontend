@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { UseCaseProps } from "../ListUseCases/UseCase.types";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import {
   Dialog,
@@ -14,16 +14,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormUseCase } from "../FormUseCase";
-import { useUseCases } from "@/context/UseCaseContext";
 
 export function HeaderUseCases(props: UseCaseProps) {
   const { projectId } = props;
   const router = useRouter();
   const [openModalCreate, setOpenModalCreate] = useState(false);
-  const { refreshUseCases } = useUseCases();
 
   return (
-    <div className="flex items-center text-xl justify-between animate-fadeInDown delay-[150ms]">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-fadeInDown delay-[150ms]">
       <div className="flex items-center text-xl">
         <ArrowLeft
           className="w-5 h-5 mr-2 cursor-pointer"
@@ -33,14 +31,22 @@ export function HeaderUseCases(props: UseCaseProps) {
       </div>
       <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
         <DialogTrigger asChild>
-          <Button>Crear Caso de Uso</Button>
+          <Button className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" />
+            Crear Caso de Uso
+          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[900px] sm:max-h-[700px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Crear Caso de Uso</DialogTitle>
-            <DialogDescription>Ingresa la Información para Crear un Nuevo Caso de Uso</DialogDescription>
+            <DialogDescription>
+              Ingresa la Información para Crear un Nuevo Caso de Uso
+            </DialogDescription>
           </DialogHeader>
-          <FormUseCase projectId={projectId} setOpenModalCreate={setOpenModalCreate}/>
+          <FormUseCase
+            projectId={projectId}
+            setOpenModalCreate={setOpenModalCreate}
+          />
         </DialogContent>
       </Dialog>
     </div>
