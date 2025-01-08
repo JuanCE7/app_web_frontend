@@ -9,6 +9,7 @@ import { GeneratePDFProps } from "./GeneratePDF.types";
 import { useProjects } from "@/context/ProjectsContext";
 import { UseCaseProvider, useUseCases } from "@/context/UseCaseContext";
 import { TestCaseProvider, useTestCases } from "@/context/TestCaseContext";
+import { Button } from "@/components/ui/button";
 
 export interface Project {
   id?: string;
@@ -48,9 +49,21 @@ function GeneratePDFContent({
   const [useCasesData, setUseCasesData] = useState<UseCase[]>([]);
   const [testCasesData, setTestCasesData] = useState<TestCase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false); // Estado para detectar dispositivos móviles
   const { getProjectById } = useProjects();
   const { getUseCases } = useUseCases();
   const { getTestCases } = useTestCases();
+
+  // Detectar si la pantalla es móvil
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768); // Consideramos pantallas menores o iguales a 768px como móviles
+    };
+
+    handleResize(); // Ejecutar al cargar la página
+    window.addEventListener("resize", handleResize); // Detectar cambios en el tamaño de pantalla
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,17 +123,21 @@ function GeneratePDFContent({
           .replace(/\s+/g, "_")
           .toLowerCase()}_report.pdf`}
       >
+        <Button>Descargar Archivo</Button>
       </PDFDownloadLink>
 
-      <div className="w-full h-[60vh] border border-gray-300 rounded-md overflow-hidden">
-        <PDFViewer width="100%" height="100%">
-          <PDF
-            project={projectData}
-            useCases={useCasesData}
-            testCases={testCasesData}
-          />
-        </PDFViewer>
-      </div>
+      {/* Mostrar visor solo si no es móvil */}
+      {!isMobile && (
+        <div className="w-full h-[60vh] border border-gray-300 rounded-md overflow-hidden">
+          <PDFViewer width="100%" height="100%">
+            <PDF
+              project={projectData}
+              useCases={useCasesData}
+              testCases={testCasesData}
+            />
+          </PDFViewer>
+        </div>
+      )}
     </div>
   );
 }
