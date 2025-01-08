@@ -37,10 +37,6 @@ export default function Dashboard() {
     }
   }, [session]);
 
-  useEffect(() => {
-    console.log("User role updated:", userRole);
-  }, [userRole]);
-
   if (status === "loading") {
     return (
       <div>
