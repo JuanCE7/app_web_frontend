@@ -46,11 +46,11 @@ const formSchema = z.object({
 
 export function FormTestCase(props: FormTestCaseProps) {
   const { setOpenModalCreate, useCaseId, testCaseId } = props;
-  const router = useRouter();
   const { data: session } = useSession();
   const [testCaseData, setTestCaseData] =
     useState<z.infer<typeof formSchema>>();
   const { createTestCase, getTestCaseById, updateTestCase } = useTestCases();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (testCaseId) {
@@ -100,6 +100,7 @@ export function FormTestCase(props: FormTestCaseProps) {
   const { isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
     try {
       if (session?.user?.email) {
         values.useCaseId = useCaseId;
@@ -119,6 +120,8 @@ export function FormTestCase(props: FormTestCaseProps) {
         title: "Something went wrong",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false); // Habilitar el botón nuevamente
     }
   };
 
@@ -242,7 +245,11 @@ export function FormTestCase(props: FormTestCaseProps) {
           />
           {/* Botón de submit centrado */}
           <div className="flex justify-end pt-5">
-            <Button type="submit" disabled={!isValid} className="w-full">
+            <Button
+              type="submit"
+              disabled={!isValid || isSubmitting}
+              className="w-full"
+            >
               {testCaseId ? "Actualizar" : "Crear"}
             </Button>
           </div>

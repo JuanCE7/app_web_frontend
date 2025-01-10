@@ -62,7 +62,9 @@ export default function CardGenerateTestCase({
   const [validationError, setValidationError] =
     useState<ValidationError | null>(null);
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const generateTestCases = async () => {
+    setIsSubmitting(true);
     if (useCaseId) {
       setIsLoading(true);
       setValidationError(null);
@@ -87,6 +89,7 @@ export default function CardGenerateTestCase({
         });
       } finally {
         setIsLoading(false);
+        setIsSubmitting(false);
       }
     }
   };
@@ -105,16 +108,17 @@ export default function CardGenerateTestCase({
       toast({
         title: "Error",
         description:
-          "Por favor, selecciona al menos un caso de prueba antes de guardar.",
+        "Por favor, selecciona al menos un caso de prueba antes de guardar.",
         variant: "destructive",
       });
       return;
     }
-
+    
     const testCasesToSave = testCases.filter((tc) =>
-      selectedTestCases.includes(tc.code)
+    selectedTestCases.includes(tc.code)
     );
     for (const testCase of testCasesToSave) {
+      setIsSubmitting(true);
       try {
         await createTestCase({ ...testCase, useCaseId: useCaseId || "" });
       } catch (error) {
@@ -123,6 +127,8 @@ export default function CardGenerateTestCase({
           description: `Error al guardar el caso de prueba ${testCase.code}`,
           variant: "destructive",
         });
+      } finally{
+        setIsSubmitting(false);
       }
     }
 
@@ -136,7 +142,7 @@ export default function CardGenerateTestCase({
   return (
     <Card className="w-full">
       <CardContent className="p-6">
-        <Button onClick={generateTestCases} className="w-full mb-4">
+        <Button onClick={generateTestCases} disabled={isSubmitting} className="w-full mb-4">
           {testCases.length > 0
             ? "Volver a generar"
             : "Generar casos de prueba"}
@@ -308,7 +314,7 @@ export default function CardGenerateTestCase({
           <Button
             onClick={saveSelectedTestCases}
             className="w-full mt-4"
-            disabled={selectedTestCases.length === 0}
+            disabled={selectedTestCases.length === 0 || isSubmitting}
           >
             Guardar casos de prueba seleccionados ({selectedTestCases.length})
           </Button>
