@@ -35,6 +35,7 @@ export function FormProject(props: FormProjectProps) {
   const [projectData, setProjectData] = useState<z.infer<
     typeof formSchema
   > | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Estado para controlar el envío
   const { createProject, updateProject, getProjectById } = useProjects();
   const { getUserLogged } = useUsers();
 
@@ -79,6 +80,7 @@ export function FormProject(props: FormProjectProps) {
   const { isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true); // Deshabilitar el botón
     try {
       if (session?.user?.email) {
         const user = await getUserLogged(session.user.email);
@@ -99,6 +101,8 @@ export function FormProject(props: FormProjectProps) {
         title: "Something went wrong",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false); // Habilitar el botón nuevamente
     }
   };
 
@@ -144,7 +148,7 @@ export function FormProject(props: FormProjectProps) {
         </div>
         <Button 
           type="submit" 
-          disabled={!isValid}
+          disabled={!isValid || isSubmitting} // Deshabilitar el botón si está en proceso de envío
           className="w-full sm:w-auto text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6"
         >
           {projectId ? "Actualizar" : "Crear"}
