@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
+import SessionAuthProvider from "@/context/SessionAuthProvider";
 
 export default function LayoutDashboard({
   children,
@@ -13,7 +14,9 @@ export default function LayoutDashboard({
       </div>
       <div className="w-full xl:ml-80 h-full">
         <Navbar />
-        <div className="p-6 bg-[#fafbfc] dark:bg-secondary w-full h-auto">{children}</div>
+        <div className="p-6 bg-[#fafbfc] dark:bg-secondary w-full h-auto">
+          <SessionAuthProvider>{children}</SessionAuthProvider>
+        </div>
       </div>
     </div>
   );

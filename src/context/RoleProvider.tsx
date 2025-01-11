@@ -8,7 +8,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 
 interface Props {
   children: React.ReactNode;
-  allowedRoles: string[]; // List of roles that are allowed to access the children
+  allowedRoles: string[];
 }
 
 const RoleCheck = ({ children, allowedRoles }: Props) => {
@@ -22,7 +22,6 @@ const RoleCheck = ({ children, allowedRoles }: Props) => {
       if (session?.user?.email) {
         try {
           const user = await getUserLogged(session.user.email);
-
           // Ensure the user and user.role exist before accessing the role
           if (user?.role?.name) {
             setUserRole(user.role.name);

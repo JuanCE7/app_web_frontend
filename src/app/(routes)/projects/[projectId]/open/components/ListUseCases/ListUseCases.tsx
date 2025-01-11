@@ -4,11 +4,7 @@ import { useUseCases } from "@/context/UseCaseContext";
 import { columns } from "./columns";
 import { DataTable } from "@/components/Data-Table";
 
-interface ListUseCasesProps {
-  projectId: string;
-}
-
-export default function ListUseCases({ projectId }: ListUseCasesProps) {
+export default function ListUseCases() {
   const { useCases, isLoading } = useUseCases();
 
   if (isLoading) {

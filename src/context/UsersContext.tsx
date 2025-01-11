@@ -7,7 +7,6 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { useSession } from "next-auth/react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -49,7 +48,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching project");
+        throw new Error(errorData.message || "Error fetching user");
       }
 
       const data = await res.json();
@@ -58,7 +57,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
   };
-
   const registerUser = async (values: any) => {
     const res = await fetch(`${BACKEND_URL}/auth/register`, {
       method: "POST",
@@ -186,7 +184,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           const errorData = await res.json();
           errorMessage = errorData.message || errorMessage;
         } catch {
-          // Si no se puede parsear el JSON, mantenemos el mensaje por defecto
+          console.error("Error fetching user")
         }
         return { error: errorMessage };
       }
