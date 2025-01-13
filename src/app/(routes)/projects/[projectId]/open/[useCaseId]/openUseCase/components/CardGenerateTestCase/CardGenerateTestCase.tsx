@@ -108,14 +108,14 @@ export default function CardGenerateTestCase({
       toast({
         title: "Error",
         description:
-        "Por favor, selecciona al menos un caso de prueba antes de guardar.",
+          "Por favor, selecciona al menos un caso de prueba antes de guardar.",
         variant: "destructive",
       });
       return;
     }
-    
+
     const testCasesToSave = testCases.filter((tc) =>
-    selectedTestCases.includes(tc.code)
+      selectedTestCases.includes(tc.code)
     );
     for (const testCase of testCasesToSave) {
       setIsSubmitting(true);
@@ -127,7 +127,7 @@ export default function CardGenerateTestCase({
           description: `Error al guardar el caso de prueba ${testCase.code}`,
           variant: "destructive",
         });
-      } finally{
+      } finally {
         setIsSubmitting(false);
       }
     }
@@ -142,7 +142,11 @@ export default function CardGenerateTestCase({
   return (
     <Card className="w-full">
       <CardContent className="p-6">
-        <Button onClick={generateTestCases} disabled={isSubmitting} className="w-full mb-4">
+        <Button
+          onClick={generateTestCases}
+          disabled={isSubmitting}
+          className="w-full mb-4"
+        >
           {testCases.length > 0
             ? "Volver a generar"
             : "Generar casos de prueba"}
@@ -253,52 +257,80 @@ export default function CardGenerateTestCase({
                       <DialogTrigger asChild>
                         <Link
                           href="#"
-                          className="text-sm text-black dark:text-white  hover:underline"
+                          className="text-sm text-primary hover:underline dark:text-white"
                         >
                           Ver Detalles
                         </Link>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
+                      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] p-0">
+                        <DialogHeader className="p-4 md:p-6">
                           <DialogTitle>{testCase.name}</DialogTitle>
                         </DialogHeader>
-                        <ScrollArea className="mt-4 h-[60vh] pr-4">
-                          <div className="space-y-4">
-                            <div>
-                              <h3 className="font-semibold">Código</h3>
-                              <p>{testCase.code}</p>
+                        <ScrollArea className="h-[calc(95vh-80px)]">
+                          <div className="flex flex-col lg:flex-row p-4 md:p-6 gap-4">
+                            <div className="space-y-4 lg:w-1/2">
+                              <Card className="bg-green-100 dark:bg-[#0A7075]">
+                                <CardHeader>
+                                  <CardTitle>Código</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <p>{testCase.code}</p>
+                                </CardContent>
+                              </Card>
+                              <Card className="bg-green-100 dark:bg-[#0A7075]">
+                                <CardHeader>
+                                  <CardTitle>Descripción</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <p>{testCase.description}</p>
+                                </CardContent>
+                              </Card>
+                              <Card className="bg-green-100 dark:bg-[#0A7075]">
+                                <CardHeader>
+                                  <CardTitle>Pasos</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <p>{testCase.steps}</p>
+                                </CardContent>
+                              </Card>
+                              <Card className="bg-green-100 dark:bg-[#0A7075]">
+                                <CardHeader>
+                                  <CardTitle>Datos de Entrada</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <p>{testCase.inputData}</p>
+                                </CardContent>
+                              </Card>
+                              <Card className="bg-green-100 dark:bg-[#0A7075]">
+                                <CardHeader>
+                                  <CardTitle>Resultado Esperado</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <p>{testCase.expectedResult}</p>
+                                </CardContent>
+                              </Card>
                             </div>
-                            <div>
-                              <h3 className="font-semibold">Descripción</h3>
-                              <p>{testCase.description}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">Pasos</h3>
-                              <p>{testCase.steps}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">
-                                Datos de Entrada
-                              </h3>
-                              <p>{testCase.inputData}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">
-                                Resultado Esperado
-                              </h3>
-                              <p>{testCase.expectedResult}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">Explicación</h3>
-                              <p>
-                                <strong>Resumen:</strong>{" "}
-                                {testCase.explanationSummary}
-                              </p>
-                              <p>
-                                <strong>Detalles:</strong>{" "}
-                                {testCase.explanationDetails}
-                              </p>
-                            </div>
+                            <Card className="lg:w-1/2">
+                              <CardHeader>
+                                <CardTitle>Explicación</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-4">
+                                  <div>
+                                    <h3 className="font-semibold text-lg mb-2">
+                                      Resumen
+                                    </h3>
+                                    <p>{testCase.explanationSummary}</p>
+                                  </div>
+                                  <div>
+                                    <h3 className="font-semibold text-lg mb-2">
+                                      Detalles
+                                    </h3>
+                                    <p>{testCase.explanationDetails}</p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
                           </div>
                         </ScrollArea>
                       </DialogContent>
