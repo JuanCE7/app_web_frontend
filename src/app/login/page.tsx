@@ -315,7 +315,11 @@ export default function AuthCard() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingresa tu email" {...field} maxLength={50}/>
+                      <Input
+                        placeholder="Ingresa tu email"
+                        {...field}
+                        maxLength={50}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -385,7 +389,11 @@ export default function AuthCard() {
                   <FormItem>
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingrese su nombre" {...field} maxLength={60}/>
+                      <Input
+                        placeholder="Ingrese su nombre"
+                        {...field}
+                        maxLength={60}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -399,7 +407,11 @@ export default function AuthCard() {
                   <FormItem>
                     <FormLabel>Apellido</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingrese su apellido" {...field} maxLength={60}/>
+                      <Input
+                        placeholder="Ingrese su apellido"
+                        {...field}
+                        maxLength={60}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -108,7 +108,10 @@ export function FormProject(props: FormProjectProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6 md:space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 sm:space-y-6 md:space-y-8"
+      >
         <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-6">
           <FormField
             control={form.control}
@@ -134,7 +137,9 @@ export function FormProject(props: FormProjectProps) {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm sm:text-base">Descripción</FormLabel>
+                <FormLabel className="text-sm sm:text-base">
+                  Descripción
+                </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Descripción del Proyecto"
@@ -148,8 +153,8 @@ export function FormProject(props: FormProjectProps) {
             )}
           />
         </div>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={!isValid || isSubmitting} // Deshabilitar el botón si está en proceso de envío
           className="w-full sm:w-auto text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6"
         >

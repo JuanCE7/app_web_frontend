@@ -136,7 +136,12 @@ export function FormTestCase(props: FormTestCaseProps) {
               <FormItem>
                 <FormLabel>Codigo</FormLabel>
                 <FormControl>
-                  <Input placeholder="TC01..." type="text" {...field} maxLength={50}/>
+                  <Input
+                    placeholder="TC01..."
+                    type="text"
+                    {...field}
+                    maxLength={50}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
