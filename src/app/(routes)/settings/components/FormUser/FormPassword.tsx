@@ -39,9 +39,8 @@ const formSchema = z
 export function FormPassword(props: FormPasswordProps) {
   const { setOpenModalChangePassword } = props;
   const router = useRouter();
-  const { data: session, update } = useSession();
+  const { data: session } = useSession();
   const [idUser, setIdUser] = useState<string>();
-  const [userData, setUserData] = useState<z.infer<typeof formSchema>>();
   const { getUserLogged, updateUser } = useUsers();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,7 +49,6 @@ export function FormPassword(props: FormPasswordProps) {
       try {
         if (session?.user?.email) {
           const user = await getUserLogged(session.user.email);
-          setUserData(user);
           setIdUser(user.id);
         }
       } catch (error) {
@@ -65,7 +63,6 @@ export function FormPassword(props: FormPasswordProps) {
     fetchUser();
   }, [session]);
 
-  // Aseguramos que el formulario tenga en cuenta el rol como obligatorio si el usuario es admin
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -121,6 +118,7 @@ export function FormPassword(props: FormPasswordProps) {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Ingresa tu nueva contraseña"
+                      maxLength={50}
                       {...field}
                     />
                     <Button
@@ -153,6 +151,7 @@ export function FormPassword(props: FormPasswordProps) {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Confirma tu nueva contraseña"
+                    maxLength={50}
                     {...field}
                   />
                 </FormControl>

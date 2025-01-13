@@ -315,7 +315,7 @@ export default function AuthCard() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingresa tu email" {...field} />
+                      <Input placeholder="Ingresa tu email" {...field} maxLength={50}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -332,6 +332,7 @@ export default function AuthCard() {
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Ingresa tu contraseña"
+                          maxLength={50}
                           {...field}
                         />
                         <Button
@@ -384,7 +385,7 @@ export default function AuthCard() {
                   <FormItem>
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingrese su nombre" {...field} />
+                      <Input placeholder="Ingrese su nombre" {...field} maxLength={60}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -398,7 +399,7 @@ export default function AuthCard() {
                   <FormItem>
                     <FormLabel>Apellido</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingrese su apellido" {...field} />
+                      <Input placeholder="Ingrese su apellido" {...field} maxLength={60}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -414,6 +415,7 @@ export default function AuthCard() {
                       <Input
                         placeholder="Ingrese su correo"
                         type="email"
+                        maxLength={50}
                         {...field}
                       />
                     </FormControl>
@@ -432,6 +434,7 @@ export default function AuthCard() {
                         <Input
                           placeholder="Ingrese su contraseña"
                           type={showPassword ? "text" : "password"}
+                          maxLength={50}
                           {...field}
                         />
                         <Button
@@ -463,6 +466,7 @@ export default function AuthCard() {
                       <Input
                         placeholder="Confirme su contraseña"
                         type={showPassword ? "text" : "password"}
+                        maxLength={50}
                         {...field}
                       />
                     </FormControl>
@@ -497,6 +501,7 @@ export default function AuthCard() {
                     <FormControl>
                       <Input
                         placeholder="Ingresa tu correo electrónico"
+                        maxLength={50}
                         {...field}
                       />
                     </FormControl>
@@ -579,6 +584,7 @@ export default function AuthCard() {
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Ingresa tu nueva contraseña"
+                          maxLength={50}
                           {...field}
                         />
                         <Button
@@ -611,6 +617,7 @@ export default function AuthCard() {
                       <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="Confirma tu nueva contraseña"
+                        maxLength={50}
                         {...field}
                       />
                     </FormControl>

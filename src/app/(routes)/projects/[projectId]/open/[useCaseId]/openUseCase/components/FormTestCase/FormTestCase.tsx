@@ -136,7 +136,7 @@ export function FormTestCase(props: FormTestCaseProps) {
               <FormItem>
                 <FormLabel>Codigo</FormLabel>
                 <FormControl>
-                  <Input placeholder="TC01..." type="text" {...field} />
+                  <Input placeholder="TC01..." type="text" {...field} maxLength={50}/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -155,6 +155,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                       <Textarea
                         placeholder="Nombre del caso de prueba"
                         className="resize-none"
+                        maxLength={250}
                         {...field}
                       />
                     </FormControl>
@@ -197,6 +198,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                       <Textarea
                         placeholder="Descripción del Caso de Prueba"
                         className="resize-none"
+                        maxLength={250}
                         {...field}
                       />
                     </FormControl>
@@ -236,6 +238,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                   <Textarea
                     placeholder="Resultado esperado..."
                     className="resize-none"
+                    maxLength={250}
                     {...field}
                   />
                 </FormControl>

@@ -121,6 +121,7 @@ export function FormProject(props: FormProjectProps) {
                     placeholder="Nombre del Proyecto"
                     type="text"
                     className="w-full text-sm sm:text-base p-2 sm:p-3"
+                    maxLength={100}
                     {...field}
                   />
                 </FormControl>
@@ -138,6 +139,7 @@ export function FormProject(props: FormProjectProps) {
                   <Textarea
                     placeholder="Descripción del Proyecto"
                     className="resize-none w-full text-sm sm:text-base p-2 sm:p-3 min-h-[100px] sm:min-h-[120px]"
+                    maxLength={250}
                     {...field}
                   />
                 </FormControl>

@@ -49,7 +49,7 @@ export function FormUser() {
   const [userData, setUserData] = useState<z.infer<typeof formSchema>>();
   const [isAdmin, setIsAdmin] = useState(false);
   const [newRole, setNewRole] = useState<"Administrator" | "Tester">("Tester");
-  const {getUserLogged, updateUser} = useUsers()
+  const { getUserLogged, updateUser } = useUsers();
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -82,7 +82,7 @@ export function FormUser() {
         lastName: "",
       },
       email: "",
-      role: { name: "Administator" }, 
+      role: { name: "Administator" },
     },
     mode: "onChange",
   });
@@ -125,7 +125,7 @@ export function FormUser() {
         update({
           user: {
             email: values.email,
-            role: values.role
+            role: values.role,
           },
         });
         router.refresh();
@@ -156,7 +156,7 @@ export function FormUser() {
               <FormItem>
                 <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre" {...field} />
+                  <Input placeholder="Nombre" {...field} maxLength={50} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -169,7 +169,7 @@ export function FormUser() {
               <FormItem>
                 <FormLabel>Apellido</FormLabel>
                 <FormControl>
-                  <Input placeholder="Apellido" {...field} />
+                  <Input placeholder="Apellido" {...field} maxLength={50} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -182,7 +182,7 @@ export function FormUser() {
               <FormItem>
                 <FormLabel>Correo</FormLabel>
                 <FormControl>
-                  <Input placeholder="Correo" {...field} />
+                  <Input placeholder="Correo" {...field} maxLength={50} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -199,8 +199,7 @@ export function FormUser() {
                 defaultValue={newRole}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecciona un rol">
-                  </SelectValue>
+                  <SelectValue placeholder="Selecciona un rol"></SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Administrator">Administrador</SelectItem>

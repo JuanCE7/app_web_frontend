@@ -30,7 +30,7 @@ export const dataToolsSidebar = [
 export const dataSuportSideBar = [
   {
     icon: Settings,
-    label: "Configuración",
+    label: "Configuración de Perfil",
     href: "/settings",
   },
 ];

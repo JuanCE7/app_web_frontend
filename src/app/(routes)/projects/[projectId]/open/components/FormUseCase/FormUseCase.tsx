@@ -136,7 +136,12 @@ export function FormUseCase(props: FormUseCaseProps) {
               <FormItem>
                 <FormLabel>Codigo</FormLabel>
                 <FormControl>
-                  <Input placeholder="UC01" type="text" {...field} />
+                  <Input
+                    placeholder="UC01"
+                    type="text"
+                    {...field}
+                    maxLength={20}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -155,6 +160,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                       <Textarea
                         placeholder="Nombre del Caso de Uso"
                         className="resize-none"
+                        maxLength={250}
                         {...field}
                       />
                     </FormControl>
@@ -218,6 +224,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                       <Textarea
                         placeholder="Descripción del Caso de Uso"
                         className="resize-none"
+                        maxLength={250}
                         {...field}
                       />
                     </FormControl>

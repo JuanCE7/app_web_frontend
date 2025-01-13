@@ -51,6 +51,6 @@ export const columns: ColumnDef<UseCase>[] = [
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => <ActionsCell row={row} />, // Usando el nuevo componente
+    cell: ({ row }) => <ActionsCell row={row} />, 
   },
 ];
