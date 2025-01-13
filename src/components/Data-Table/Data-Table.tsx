@@ -107,7 +107,11 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell 
+                      key={cell.id}
+                      className="max-w-[200px] break-words"
+                      title={cell.getValue() as string}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -150,3 +154,4 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
+

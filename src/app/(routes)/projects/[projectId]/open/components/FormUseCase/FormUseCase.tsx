@@ -153,7 +153,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Nombre del Proyecto"
+                        placeholder="Nombre del Caso de Uso"
                         className="resize-none"
                         {...field}
                       />
@@ -216,7 +216,7 @@ export function FormUseCase(props: FormUseCaseProps) {
                     <FormLabel>Descripción</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Descripción del Proyecto"
+                        placeholder="Descripción del Caso de Uso"
                         className="resize-none"
                         {...field}
                       />

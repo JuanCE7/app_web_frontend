@@ -153,7 +153,7 @@ export function FormTestCase(props: FormTestCaseProps) {
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Nombre del caso de prueba..."
+                        placeholder="Nombre del caso de prueba"
                         className="resize-none"
                         {...field}
                       />

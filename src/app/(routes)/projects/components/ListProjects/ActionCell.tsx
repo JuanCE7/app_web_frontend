@@ -236,7 +236,7 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
           <DropdownMenuItem asChild>
             <Link href={`/projects/${id}/open`}>
               <ExternalLink className="w-4 h-4 mr-2" />
-              Ir al detalle
+              Ver Casos de Uso
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleExport}>

@@ -34,7 +34,7 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
-import { useTheme } from 'next-themes';
+import { useTheme } from "next-themes";
 import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
 import Image from "next/image";
@@ -75,7 +75,14 @@ export default function AuthCard() {
   const [token, setToken] = useState("");
   const { theme } = useTheme();
   const router = useRouter();
-  const {registerUser, getUserLogged, passwordRecovery, verifyOtp, updateUser} = useUsers()
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    registerUser,
+    getUserLogged,
+    passwordRecovery,
+    verifyOtp,
+    updateUser,
+  } = useUsers();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -128,6 +135,7 @@ export default function AuthCard() {
   }, [session, router]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
     let res;
     try {
       res = await registerUser(values);
@@ -154,10 +162,13 @@ export default function AuthCard() {
           error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
+    setIsSubmitting(true);
     try {
       const userResponse = await getUserLogged(values.email);
 
@@ -169,20 +180,18 @@ export default function AuthCard() {
         });
         return;
       }
-  
+
       // Intentar inicio de sesión con NextAuth
       const responseNextAuth = await signIn("credentials", {
         email: values.email,
         password: values.password,
         redirect: false,
       });
-  
+
       if (!responseNextAuth || responseNextAuth.error) {
-        throw new Error(
-           "Correo o contraseña incorrectos"
-        );
+        throw new Error("Correo o contraseña incorrectos");
       }
-  
+
       // Login exitoso
       toast({ title: "Bienvenido al Sistema" });
       router.push("/");
@@ -196,13 +205,15 @@ export default function AuthCard() {
         description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
 
   const handleForgotPassword = async (
     values: z.infer<typeof forgotPasswordSchema>
   ) => {
+    setIsSubmitting(true);
     try {
       const response = await passwordRecovery(values.emailOTP);
       if (response.otpToken) {
@@ -225,10 +236,13 @@ export default function AuthCard() {
           error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleOTPValidation = async (values: z.infer<typeof otpSchema>) => {
+    setIsSubmitting(true);
     try {
       const value = {
         token: token,
@@ -238,7 +252,7 @@ export default function AuthCard() {
 
       if (response.success) {
         setFormType("changePassword");
-        otpForm.reset(); 
+        otpForm.reset();
         toast({ title: "OTP validado correctamente" });
       } else {
         throw new Error("Código OTP inválido");
@@ -250,15 +264,20 @@ export default function AuthCard() {
           error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleChangePassword = async (
     values: z.infer<typeof changePasswordSchema>
   ) => {
+    setIsSubmitting(true);
     try {
       const user = await getUserLogged(email);
-      const response = await updateUser(user.id, { password: values.passwordReset});
+      const response = await updateUser(user.id, {
+        password: values.passwordReset,
+      });
       if (response) {
         setFormType("login");
         toast({
@@ -275,6 +294,8 @@ export default function AuthCard() {
           error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -341,7 +362,11 @@ export default function AuthCard() {
                   Olvidé mi contraseña
                 </button>
               </div>
-              <Button type="submit" className="w-full mt-6">
+              <Button
+                type="submit"
+                className="w-full mt-6"
+                disabled={isSubmitting}
+              >
                 Iniciar sesión
               </Button>
             </form>
@@ -445,7 +470,11 @@ export default function AuthCard() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full mt-6">
+              <Button
+                type="submit"
+                className="w-full mt-6"
+                disabled={isSubmitting}
+              >
                 Registro
               </Button>
             </form>
@@ -475,7 +504,11 @@ export default function AuthCard() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full mt-6">
+              <Button
+                type="submit"
+                className="w-full mt-6"
+                disabled={isSubmitting}
+              >
                 Enviar correo de recuperación
               </Button>
             </form>
@@ -517,7 +550,11 @@ export default function AuthCard() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full mt-6">
+              <Button
+                type="submit"
+                className="w-full mt-6"
+                disabled={isSubmitting}
+              >
                 Validar OTP
               </Button>
             </form>
@@ -581,7 +618,11 @@ export default function AuthCard() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full mt-6">
+              <Button
+                type="submit"
+                className="w-full mt-6"
+                disabled={isSubmitting}
+              >
                 Cambiar Contraseña
               </Button>
             </form>
@@ -616,13 +657,13 @@ export default function AuthCard() {
       </div>
       <Card className="w-full max-w-lg  bg-opacity-70 p-8 rounded-lg shadow-lg">
         <CardHeader className="space-y-1 items-center justify-center">
-            <Image
-              src={theme === 'dark' ? '/carrera2.png' : '/carrera.png'}
-              alt="logo"
-              width={300}
-              height={300}
-              priority
-            />
+          <Image
+            src={theme === "dark" ? "/carrera2.png" : "/carrera.png"}
+            alt="logo"
+            width={300}
+            height={300}
+            priority
+          />
           <div className="flex justify-center mb-4">
             <Logo />
           </div>

@@ -4,7 +4,6 @@ import { HeaderUseCases } from "./components/HeaderUseCases";
 import SessionRoleProvider from "@/context/RoleProvider";
 import { UseCaseProvider } from "@/context/UseCaseContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
-import SessionAuthProvider from "@/context/SessionAuthProvider";
 
 export default function OpenProject({
   params,

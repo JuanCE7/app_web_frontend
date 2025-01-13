@@ -115,7 +115,7 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
               href={`/projects/${projectId}/open/${row.original.id}/openUseCase`}
             >
               <ExternalLink className="w-4 h-4 mr-2" />
-              Ir al detalle
+              Ver Casos de Prueba
             </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -135,7 +135,6 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
               useCaseId={row.original.id}
               projectId={projectId}
               setOpenModalCreate={setOpenModalCreate}
-              createUseCase={createUseCase}
             />
           )}
         </DialogContent>

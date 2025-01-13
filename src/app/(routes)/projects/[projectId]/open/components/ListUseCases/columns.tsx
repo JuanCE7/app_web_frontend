@@ -4,8 +4,15 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { UseCase } from "@/components/pdf/pdf.types";
 
-const removeHtmlTags = (text: string) => {
-  return text?.replace(/<[^>]*>/g, "\n") || "";
+const removeHtmlTags = (text: string | undefined): string => {
+  if (typeof text !== "string") return "";
+
+  // Reemplaza las etiquetas HTML por un salto de línea solo entre etiquetas
+  return text
+    .replace(/<\/[^>]+>/g, "\n") // Reemplaza etiquetas de cierre por saltos de línea
+    .replace(/<[^>]+>/g, "") // Elimina las etiquetas de apertura
+    .replace(/\n\s*\n/g, "\n") // Elimina saltos de línea repetidos consecutivos
+    .trim(); // Elimina espacios o saltos al inicio y final
 };
 
 export const columns: ColumnDef<UseCase>[] = [
