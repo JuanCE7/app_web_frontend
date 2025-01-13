@@ -143,11 +143,12 @@ export function DataTable<TData, TValue>({
         >
           Anterior
         </Button>
-        <Label className="text-slate-500">
-          Página: [ 
-          {table.getPageCount()}
-          ]
-        </Label>
+        <div className="flex items-center gap-1">
+          <Label className="text-slate-500">
+            Página {table.getState().pagination.pageIndex + 1} de{" "}
+            {table.getPageCount()}
+          </Label>
+        </div>
         <Button
           variant="outline"
           size="sm"
