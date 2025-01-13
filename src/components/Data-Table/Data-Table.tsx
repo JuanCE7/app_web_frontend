@@ -25,6 +25,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "../ui/label";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -107,7 +108,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell 
+                    <TableCell
                       key={cell.id}
                       className="max-w-[200px] break-words"
                       title={cell.getValue() as string}
@@ -133,7 +134,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end py-4 space-x-2">
+      <div className="flex items-center justify-between py-4 space-x-2">
         <Button
           variant="outline"
           size="sm"
@@ -142,6 +143,11 @@ export function DataTable<TData, TValue>({
         >
           Anterior
         </Button>
+        <Label className="text-slate-500">
+          Página: [ 
+          {table.getPageCount()}
+          ]
+        </Label>
         <Button
           variant="outline"
           size="sm"
@@ -154,4 +160,3 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
-
