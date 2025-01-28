@@ -12,7 +12,7 @@ const handler = NextAuth({
       async authorize(credentials) {
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
+            `http://backend:4000/api/auth/login`,
             {
               method: "POST",
               body: JSON.stringify({
