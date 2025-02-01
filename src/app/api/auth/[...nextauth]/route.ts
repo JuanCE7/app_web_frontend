@@ -12,7 +12,7 @@ const handler = NextAuth({
       async authorize(credentials) {
         try {
           const res = await fetch(
-            `http://backend:4000/api/auth/login`,
+            `${process.env.NEXTAUTH_URL}/api/auth/login`,
             {
               method: "POST",
               body: JSON.stringify({
@@ -56,7 +56,7 @@ const handler = NextAuth({
     },
   },
   pages: {
-    signIn: "/login",
+    signIn: "/tcc/login",
   },
   session: {
     strategy: "jwt",

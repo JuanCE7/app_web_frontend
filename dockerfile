@@ -3,11 +3,11 @@ FROM node:20.11.1-alpine AS builder
 
 WORKDIR /app
 
-# Copiar los archivos necesarios
+# Copiar solo los archivos necesarios (package.json y package-lock.json si existe)
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm install
+# Copiar node_modules desde tu máquina local (suponiendo que ya están presentes)
+COPY node_modules ./node_modules
 
 # Copiar todo el código fuente
 COPY . ./
@@ -34,4 +34,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Ejecutar Next.js en modo producción
-CMD ["npm", "start"]
+CMD ["npx", "next", "start", "-H", "0.0.0.0"]
