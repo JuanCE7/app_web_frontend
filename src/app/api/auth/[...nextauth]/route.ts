@@ -12,7 +12,7 @@ const handler = NextAuth({
       async authorize(credentials) {
         try {
           const res = await fetch(
-            `${process.env.NEXTAUTH_URL}/api/auth/login`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
             {
               method: "POST",
               body: JSON.stringify({
@@ -56,7 +56,7 @@ const handler = NextAuth({
     },
   },
   pages: {
-    signIn: "/tcc/login",
+    signIn: "/login",
   },
   session: {
     strategy: "jwt",
