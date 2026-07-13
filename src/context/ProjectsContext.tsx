@@ -9,8 +9,7 @@ import React, {
 } from "react";
 import { useSession } from "next-auth/react";
 import { useUsers } from "./UsersContext";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { apiJson } from "@/lib/apiClient";
 
 interface Project {
   id: string;
@@ -43,138 +42,48 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const { getUserLogged } = useUsers();
 
   const createProject = async (projectData: any) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/projects`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(projectData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error creating project");
-      }
-      const data = await res.json();
-      await refreshProjects();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/projects`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(projectData),
+    });
+    await refreshProjects();
+    return data;
   };
 
   const getProjects = async (userId: string): Promise<any> => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/projects/${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching project");
-      }
-
-      return await res.json();
-    } catch (error) {
-      throw error;
-    }
+    return apiJson(`/projects/${userId}`, { method: "GET" });
   };
 
   const getProjectById = async (id: string): Promise<any> => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/projects/project/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching project");
-      }
-
-      return await res.json();
-    } catch (error) {
-      throw error;
-    }
+    return apiJson(`/projects/project/${id}`, { method: "GET" });
   };
 
   const getProjectRole = async (
     userId: string,
     projectId: string
   ): Promise<string> => {
-    try {
-      const res = await fetch(
-        `${BACKEND_URL}/projects/${projectId}/role?userId=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching project role");
-      }
-
-      const data = await res.json();
-      return data.role;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson<{ role: string }>(
+      `/projects/${projectId}/role?userId=${userId}`,
+      { method: "GET" }
+    );
+    return data.role;
   };
 
   const updateProject = async (id: string, projectData: any) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/projects/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(projectData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.message || `Error updating project: ${res.statusText}`
-        );
-      }
-      const data = await res.json();
-      await refreshProjects();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/projects/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(projectData),
+    });
+    await refreshProjects();
+    return data;
   };
 
   const deleteProject = async (id: string) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/projects/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.message || `Error deleting project: ${res.statusText}`
-        );
-      }
-      await refreshProjects();
-      return { success: true };
-    } catch (error) {
-      throw error;
-    }
+    await apiJson(`/projects/${id}`, { method: "DELETE" });
+    await refreshProjects();
+    return { success: true };
   };
 
   interface JoinProjectResponse {
@@ -201,66 +110,26 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     userId: string;
     code: string;
   }): Promise<JoinProjectResponse> => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/projects/shareProject`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(shareData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          response: {
-            data: {
-              statusCode: response.status,
-              message: data.message || "Error al unirse al proyecto",
-              error: data.error,
-            },
-          },
-        };
-      }
-      await refreshProjects();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson<JoinProjectResponse>(`/projects/shareProject`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(shareData),
+    });
+    await refreshProjects();
+    return data;
   };
 
   const exitProject = async (exitData: {
     userId: string;
     projectId: string;
   }) => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/projects/exitProject`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(exitData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw {
-          response: {
-            data: {
-              statusCode: response.status,
-              message: data.message || "Error al unirse al proyecto",
-              error: data.error,
-            },
-          },
-        };
-      }
-      await refreshProjects();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/projects/exitProject`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(exitData),
+    });
+    await refreshProjects();
+    return data;
   };
 
   const fetchProjects = useCallback(async () => {

@@ -39,6 +39,7 @@ import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
 import Image from "next/image";
 import { useUsers } from "@/context/UsersContext";
+import { pingHealth } from "@/lib/apiClient";
 
 type FormType =
   | "login"
@@ -133,6 +134,13 @@ export default function AuthCard() {
       router.push("/");
     }
   }, [session, router]);
+
+  // Pre-calentamiento: apenas se abre el login, despertamos el backend (Render
+  // free se duerme). Así, para cuando el usuario termina de escribir sus
+  // credenciales, el servidor ya está despierto y el login no falla por cold start.
+  useEffect(() => {
+    pingHealth();
+  }, []);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);

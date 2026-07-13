@@ -8,6 +8,7 @@ import "./globals.css";
 import { UserProvider } from "@/context/UsersContext";
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
+import { BackendStatusProvider } from "@/context/BackendStatusProvider";
 
 const noto = Noto_Sans_Display({
   subsets: ["latin"],
@@ -26,24 +27,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning={true} className={noto.className}>
+    <html lang="es" suppressHydrationWarning={true} className={noto.className}>
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body suppressHydrationWarning>
         <SessionAuthProvider>
-          <UserProvider>
-            <Suspense fallback={<LoadingSpinner />}>
-              <ThemeProvider
-                attribute="class"
-                enableSystem
-                disableTransitionOnChange
-              >
-                {children}
-                <Toaster />
-              </ThemeProvider>
-            </Suspense>
-          </UserProvider>
+          <BackendStatusProvider>
+            <UserProvider>
+              <Suspense fallback={<LoadingSpinner />}>
+                <ThemeProvider
+                  attribute="class"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  {children}
+                  <Toaster />
+                </ThemeProvider>
+              </Suspense>
+            </UserProvider>
+          </BackendStatusProvider>
         </SessionAuthProvider>
       </body>
     </html>

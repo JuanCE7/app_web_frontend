@@ -7,6 +7,16 @@ body,
 :root {
   height: 100%;
 }
+
+/* Barra de progreso indeterminada del aviso "servidor despertando". */
+@keyframes wakingBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
 @layer base {
   body {
     font-family: 'Noto Sans Display', sans-serif;

@@ -7,8 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { apiJson } from "@/lib/apiClient";
 
 interface UseCase {
   id: string;
@@ -41,115 +40,37 @@ export function UseCaseProvider({
   const [refreshKey, setRefreshKey] = useState(0);
 
   const createUseCase = async (useCaseData: any) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/usecases`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(useCaseData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error creating usecase");
-      }
-
-      const data = await res.json();
-      await refreshUseCases();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/usecases`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(useCaseData),
+    });
+    await refreshUseCases();
+    return data;
   };
 
   const getUseCases = async (projectId: string): Promise<any> => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/usecases/${projectId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching usecase");
-      }
-
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    return apiJson(`/usecases/${projectId}`, { method: "GET" });
   };
 
   const getUseCaseById = async (id: string): Promise<any> => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/usecases/usecase/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching usecase");
-      }
-
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    return apiJson(`/usecases/usecase/${id}`, { method: "GET" });
   };
 
   const updateUseCase = async (id: string, useCaseData: any) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/usecases/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(useCaseData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.message || `Error updating usecase: ${res.statusText}`
-        );
-      }
-
-      const data = await res.json();
-      await refreshUseCases();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/usecases/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(useCaseData),
+    });
+    await refreshUseCases();
+    return data;
   };
 
   const deleteUseCase = async (id: string) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/usecases/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.message || `Error deleting usecase: ${res.statusText}`
-        );
-      }
-      await refreshUseCases();
-      return { success: true };
-    } catch (error) {
-      throw error;
-    }
+    await apiJson(`/usecases/${id}`, { method: "DELETE" });
+    await refreshUseCases();
+    return { success: true };
   };
 
   const fetchUseCases = useCallback(async () => {

@@ -7,9 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { useSession } from "next-auth/react";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { apiJson, ApiError } from "@/lib/apiClient";
 
 interface TestCase {
   id: string;
@@ -47,152 +45,58 @@ export function TestCaseProvider({
   const [refreshKey, setRefreshKey] = useState(0);
 
   const createTestCase = async (testCaseData: any) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/testcases`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(testCaseData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error creating testcase");
-      }
-
-      const data = await res.json();
-      await refreshTestCases();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/testcases`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(testCaseData),
+    });
+    await refreshTestCases();
+    return data;
   };
 
   const generateTestCase = async (id: string): Promise<any> => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/testcases/generate/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching usecase");
-      }
-
-      const data = await res.json();
-      await refreshTestCases();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    // La generación con IA puede tardar; damos más margen de timeout por intento.
+    const data = await apiJson(`/testcases/generate/${id}`, {
+      method: "POST",
+      timeoutMs: 60_000,
+    });
+    await refreshTestCases();
+    return data;
   };
 
   const getTestCases = async (useCaseId: string): Promise<any> => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/testcases/${useCaseId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      return await response.json();
-    } catch (error) {
-      return [];
-    }
+    // Antes esto devolvía [] al fallar, ocultando un backend dormido como
+    // "no hay casos de prueba". Ahora propagamos el error normalizado.
+    return apiJson(`/testcases/${useCaseId}`, { method: "GET" });
   };
 
   const updateTestCase = async (id: string, testCaseData: any) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/testcases/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(testCaseData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.message || `Error updating testcase: ${res.statusText}`
-        );
-      }
-
-      const data = await res.json();
-      await refreshTestCases();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/testcases/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(testCaseData),
+    });
+    await refreshTestCases();
+    return data;
   };
 
   const deleteTestCase = async (id: string) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/testcases/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.message || `Error deleting testcase: ${res.statusText}`
-        );
-      }
-
-      await refreshTestCases();
-      return { success: true };
-    } catch (error) {
-      throw error;
-    }
+    await apiJson(`/testcases/${id}`, { method: "DELETE" });
+    await refreshTestCases();
+    return { success: true };
   };
 
   const getTestCaseById = async (id: string): Promise<any> => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/testcases/testcase/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching testcase");
-      }
-
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    return apiJson(`/testcases/testcase/${id}`, { method: "GET" });
   };
 
   const getExplanationById = async (id: string): Promise<any> => {
     try {
-      const res = await fetch(`${BACKEND_URL}/explanation/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!res.ok) {
-        if (res.status === 404) {
-          throw new Error("Not Found");
-        }
-        throw new Error("Error al obtener la explicación");
-      }
-
-      const data = await res.json();
-      return data;
+      return await apiJson(`/explanation/${id}`, { method: "GET" });
     } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        throw new Error("Not Found");
+      }
       throw error;
     }
   };
@@ -203,7 +107,10 @@ export function TestCaseProvider({
       const testCasesData = await getTestCases(useCaseId);
       setTestCases(testCasesData);
     } catch (error) {
+      // El aviso global de "servidor despertando" ya se dispara desde apiClient.
+      // Aquí evitamos romper la UI dejando la lista vacía como último recurso.
       console.error("Error fetching test cases:", error);
+      setTestCases([]);
     } finally {
       setIsLoading(false);
     }

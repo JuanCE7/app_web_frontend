@@ -1,12 +1,35 @@
 "use client";
 
 import React from "react";
+import { Loader2 } from "lucide-react";
 
-export const LoadingSpinner: React.FC = ({}) => {
+interface LoadingSpinnerProps {
+  /** Texto a mostrar bajo el spinner. Por defecto "Cargando…". */
+  label?: string;
+  /** Tamaño del icono en px. */
+  size?: number;
+  /** Ocupa toda la pantalla (centrado vertical + horizontal). */
+  fullScreen?: boolean;
+}
+
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  label = "Cargando…",
+  size = 32,
+  fullScreen = false,
+}) => {
   return (
-    <div className="flex flex-col justify-center items-center mb-4">
-      <b>CARGANDO...</b>
-      <div className="w-8 h-8 border-t-2 border-blue-500 border-solid rounded-full animate-spin"></div>
+    <div
+      role="status"
+      aria-live="polite"
+      className={`flex flex-col items-center justify-center gap-3 text-muted-foreground ${
+        fullScreen ? "min-h-[60vh]" : "py-8"
+      }`}
+    >
+      <Loader2
+        className="animate-spin text-primary"
+        style={{ width: size, height: size }}
+      />
+      {label && <span className="text-sm font-medium">{label}</span>}
     </div>
   );
 };
