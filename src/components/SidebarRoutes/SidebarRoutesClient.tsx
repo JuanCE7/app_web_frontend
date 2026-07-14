@@ -94,7 +94,7 @@ export function SidebarRoutesClient({ userRole }: SidebarRoutesClientProps) {
         </div>
         <Separator />
         <footer className="mt-3 p-3 text-center">
-          2024. Juan Castillo - Derechos reservados.
+          2024. Juan Castillo
         </footer>
       </div>
     </div>
