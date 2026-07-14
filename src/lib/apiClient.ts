@@ -12,6 +12,8 @@
  * Centralizarlo además elimina el fetch copiado/pegado en cada context.
  */
 
+import { getSession } from "next-auth/react";
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export type BackendStatus = "online" | "waking" | "offline";
@@ -92,6 +94,26 @@ export interface ApiFetchOptions extends RequestInit {
   maxAttempts?: number;
   /** si es false, no reintenta ni reporta estado (útil para pings). */
   retry?: boolean;
+  /** si es false, no adjunta el token de sesión (rutas públicas / pings). */
+  auth?: boolean;
+}
+
+/**
+ * Adjunta el header Authorization con el JWT del backend guardado en la sesión
+ * de NextAuth, salvo que ya venga uno explícito. Devuelve los headers listos.
+ */
+async function withAuthHeaders(init: RequestInit): Promise<Headers> {
+  const headers = new Headers(init.headers);
+  if (!headers.has("Authorization")) {
+    try {
+      const session = await getSession();
+      const token = (session?.user as { token?: string } | undefined)?.token;
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+    } catch {
+      /* sin sesión: la petición sigue sin token (rutas públicas) */
+    }
+  }
+  return headers;
 }
 
 /**
@@ -109,10 +131,15 @@ export async function apiFetch(
     timeoutMs = DEFAULT_TIMEOUT_MS,
     maxAttempts = MAX_ATTEMPTS,
     retry = true,
+    auth = true,
     ...init
   } = options;
 
   const url = `${BACKEND_URL}${path}`;
+  // Adjuntamos el token de sesión una sola vez (no en cada reintento).
+  if (auth) {
+    init.headers = await withAuthHeaders(init);
+  }
   const attempts = retry ? maxAttempts : 1;
   let lastError: ApiError | null = null;
 
@@ -189,6 +216,7 @@ export async function pingHealth(timeoutMs = 4_000): Promise<boolean> {
   try {
     const res = await apiFetch("/health", {
       retry: false,
+      auth: false,
       timeoutMs,
       cache: "no-store",
     });

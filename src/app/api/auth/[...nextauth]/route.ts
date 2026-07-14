@@ -27,13 +27,17 @@ const handler = NextAuth({
 
           if (res.ok) {
             return user;
-          } else {
-            console.error("Error de autenticación:", user);
-            return null;
           }
+          // Propagamos el mensaje del backend (p.ej. "cuenta desactivada")
+          // para que el frontend pueda mostrarlo. Lanzar un Error hace que
+          // NextAuth lo devuelva en `signIn(...).error`.
+          throw new Error(user?.message || "Correo o contraseña incorrectos.");
         } catch (error) {
-          console.error("Error en la solicitud de autenticación:", error);
-          return null;
+          throw new Error(
+            error instanceof Error
+              ? error.message
+              : "No se pudo iniciar sesión."
+          );
         }
       },
     }),

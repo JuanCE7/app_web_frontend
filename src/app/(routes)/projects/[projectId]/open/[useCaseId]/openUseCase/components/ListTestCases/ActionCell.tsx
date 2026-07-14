@@ -63,7 +63,7 @@ const ActionCell: React.FC<ActionCellProps> = ({ testCase }) => {
 
       setOpenModalExplanation(true);
     } catch (error) {
-      if (error.message === "Not Found") {
+      if (error instanceof Error && error.message === "Not Found") {
         setExplanationData({
           summary: "No existe Explicación",
           details: "Este caso de prueba funcional no ha sido generado por IA",

@@ -25,6 +25,7 @@ interface UsersContextType {
   updateUser: (id: string, userData: any) => Promise<any>;
   passwordRecovery: (email: string) => Promise<any>;
   verifyOtp: (value: any) => Promise<any>;
+  resetPassword: (token: string, newPassword: string) => Promise<any>;
   getUserLogged: (email: string) => Promise<any>;
   refreshUsers: () => Promise<void>;
 }
@@ -42,6 +43,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const registerUser = async (values: any) => {
     const res = await apiFetch(`/auth/register`, {
       method: "POST",
+      auth: false,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         firstName: values.firstName,
@@ -67,6 +69,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await apiFetch(`/auth/passwordRecovery/${email}`, {
         method: "GET",
+        auth: false,
       });
       if (!res.ok) {
         let errorMessage = "Error fetching password";
@@ -100,6 +103,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await apiFetch(`/auth/verifyOtp`, {
         method: "POST",
+        auth: false,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: values.token,
@@ -129,6 +133,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             : "Error en la verificación de OTP",
       };
     }
+  };
+
+  // Restablece la contraseña usando el token OTP firmado (flujo deslogueado).
+  // Sustituye el antiguo getUserLogged + updateUser que requería endpoints
+  // ahora protegidos.
+  const resetPassword = async (token: string, newPassword: string) => {
+    const res = await apiFetch(`/auth/resetPassword`, {
+      method: "POST",
+      auth: false,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || "No se pudo restablecer la contraseña");
+    }
+    return data;
   };
   const getUserLogged = async (email: string): Promise<any> => {
     try {
@@ -187,6 +208,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         updateUser,
         passwordRecovery,
         verifyOtp,
+        resetPassword,
         getUserLogged,
         refreshUsers,
       }}

@@ -9,11 +9,11 @@ const nextConfig = {
       },
     ],
   },
+  // Los errores de TypeScript ahora SÍ bloquean el build (antes se ignoraban y
+  // dejaban pasar bugs de tipos). ESLint sigue sin bloquear por ahora para no
+  // frenar el build con reglas de estilo; se puede endurecer más adelante.
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
   },
 };
 
