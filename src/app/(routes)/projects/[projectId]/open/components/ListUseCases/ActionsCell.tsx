@@ -38,7 +38,8 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
 
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [selectedUseCase, setSelectedUseCase] = useState(null);
+  const [selectedUseCase, setSelectedUseCase] =
+    useState<Record<string, unknown> | null>(null);
   const [selectedUseCaseId, setSelectedUseCaseId] = useState<string | null>(
     null
   );

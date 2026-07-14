@@ -39,6 +39,7 @@ import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
 import Image from "next/image";
 import { useUsers } from "@/context/UsersContext";
+import { pingHealth } from "@/lib/apiClient";
 
 type FormType =
   | "login"
@@ -76,13 +77,8 @@ export default function AuthCard() {
   const { theme } = useTheme();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const {
-    registerUser,
-    getUserLogged,
-    passwordRecovery,
-    verifyOtp,
-    updateUser,
-  } = useUsers();
+  const { registerUser, passwordRecovery, verifyOtp, resetPassword } =
+    useUsers();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -134,6 +130,13 @@ export default function AuthCard() {
     }
   }, [session, router]);
 
+  // Pre-calentamiento: apenas se abre el login, despertamos el backend (Render
+  // free se duerme). Así, para cuando el usuario termina de escribir sus
+  // credenciales, el servidor ya está despierto y el login no falla por cold start.
+  useEffect(() => {
+    pingHealth();
+  }, []);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     let res;
@@ -170,18 +173,9 @@ export default function AuthCard() {
   const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
     try {
-      const userResponse = await getUserLogged(values.email);
-
-      if (userResponse.status === false) {
-        toast({
-          title: "Cuenta desactivada",
-          description: "Tu cuenta ha sido desactivada, contacta con soporte.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Intentar inicio de sesión con NextAuth
+      // El backend valida credenciales y estado de la cuenta (desactivada) y
+      // devuelve el mensaje a través de NextAuth. Ya no consultamos /users
+      // antes de autenticar (esa ruta ahora requiere token).
       const responseNextAuth = await signIn("credentials", {
         email: values.email,
         password: values.password,
@@ -189,7 +183,9 @@ export default function AuthCard() {
       });
 
       if (!responseNextAuth || responseNextAuth.error) {
-        throw new Error("Correo o contraseña incorrectos");
+        throw new Error(
+          responseNextAuth?.error || "Correo o contraseña incorrectos"
+        );
       }
 
       // Login exitoso
@@ -274,10 +270,9 @@ export default function AuthCard() {
   ) => {
     setIsSubmitting(true);
     try {
-      const user = await getUserLogged(email);
-      const response = await updateUser(user.id, {
-        password: values.passwordReset,
-      });
+      // Autorizado por el token OTP firmado (flujo deslogueado), sin tocar
+      // rutas de /users que ahora requieren autenticación.
+      const response = await resetPassword(token, values.passwordReset);
       if (response) {
         setFormType("login");
         toast({

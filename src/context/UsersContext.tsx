@@ -7,8 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { apiFetch, apiJson } from "@/lib/apiClient";
 
 interface User {
   id: string;
@@ -26,6 +25,7 @@ interface UsersContextType {
   updateUser: (id: string, userData: any) => Promise<any>;
   passwordRecovery: (email: string) => Promise<any>;
   verifyOtp: (value: any) => Promise<any>;
+  resetPassword: (token: string, newPassword: string) => Promise<any>;
   getUserLogged: (email: string) => Promise<any>;
   refreshUsers: () => Promise<void>;
 }
@@ -38,31 +38,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const getUsers = async (): Promise<any> => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/users`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error fetching user");
-      }
-
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    return apiJson(`/users`, { method: "GET" });
   };
   const registerUser = async (values: any) => {
-    const res = await fetch(`${BACKEND_URL}/auth/register`, {
+    const res = await apiFetch(`/auth/register`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      auth: false,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         firstName: values.firstName,
         lastName: values.lastName,
@@ -70,40 +52,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         password: values.password,
       }),
     });
-    await refreshUsers()
+    await refreshUsers();
     return res;
   };
 
   const updateUser = async (id: string, userData: any) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/users/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.message || `Error updating user: ${res.statusText}`
-        );
-      }
-      await refreshUsers()
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const data = await apiJson(`/users/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    });
+    await refreshUsers();
+    return data;
   };
   const passwordRecovery = async (email: string): Promise<any> => {
     try {
-      const res = await fetch(`${BACKEND_URL}/auth/passwordRecovery/${email}`, {
+      const res = await apiFetch(`/auth/passwordRecovery/${email}`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        auth: false,
       });
       if (!res.ok) {
         let errorMessage = "Error fetching password";
@@ -135,11 +101,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const verifyOtp = async (values: any) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/auth/verifyOtp`, {
+      const res = await apiFetch(`/auth/verifyOtp`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        auth: false,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: values.token,
           enteredOtp: values.otpCode,
@@ -169,14 +134,26 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       };
     }
   };
+
+  // Restablece la contraseña usando el token OTP firmado (flujo deslogueado).
+  // Sustituye el antiguo getUserLogged + updateUser que requería endpoints
+  // ahora protegidos.
+  const resetPassword = async (token: string, newPassword: string) => {
+    const res = await apiFetch(`/auth/resetPassword`, {
+      method: "POST",
+      auth: false,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || "No se pudo restablecer la contraseña");
+    }
+    return data;
+  };
   const getUserLogged = async (email: string): Promise<any> => {
     try {
-      const res = await fetch(`${BACKEND_URL}/users/mail/${email}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await apiFetch(`/users/mail/${email}`, { method: "GET" });
 
       if (!res.ok) {
         let errorMessage = "Error fetching user";
@@ -231,6 +208,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         updateUser,
         passwordRecovery,
         verifyOtp,
+        resetPassword,
         getUserLogged,
         refreshUsers,
       }}
