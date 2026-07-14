@@ -374,6 +374,15 @@ export default function AuthCard() {
               >
                 Iniciar sesión
               </Button>
+              {/* Botón para iniciar sesión con Keycloak */}
+              <Button
+                type="button"
+                variant={"outline"}
+                className="w-full mt-2"
+                onClick={() => signIn("keycloak")}
+              >
+                Iniciar sesión con IAM Computación
+              </Button>
             </form>
           </Form>
         );
