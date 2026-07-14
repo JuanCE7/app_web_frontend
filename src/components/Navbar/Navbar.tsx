@@ -8,7 +8,6 @@ import { ToggleTheme } from "../ToggleTheme";
 import { UserRound } from "lucide-react";
 import { Menu } from "lucide-react";
 import { SidebarRoutes } from "../SidebarRoutes";
-import Image from "next/image";
 import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 export function Navbar() {
@@ -47,17 +46,7 @@ export function Navbar() {
 
       <div className="relative w-[300px]"></div>
 
-      <div className="flex gap-x-2 items-center">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center">
-          <Image
-            src="/gato.gif"
-            alt="Perro animado"
-            width={300}
-            height={300}
-            priority
-            unoptimized
-          />
-        </div>
+      <div className="flex gap-x-3 items-center">
         <ToggleTheme />
         {userName && (
           <p className="text-sm md:text-base whitespace-nowrap">

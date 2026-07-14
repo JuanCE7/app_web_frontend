@@ -1,8 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
+import { ClipboardCheck, Sparkles } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 import { useUsers } from "@/context/UsersContext";
@@ -58,15 +58,12 @@ export default function Dashboard() {
       </h1>
 
       <div className="flex justify-center mb-4 sm:mb-6 animate-fadeInDown delay-[150ms]">
-        <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full flex items-center justify-center">
-          <Image
-            src="/diseno.gif"
-            alt="diseno"
-            width={350}
-            height={350}
-            priority
-            className="rounded-md object-cover w-full h-full"
+        <div className="relative flex h-40 w-40 sm:h-52 sm:w-52 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20">
+          <ClipboardCheck
+            className="h-20 w-20 sm:h-24 sm:w-24 text-primary"
+            strokeWidth={1.5}
           />
+          <Sparkles className="absolute right-6 top-6 h-6 w-6 text-primary sm:right-8 sm:top-8" />
         </div>
       </div>
 

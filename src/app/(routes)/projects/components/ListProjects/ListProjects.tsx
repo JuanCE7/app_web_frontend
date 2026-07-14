@@ -2,12 +2,13 @@
 import { columns } from "./columns"
 import { DataTable } from "@/components/Data-Table"
 import { useProjects } from '@/context/ProjectsContext'
+import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner"
 
 export default function ListProjects() {
   const { projects, isLoading } = useProjects()
 
   if (isLoading) {
-    return <div>Cargando...</div>
+    return <LoadingSpinner label="Cargando proyectos…" />
   }
 
   return (
@@ -16,6 +17,8 @@ export default function ListProjects() {
       data={projects}
       placeholder="Filtro por nombre..."
       filter="name"
+      emptyTitle="Aún no tienes proyectos"
+      emptyDescription="Crea un proyecto nuevo o únete a uno con su código para empezar."
     />
   )
 }

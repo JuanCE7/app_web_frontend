@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
 import { DataTable } from "@/components/Data-Table";
 import { columns } from "./columns";
 import { useTestCases } from "@/context/TestCaseContext";
+import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function ListTestCases({ useCaseId }: { useCaseId: string }) {
   const { testCases, isLoading } = useTestCases();
 
   if (isLoading) {
-    return <div>Cargando casos de prueba funcionales...</div>;
+    return <LoadingSpinner label="Cargando casos de prueba…" />;
   }
 
   return (
@@ -18,6 +18,8 @@ export default function ListTestCases({ useCaseId }: { useCaseId: string }) {
       data={testCases}
       placeholder="Filtro por código ..."
       filter="code"
+      emptyTitle="No hay casos de prueba"
+      emptyDescription="Genera casos con IA desde un caso de uso, o créalos manualmente."
     />
   );
 }

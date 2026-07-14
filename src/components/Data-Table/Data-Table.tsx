@@ -26,12 +26,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "../ui/label";
+import { Inbox } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   placeholder: string;
   filter: string;
+  /** Título del estado vacío cuando no hay ningún dato. */
+  emptyTitle?: string;
+  /** Descripción/acción sugerida del estado vacío. */
+  emptyDescription?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -39,6 +44,8 @@ export function DataTable<TData, TValue>({
   data,
   placeholder,
   filter,
+  emptyTitle = "No hay resultados.",
+  emptyDescription,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -123,11 +130,24 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No hay resultados.
+                <TableCell colSpan={columns.length} className="h-32">
+                  <div className="flex flex-col items-center justify-center gap-2 py-6 text-center">
+                    <Inbox className="h-10 w-10 text-muted-foreground/40" />
+                    {data.length === 0 ? (
+                      <>
+                        <p className="font-medium">{emptyTitle}</p>
+                        {emptyDescription && (
+                          <p className="text-sm text-muted-foreground">
+                            {emptyDescription}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No hay resultados para ese filtro.
+                      </p>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             )}

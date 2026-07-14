@@ -21,9 +21,8 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 import Link from "next/link";
-import { AlertTriangle, Check, Info } from "lucide-react";
+import { AlertTriangle, Check, Info, Loader2, Sparkles } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import { useTestCases } from "@/context/TestCaseContext";
@@ -153,18 +152,16 @@ export default function CardGenerateTestCase({
         </Button>
 
         {isLoading && (
-          <div className="flex flex-col justify-center items-center mb-4">
-            <div className="w-8 h-8 border-t-2 border-blue-500 border-solid rounded-full animate-spin"></div>
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mt-4">
-              <Image
-                src="/perro.gif"
-                alt="Perro animado"
-                width={300}
-                height={300}
-                priority
-                unoptimized
-              />
+          <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-12 text-center">
+            <div className="relative">
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-primary" />
             </div>
+            <p className="font-medium">Generando casos de prueba con IA…</p>
+            <p className="max-w-xs text-sm text-muted-foreground">
+              Analizando el caso de uso y aplicando técnicas de prueba. Esto
+              puede tardar unos segundos; no cierres esta ventana.
+            </p>
           </div>
         )}
         {validationError && !isLoading && (
