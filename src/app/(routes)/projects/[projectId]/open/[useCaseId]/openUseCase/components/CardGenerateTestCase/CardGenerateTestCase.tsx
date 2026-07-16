@@ -116,26 +116,64 @@ export default function CardGenerateTestCase({
     const testCasesToSave = testCases.filter((tc) =>
       selectedTestCases.includes(tc.code)
     );
+
+    // Normaliza cualquier valor a string. El modelo de IA a veces devuelve
+    // campos como arreglos u objetos (p.ej. "steps"); el backend exige strings.
+    const toText = (value: unknown): string => {
+      if (Array.isArray(value)) {
+        return value
+          .map((v) => (typeof v === "string" ? v : JSON.stringify(v)))
+          .join("\n");
+      }
+      if (value === null || value === undefined) return "";
+      if (typeof value === "object") return JSON.stringify(value);
+      return String(value);
+    };
+
+    setIsSubmitting(true);
+    let saved = 0;
+    let lastError = "";
+
     for (const testCase of testCasesToSave) {
-      setIsSubmitting(true);
       try {
-        await createTestCase({ ...testCase, useCaseId: useCaseId || "" });
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: `Error al guardar el caso de prueba ${testCase.code}`,
-          variant: "destructive",
+        // Enviamos SOLO los campos que el backend acepta (el ValidationPipe
+        // rechaza propiedades extra que la IA pueda incluir), coaccionados a texto.
+        await createTestCase({
+          code: toText(testCase.code),
+          name: toText(testCase.name),
+          description: toText(testCase.description),
+          steps: toText(testCase.steps),
+          inputData: toText(testCase.inputData),
+          expectedResult: toText(testCase.expectedResult),
+          explanationSummary: toText(testCase.explanationSummary),
+          explanationDetails: toText(testCase.explanationDetails),
+          useCaseId: useCaseId || "",
         });
-      } finally {
-        setIsSubmitting(false);
+        saved++;
+      } catch (error) {
+        lastError =
+          error instanceof Error ? error.message : "Error desconocido";
+        console.error(`Error guardando el caso ${testCase.code}:`, error);
       }
     }
 
-    toast({
-      title: "Éxito",
-      description: `Se han guardado ${testCasesToSave.length} casos de prueba.`,
-    });
-    setOpenModalGenerate(false);
+    setIsSubmitting(false);
+
+    if (saved > 0) {
+      toast({
+        title: "Éxito",
+        description: `Se ${saved === 1 ? "guardó" : "guardaron"} ${saved} caso${
+          saved > 1 ? "s" : ""
+        } de prueba.`,
+      });
+      setOpenModalGenerate(false);
+    } else {
+      toast({
+        title: "No se pudieron guardar los casos",
+        description: lastError || "Revisa los datos e inténtalo de nuevo.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
