@@ -17,11 +17,11 @@ export default function SidebarItem(props: SidebarItemProps) {
     <Link
       href={href}
       className={cn(
-        'flex gap-x-2 mt-2 light:text-slate-700 dark:text-white text-sm items-center hover:bg-slate-300/20 p-2 rounded-lg cursor-pointer',
-        activePath && 'bg-slate-400/20'
+        "flex items-center gap-x-3 mt-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+        activePath && "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary"
       )}
     >
-      <Icon className="h-5 w-5" strokeWidth={1} />
+      <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
       {label}
     </Link>
   );

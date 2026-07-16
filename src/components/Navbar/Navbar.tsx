@@ -5,10 +5,18 @@ import { useSession } from "next-auth/react";
 import { useUsers } from "@/context/UsersContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ToggleTheme } from "../ToggleTheme";
-import { UserRound } from "lucide-react";
 import { Menu } from "lucide-react";
 import { SidebarRoutes } from "../SidebarRoutes";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -30,31 +38,36 @@ export function Navbar() {
   }, [session, getUserLogged]);
 
   return (
-    <nav className="flex items-center px-2 gap-x-4 md:px-6 justify-between w-full bg-background border-b h-20">
+    <nav className="flex h-20 w-full items-center justify-between border-b bg-card px-4 md:px-6">
+      {/* Menú móvil */}
       <div className="block xl:hidden">
         <Sheet>
-          <SheetTrigger className="flex items-center">
+          <SheetTrigger className="flex items-center rounded-md p-2 hover:bg-muted">
             <Menu />
           </SheetTrigger>
-          <SheetContent side="left">
-            <DialogTitle></DialogTitle>
-            <DialogDescription></DialogDescription>
+          <SheetContent side="left" className="p-0">
+            <DialogTitle className="sr-only">Menú</DialogTitle>
+            <DialogDescription className="sr-only">
+              Navegación principal
+            </DialogDescription>
             <SidebarRoutes />
           </SheetContent>
         </Sheet>
       </div>
 
-      <div className="relative w-[300px]"></div>
+      {/* Espaciador para empujar el contenido a la derecha */}
+      <div className="flex-1" />
 
-      <div className="flex gap-x-3 items-center">
+      <div className="flex items-center gap-3">
         <ToggleTheme />
         {userName && (
-          <p className="text-sm md:text-base whitespace-nowrap">
-            <span className="block md:hidden">{userName.split(" ")[0]}</span>
-            <span className="hidden md:block">{userName}</span>
-          </p>
+          <p className="hidden text-sm font-medium md:block">{userName}</p>
         )}
-        <UserRound />
+        <Avatar className="h-9 w-9">
+          <AvatarFallback className="bg-primary text-sm font-semibold text-primary-foreground">
+            {getInitials(userName) || "?"}
+          </AvatarFallback>
+        </Avatar>
       </div>
     </nav>
   );

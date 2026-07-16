@@ -1,14 +1,38 @@
 "use client";
 
-import Image from "next/image";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function Logo() {
+interface LogoProps {
+  /** Oculta el wordmark y deja solo el ícono. */
+  iconOnly?: boolean;
+  /** Variante para fondos oscuros/teal (caja blanca + texto blanco). */
+  onDark?: boolean;
+  /** Clases extra para el contenedor. */
+  className?: string;
+}
+
+export function Logo({ iconOnly = false, onDark = false, className }: LogoProps) {
   return (
-    <div
-      className="min-h-20 h-20 flex items-center px-6 border-b cursor-pointer"      
-    >
-      <Image src="/logo.png" alt="logo" width={30} height={30} priority />
-      <h1 className="font-bold p-2">TestCaseCraft</h1>
+    <div className={cn("flex items-center gap-2", className)}>
+      <span
+        className={cn(
+          "flex h-8 w-8 items-center justify-center rounded-lg shadow-sm",
+          onDark ? "bg-white text-primary" : "bg-primary text-primary-foreground"
+        )}
+      >
+        <Check className="h-5 w-5" strokeWidth={3} />
+      </span>
+      {!iconOnly && (
+        <span
+          className={cn(
+            "text-lg font-bold tracking-tight",
+            onDark ? "text-white" : "text-foreground"
+          )}
+        >
+          TestCaseCraft
+        </span>
+      )}
     </div>
   );
 }

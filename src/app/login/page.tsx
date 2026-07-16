@@ -4,14 +4,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Check, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Logo } from "@/components/Logo";
@@ -34,10 +28,8 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from "@/components/ui/input-otp";
-import { useTheme } from "next-themes";
 import { formSchema } from "./register.form";
 import { loginSchema } from "./login.form";
-import Image from "next/image";
 import { useUsers } from "@/context/UsersContext";
 import { pingHealth } from "@/lib/apiClient";
 
@@ -68,13 +60,59 @@ const changePasswordSchema = z
     path: ["confirmPasswordReset"],
   });
 
+function getPasswordStrength(pw: string): { score: number; label: string } {
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score++;
+  const labels = ["Muy débil", "Débil", "Aceptable", "Buena", "Segura"];
+  return { score, label: labels[score] };
+}
+
+function PasswordStrengthMeter({ password }: { password: string }) {
+  if (!password) return null;
+  const { score, label } = getPasswordStrength(password);
+  const barColor =
+    score >= 4
+      ? "bg-emerald-500"
+      : score === 3
+      ? "bg-emerald-500"
+      : score === 2
+      ? "bg-amber-500"
+      : "bg-destructive";
+  const textColor =
+    score >= 3
+      ? "text-emerald-600 dark:text-emerald-400"
+      : score === 2
+      ? "text-amber-600 dark:text-amber-400"
+      : "text-destructive";
+  return (
+    <div className="mt-2">
+      <div className="flex gap-1">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={cn(
+              "h-1.5 flex-1 rounded-full",
+              i < score ? barColor : "bg-muted"
+            )}
+          />
+        ))}
+      </div>
+      <p className={cn("mt-1 text-xs font-medium", textColor)}>
+        {score >= 3 ? `Contraseña ${label.toLowerCase()} ✓` : `Seguridad: ${label}`}
+      </p>
+    </div>
+  );
+}
+
 export default function AuthCard() {
   const [formType, setFormType] = useState<FormType>("login");
   const [showPassword, setShowPassword] = useState(false);
   const { data: session } = useSession();
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
-  const { theme } = useTheme();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { registerUser, passwordRecovery, verifyOtp, resetPassword } =
@@ -367,16 +405,7 @@ export default function AuthCard() {
                 className="w-full mt-6"
                 disabled={isSubmitting}
               >
-                Iniciar sesión
-              </Button>
-              {/* Botón para iniciar sesión con Keycloak */}
-              <Button
-                type="button"
-                variant={"outline"}
-                className="w-full mt-2"
-                onClick={() => signIn("keycloak")}
-              >
-                Iniciar sesión con IAM Computación
+                Entrar
               </Button>
             </form>
           </Form>
@@ -424,20 +453,30 @@ export default function AuthCard() {
               <FormField
                 control={form.control}
                 name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Ingrese su correo"
-                        type="email"
-                        maxLength={50}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                    field.value || ""
+                  );
+                  return (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Ingrese su correo"
+                            type="email"
+                            maxLength={50}
+                            {...field}
+                          />
+                          {emailValid && (
+                            <Check className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500" />
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
               <FormField
                 control={form.control}
@@ -468,6 +507,7 @@ export default function AuthCard() {
                         </Button>
                       </div>
                     </FormControl>
+                    <PasswordStrengthMeter password={field.value} />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -659,71 +699,135 @@ export default function AuthCard() {
   const getFormTitle = () => {
     switch (formType) {
       case "login":
-        return "Iniciar sesión";
+        return "Bienvenido de vuelta";
       case "register":
-        return "Registrarse";
+        return "Crea tu cuenta";
       case "forgotPassword":
-        return "Recuperar Contraseña";
+        return "Recuperar contraseña";
       case "otpValidation":
-        return "Validar OTP";
+        return "Validar código OTP";
       case "changePassword":
-        return "Cambiar Contraseña";
+        return "Cambiar contraseña";
       default:
         return "";
     }
   };
 
+  const getFormSubtitle = () => {
+    switch (formType) {
+      case "login":
+        return "Entra para seguir con tus proyectos.";
+      case "register":
+        return "Empieza a generar casos de prueba con IA en menos de un minuto.";
+      case "forgotPassword":
+        return "Te enviaremos un código a tu correo para restablecerla.";
+      case "otpValidation":
+        return "Ingresa el código de 6 dígitos que enviamos a tu correo.";
+      case "changePassword":
+        return "Crea una nueva contraseña para tu cuenta.";
+      default:
+        return "";
+    }
+  };
+
+  const isAuthMain = formType === "login" || formType === "register";
+
+  const marketingBullets = [
+    "Cobertura funcional automática",
+    "Exporta e integra con tu equipo",
+    "Gratis para estudiantes UNL",
+  ];
+
   return (
-    <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-4 bg-[url('/bg.jpg')]">
-      <div className="absolute top-4 right-4">
+    <div className="relative min-h-screen bg-background">
+      <div className="absolute right-4 top-4 z-20">
         <ToggleTheme />
       </div>
-      <Card className="w-full max-w-lg  bg-opacity-70 p-8 rounded-lg shadow-lg">
-        <CardHeader className="space-y-1 items-center justify-center">
-          <Image
-            src={theme === "dark" ? "/carrera2.png" : "/carrera.png"}
-            alt="logo"
-            width={300}
-            height={300}
-            priority
-          />
-          <div className="flex justify-center mb-4">
-            <Logo />
-          </div>
-          <CardTitle className="text-2xl text-center font-bold">
-            {getFormTitle()}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">{renderForm()}</CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          {formType === "login" || formType === "register" ? (
-            <div className="text-center text-sm">
-              {formType === "login"
-                ? "¿No tienes una cuenta?"
-                : "¿Ya tienes una cuenta?"}{" "}
-              <button
-                onClick={() =>
-                  setFormType(formType === "login" ? "register" : "login")
-                }
-                className="text-blue-600 hover:underline"
-              >
-                {formType === "login" ? "Regístrate" : "Inicia sesión"}
-              </button>
+
+      <div className="flex min-h-screen">
+        {/* Panel de marketing (login/registro, desde lg) */}
+        {isAuthMain && (
+          <div className="relative hidden w-1/2 flex-col justify-between bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900 p-12 text-white lg:flex">
+            <Logo onDark />
+            <div>
+              <h2 className="text-4xl font-bold leading-tight">
+                Casos de prueba en minutos, no en días.
+              </h2>
+              <p className="mt-4 max-w-sm text-white/80">
+                Describe tus casos de uso y deja que la IA genere los casos de
+                prueba funcionales por ti.
+              </p>
+              <ul className="mt-8 space-y-3">
+                {marketingBullets.map((b) => (
+                  <li key={b} className="flex items-center gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
+                      <Check className="h-4 w-4" strokeWidth={3} />
+                    </span>
+                    <span className="text-white/90">{b}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          ) : (
-            <div className="space-y-2 w-full">
+            <p className="text-sm text-white/60">Universidad Nacional de Loja</p>
+          </div>
+        )}
+
+        {/* Panel del formulario */}
+        <div
+          className={cn(
+            "flex w-full items-center justify-center bg-card p-6",
+            isAuthMain ? "lg:w-1/2" : ""
+          )}
+        >
+          <div className="w-full max-w-md">
+            <div className="mb-6 flex justify-center lg:justify-start">
+              <Logo />
+            </div>
+
+            {formType === "register" && (
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <Sparkles className="h-3.5 w-3.5" />
+                Gratis para siempre
+              </div>
+            )}
+
+            <h1 className="text-2xl font-bold text-foreground">
+              {getFormTitle()}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {getFormSubtitle()}
+            </p>
+
+            <div className="mt-6">{renderForm()}</div>
+
+            {isAuthMain ? (
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                {formType === "login"
+                  ? "¿No tienes cuenta? "
+                  : "¿Ya tienes cuenta? "}
+                <button
+                  onClick={() =>
+                    setFormType(formType === "login" ? "register" : "login")
+                  }
+                  className="font-semibold text-primary hover:underline"
+                >
+                  {formType === "login"
+                    ? "Crear cuenta gratis"
+                    : "Inicia sesión"}
+                </button>
+              </p>
+            ) : (
               <Button
                 variant="outline"
-                className="w-full"
+                className="mt-6 w-full"
                 onClick={() => setFormType("login")}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Volver al inicio de
-                sesión
+                <ArrowLeft className="mr-2 h-4 w-4" /> Volver al inicio de sesión
               </Button>
-            </div>
-          )}
-        </CardFooter>
-      </Card>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

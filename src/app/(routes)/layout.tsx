@@ -14,7 +14,7 @@ export default function LayoutDashboard({
       </div>
       <div className="w-full xl:ml-80 h-full">
         <Navbar />
-        <div className="p-6 bg-[#fafbfc] dark:bg-secondary w-full h-auto">
+        <div className="p-6 bg-background w-full h-auto min-h-[calc(100vh-5rem)]">
           <SessionAuthProvider>{children}</SessionAuthProvider>
         </div>
       </div>

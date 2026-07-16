@@ -22,7 +22,7 @@ export const dataGeneralSidebar = [
 export const dataToolsSidebar = [
   {
     icon: Info,
-    label: "Información",
+    label: "Guía",
     href: "/information",
   },
 ];
@@ -30,7 +30,7 @@ export const dataToolsSidebar = [
 export const dataSuportSideBar = [
   {
     icon: Settings,
-    label: "Configuración de Perfil",
+    label: "Perfil",
     href: "/settings",
   },
 ];
