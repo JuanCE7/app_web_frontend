@@ -6,11 +6,16 @@ import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function Page() {
   return (
-    <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
+    <div className="mx-auto max-w-6xl">
       <SessionRoleProvider allowedRoles={["Administrator"]}>
         <UserProvider>
           <Suspense fallback={<LoadingSpinner />}>
-            <h2 className="text-2xl">Lista de Usuarios</h2>
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold sm:text-3xl">Usuarios</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Gestiona las cuentas y roles del sistema.
+              </p>
+            </div>
             <ListUsers />
           </Suspense>
         </UserProvider>

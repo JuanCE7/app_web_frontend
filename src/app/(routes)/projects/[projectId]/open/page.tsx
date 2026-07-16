@@ -11,15 +11,15 @@ export default function OpenProject({
   params: { projectId: string };
 }) {
   return (
-    <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
-        <SessionRoleProvider allowedRoles={["Tester"]}>
-          <UseCaseProvider projectId={params.projectId}>
-            <Suspense fallback={<LoadingSpinner />}>
-              <HeaderUseCases projectId={params.projectId} />
-              <ListUseCases />
-            </Suspense>
-          </UseCaseProvider>
-        </SessionRoleProvider>
+    <div className="mx-auto max-w-6xl">
+      <SessionRoleProvider allowedRoles={["Tester"]}>
+        <UseCaseProvider projectId={params.projectId}>
+          <Suspense fallback={<LoadingSpinner />}>
+            <HeaderUseCases projectId={params.projectId} />
+            <ListUseCases />
+          </Suspense>
+        </UseCaseProvider>
+      </SessionRoleProvider>
     </div>
   );
 }

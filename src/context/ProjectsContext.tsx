@@ -13,9 +13,10 @@ import { apiJson } from "@/lib/apiClient";
 
 interface Project {
   id: string;
+  code: string;
   name: string;
   description: string;
-  roleProject: string;
+  role: string;
 }
 
 interface ProjectContextType {

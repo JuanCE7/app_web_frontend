@@ -17,12 +17,15 @@ import { FormPassword } from "./components/FormUser/FormPassword";
 export default function Settings() {
   const [openModalChangePassword, setOpenModalChangePassword] = useState(false);
   return (
-    <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
+    <div className="mx-auto max-w-4xl">
       <SessionRoleProvider allowedRoles={["Administrator", "Tester"]}>
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-fadeInDown delay-[150ms]">
-          <h2 className="text-2xl animate-fadeInDown delay-[150ms]">
-            Configuración de Perfil
-          </h2>
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-fadeInDown delay-[150ms]">
+          <div>
+            <h1 className="text-2xl font-bold sm:text-3xl">Perfil</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Actualiza tu información y contraseña.
+            </p>
+          </div>
 
           <Dialog open={openModalChangePassword} onOpenChange={setOpenModalChangePassword}>
             <DialogTrigger asChild>

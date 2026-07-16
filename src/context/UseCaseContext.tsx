@@ -11,8 +11,10 @@ import { apiJson } from "@/lib/apiClient";
 
 interface UseCase {
   id: string;
+  code: string;
   name: string;
   description: string;
+  projectId: string;
 }
 
 interface UseCaseContextType {

@@ -32,7 +32,7 @@ export function HeaderProjects() {
   const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
-  const { joinProject } = useProjects();
+  const { joinProject, projects } = useProjects();
   const { getUserLogged } = useUsers();
 
   const getErrorMessage = (error: any): string => {
@@ -114,17 +114,24 @@ export function HeaderProjects() {
     }
   };
 
-  return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-fadeInDown delay-[150ms]">
-      <h2 className="text-2xl">Lista de Proyectos</h2>
+  const count = projects.length;
 
-      <div className="flex flex-wrap gap-4">
-        {/* Botón para Ingresar a Proyecto */}
+  return (
+    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between animate-fadeInDown delay-[150ms]">
+      <div>
+        <h1 className="text-2xl font-bold sm:text-3xl">Proyectos</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {count} {count === 1 ? "proyecto" : "proyectos"}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        {/* Unirme con código */}
         <Dialog open={openModalShare} onOpenChange={setOpenModalShare}>
           <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto">
               <FolderInput className="mr-2 h-4 w-4" />
-              Ingresar a Proyecto
+              Unirme con código
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[625px]">
@@ -168,12 +175,12 @@ export function HeaderProjects() {
           </DialogContent>
         </Dialog>
 
-        {/* Botón para Crear Proyecto */}
+        {/* Nuevo proyecto */}
         <Dialog open={openModalCreate} onOpenChange={setOpenModalCreate}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
-              Crear Proyecto
+              Nuevo proyecto
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[625px]">

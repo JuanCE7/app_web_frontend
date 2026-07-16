@@ -7,13 +7,12 @@ import { LoadingSpinner } from "@/components/LoadingSpinner/LoadingSpinner";
 
 export default function Page() {
   return (
-    <div className="p-4 mt-4 rounded-lg shadow-md bg-background">
+    <div className="mx-auto max-w-6xl">
       <SessionRoleProvider allowedRoles={["Tester"]}>
         <ProjectProvider>
           <Suspense fallback={<LoadingSpinner />}>
             <HeaderProjects />
             <ListProjects />
-            <div className="space-y-4"></div>
           </Suspense>
         </ProjectProvider>
       </SessionRoleProvider>
